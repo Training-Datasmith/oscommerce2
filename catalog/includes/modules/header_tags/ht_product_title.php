@@ -10,12 +10,15 @@
   use OSC\OM\Registry;
 
   class ht_product_title {
-    var $code = 'ht_product_title';
-    var $group = 'header_tags';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    public $code = 'ht_product_title';
+    public $group = 'header_tags';
+    public $title;
+    public $description;
+    public $sort_order;
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
     function __construct() {
       $this->title = OSCOM::getDef('module_header_tags_product_title_title');
@@ -27,13 +30,13 @@
       }
     }
 
-    function execute() {
+    function execute(): void {
       global $PHP_SELF, $oscTemplate;
 
       $OSCOM_Db = Registry::get('Db');
       $OSCOM_Language = Registry::get('Language');
 
-      if ( (basename($PHP_SELF) == 'product_info.php') || (basename($PHP_SELF) == 'product_reviews.php') ) {
+      if ( (basename((string) $PHP_SELF) == 'product_info.php') || (basename((string) $PHP_SELF) == 'product_reviews.php') ) {
         if (isset($_GET['products_id'])) {
           $Qproduct = $OSCOM_Db->prepare('select pd.products_name, pd.products_seo_title from :table_products p, :table_products_description pd where p.products_id = :products_id and p.products_status = 1 and p.products_id = pd.products_id and pd.language_id = :language_id');
           $Qproduct->bindInt(':products_id', $_GET['products_id']);
@@ -56,11 +59,11 @@
       return $this->enabled;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_HEADER_TAGS_PRODUCT_TITLE_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -111,8 +114,8 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_HEADER_TAGS_PRODUCT_TITLE_STATUS', 'MODULE_HEADER_TAGS_PRODUCT_TITLE_SEO_TITLE_OVERRIDE', 'MODULE_HEADER_TAGS_PRODUCT_TITLE_SEO_BREADCRUMB_OVERRIDE', 'MODULE_HEADER_TAGS_PRODUCT_TITLE_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_HEADER_TAGS_PRODUCT_TITLE_STATUS', 'MODULE_HEADER_TAGS_PRODUCT_TITLE_SEO_TITLE_OVERRIDE', 'MODULE_HEADER_TAGS_PRODUCT_TITLE_SEO_BREADCRUMB_OVERRIDE', 'MODULE_HEADER_TAGS_PRODUCT_TITLE_SORT_ORDER'];
     }
   }
 ?>

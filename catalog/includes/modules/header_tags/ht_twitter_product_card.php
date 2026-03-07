@@ -11,12 +11,15 @@
   use OSC\OM\Registry;
 
   class ht_twitter_product_card {
-    var $code = 'ht_twitter_product_card';
-    var $group = 'header_tags';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    public $code = 'ht_twitter_product_card';
+    public $group = 'header_tags';
+    public $title;
+    public $description;
+    public $sort_order;
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
     function __construct() {
       $this->title = OSCOM::getDef('module_header_tags_twitter_product_card_title');
@@ -28,7 +31,7 @@
       }
     }
 
-    function execute() {
+    function execute(): void {
       global $PHP_SELF, $oscTemplate;
 
       $OSCOM_Db = Registry::get('Db');
@@ -41,8 +44,8 @@
         $Qproduct->execute();
 
         if ($Qproduct->fetch() !== false) {
-          $data = array('card' => MODULE_HEADER_TAGS_TWITTER_PRODUCT_CARD_TYPE,
-                        'title' => $Qproduct->value('products_name'));
+          $data = ['card' => MODULE_HEADER_TAGS_TWITTER_PRODUCT_CARD_TYPE,
+                        'title' => $Qproduct->value('products_name')];
 
           if ( tep_not_null(MODULE_HEADER_TAGS_TWITTER_PRODUCT_CARD_SITE_ID) ) {
             $data['site'] = MODULE_HEADER_TAGS_TWITTER_PRODUCT_CARD_SITE_ID;
@@ -52,7 +55,7 @@
             $data['creator'] = MODULE_HEADER_TAGS_TWITTER_PRODUCT_CARD_USER_ID;
           }
 
-          $product_description = substr(trim(preg_replace('/\s\s+/', ' ', strip_tags($Qproduct->value('products_description')))), 0, 197);
+          $product_description = substr(trim((string) preg_replace('/\s\s+/', ' ', strip_tags((string) $Qproduct->value('products_description')))), 0, 197);
 
           if ( strlen($product_description) == 197 ) {
             $product_description .= ' ..';
@@ -85,11 +88,11 @@
       return $this->enabled;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_HEADER_TAGS_TWITTER_PRODUCT_CARD_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -149,8 +152,8 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_HEADER_TAGS_TWITTER_PRODUCT_CARD_STATUS', 'MODULE_HEADER_TAGS_TWITTER_PRODUCT_CARD_TYPE', 'MODULE_HEADER_TAGS_TWITTER_PRODUCT_CARD_USER_ID', 'MODULE_HEADER_TAGS_TWITTER_PRODUCT_CARD_SITE_ID', 'MODULE_HEADER_TAGS_TWITTER_PRODUCT_CARD_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_HEADER_TAGS_TWITTER_PRODUCT_CARD_STATUS', 'MODULE_HEADER_TAGS_TWITTER_PRODUCT_CARD_TYPE', 'MODULE_HEADER_TAGS_TWITTER_PRODUCT_CARD_USER_ID', 'MODULE_HEADER_TAGS_TWITTER_PRODUCT_CARD_SITE_ID', 'MODULE_HEADER_TAGS_TWITTER_PRODUCT_CARD_SORT_ORDER'];
     }
   }
 ?>

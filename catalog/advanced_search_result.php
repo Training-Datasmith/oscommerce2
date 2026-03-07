@@ -144,18 +144,18 @@
 
 <?php
 // create column list
-  $define_list = array('PRODUCT_LIST_MODEL' => PRODUCT_LIST_MODEL,
+  $define_list = ['PRODUCT_LIST_MODEL' => PRODUCT_LIST_MODEL,
                        'PRODUCT_LIST_NAME' => PRODUCT_LIST_NAME,
                        'PRODUCT_LIST_MANUFACTURER' => PRODUCT_LIST_MANUFACTURER,
                        'PRODUCT_LIST_PRICE' => PRODUCT_LIST_PRICE,
                        'PRODUCT_LIST_QUANTITY' => PRODUCT_LIST_QUANTITY,
                        'PRODUCT_LIST_WEIGHT' => PRODUCT_LIST_WEIGHT,
                        'PRODUCT_LIST_IMAGE' => PRODUCT_LIST_IMAGE,
-                       'PRODUCT_LIST_BUY_NOW' => PRODUCT_LIST_BUY_NOW);
+                       'PRODUCT_LIST_BUY_NOW' => PRODUCT_LIST_BUY_NOW];
 
   asort($define_list);
 
-  $column_list = array();
+  $column_list = [];
 
   foreach($define_list as $key => $value) {
     if ($value > 0) $column_list[] = $key;
@@ -203,7 +203,7 @@
 
   if (isset($_GET['categories_id']) && tep_not_null($_GET['categories_id'])) {
     if (isset($_GET['inc_subcat']) && ($_GET['inc_subcat'] == '1')) {
-      $subcategories_array = array();
+      $subcategories_array = [];
       tep_get_subcategories($subcategories_array, $_GET['categories_id']);
 
       $search_query .= ' and (p2c.categories_id = :categories_id';
@@ -280,7 +280,7 @@
     $search_query .= ' group by p.products_id, tr.tax_priority';
   }
 
-  if ( (!isset($_GET['sort'])) || (!preg_match('/^[1-8][ad]$/', $_GET['sort'])) || (substr($_GET['sort'], 0, 1) > sizeof($column_list)) ) {
+  if ( (!isset($_GET['sort'])) || (!preg_match('/^[1-8][ad]$/', (string) $_GET['sort'])) || (substr((string) $_GET['sort'], 0, 1) > sizeof($column_list)) ) {
     for ($i=0, $n=sizeof($column_list); $i<$n; $i++) {
       if ($column_list[$i] == 'PRODUCT_LIST_NAME') {
         $_GET['sort'] = $i+1 . 'a';
@@ -289,8 +289,8 @@
       }
     }
   } else {
-    $sort_col = substr($_GET['sort'], 0 , 1);
-    $sort_order = substr($_GET['sort'], 1);
+    $sort_col = substr((string) $_GET['sort'], 0 , 1);
+    $sort_order = substr((string) $_GET['sort'], 1);
 
     switch ($column_list[$sort_col-1]) {
       case 'PRODUCT_LIST_MODEL':
@@ -361,23 +361,11 @@
   if (isset($dtoDateTime) && $dtoDateTime->isValid()) {
     $Qlisting->bindValue(':products_date_added_to', $dtoDateTime->getRaw(false));
   }
-
-  if (DISPLAY_PRICE_WITH_TAX == 'true') {
-    if ($pfrom > 0) {
-      $Qlisting->bindDecimal(':price_from', $pfrom);
-    }
-
-    if ($pto > 0) {
-      $Qlisting->bindDecimal(':price_to', $pto);
-    }
-  } else {
-    if ($pfrom > 0) {
-      $Qlisting->bindDecimal(':price_from', $pfrom);
-    }
-
-    if ($pto > 0) {
-      $Qlisting->bindDecimal(':price_to', $pto);
-    }
+  if ($pfrom > 0) {
+    $Qlisting->bindDecimal(':price_from', $pfrom);
+  }
+  if ($pto > 0) {
+    $Qlisting->bindDecimal(':price_to', $pto);
   }
 
   $Qlisting->setPageSet(isset($_GET['view']) && ($_GET['view'] == 'all') ? 999999 : MAX_DISPLAY_SEARCH_RESULTS);
@@ -389,7 +377,7 @@
   <br />
 
   <div class="buttonSet">
-    <?php echo HTML::button(OSCOM::getDef('image_button_back'), 'fa fa-angle-left', OSCOM::link('advanced_search.php', tep_get_all_get_params(array('sort', 'page')), true, false)); ?>
+    <?php echo HTML::button(OSCOM::getDef('image_button_back'), 'fa fa-angle-left', OSCOM::link('advanced_search.php', tep_get_all_get_params(['sort', 'page']), true, false)); ?>
   </div>
 </div>
 

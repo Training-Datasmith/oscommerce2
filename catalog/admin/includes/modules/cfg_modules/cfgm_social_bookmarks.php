@@ -9,13 +9,19 @@
   use OSC\OM\OSCOM;
 
   class cfgm_social_bookmarks {
-    var $code = 'social_bookmarks';
-    var $directory;
-    var $language_directory;
-    var $site = 'Shop';
-    var $key = 'MODULE_SOCIAL_BOOKMARKS_INSTALLED';
-    var $title;
-    var $template_integration = false;
+    public $code = 'social_bookmarks';
+    /**
+     * @var string
+     */
+    public $directory;
+    /**
+     * @var string
+     */
+    public $language_directory;
+    public $site = 'Shop';
+    public $key = 'MODULE_SOCIAL_BOOKMARKS_INSTALLED';
+    public $title;
+    public $template_integration = false;
 
     function __construct() {
       $this->directory = OSCOM::getConfig('dir_root', $this->site) . 'includes/modules/social_bookmarks/';

@@ -10,20 +10,29 @@
   use OSC\OM\Registry;
 
   class cm_navbar {
-    var $code;
-    var $group;
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    /**
+     * @var class-string<\cm_navbar>
+     */
+    public $code;
+    /**
+     * @var string
+     */
+    public $group;
+    public $title;
+    public $description;
+    public $sort_order;
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
     protected $lang;
 
     function __construct() {
       $this->lang = Registry::get('Language');
 
-      $this->code = get_class($this);
-      $this->group = basename(dirname(__FILE__));
+      $this->code = static::class;
+      $this->group = basename(__DIR__);
 
       $this->title = OSCOM::getDef('module_content_navbar_title');
       $this->description = OSCOM::getDef('module_content_navbar_description');
@@ -34,7 +43,7 @@
       }
     }
 
-    function execute() {
+    function execute(): void {
       global $oscTemplate;
 
       $navbar_style   = (MODULE_CONTENT_NAVBAR_STYLE == 'Inverse') ? ' navbar-inverse' : ' navbar-default';
@@ -56,9 +65,9 @@
 
 
       if ( defined('MODULE_CONTENT_NAVBAR_INSTALLED') && tep_not_null(MODULE_CONTENT_NAVBAR_INSTALLED) ) {
-        $nav_array = explode(';', MODULE_CONTENT_NAVBAR_INSTALLED);
+        $nav_array = explode(';', (string) MODULE_CONTENT_NAVBAR_INSTALLED);
 
-        $navbar_modules = array();
+        $navbar_modules = [];
 
         foreach ( $nav_array as $nbm ) {
           $class = substr($nbm, 0, strrpos($nbm, '.'));
@@ -89,11 +98,11 @@
       return $this->enabled;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_CONTENT_NAVBAR_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -166,8 +175,8 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_CONTENT_NAVBAR_STATUS', 'MODULE_CONTENT_NAVBAR_STYLE', 'MODULE_CONTENT_NAVBAR_CORNERS', 'MODULE_CONTENT_NAVBAR_MARGIN', 'MODULE_CONTENT_NAVBAR_FIXED', 'MODULE_CONTENT_NAVBAR_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_CONTENT_NAVBAR_STATUS', 'MODULE_CONTENT_NAVBAR_STYLE', 'MODULE_CONTENT_NAVBAR_CORNERS', 'MODULE_CONTENT_NAVBAR_MARGIN', 'MODULE_CONTENT_NAVBAR_FIXED', 'MODULE_CONTENT_NAVBAR_SORT_ORDER'];
     }
   }
 

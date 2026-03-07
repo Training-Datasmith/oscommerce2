@@ -28,7 +28,7 @@
       $messageStack->add('contact', OSCOM::getDef('entry_email_address_check_error'));
     }
 
-    $actionRecorder = new actionRecorder('ar_contact_us', (isset($_SESSION['customer_id']) ? $_SESSION['customer_id'] : null), $name);
+    $actionRecorder = new actionRecorder('ar_contact_us', ($_SESSION['customer_id'] ?? null), $name);
     if (!$actionRecorder->canPerform()) {
       $error = true;
 

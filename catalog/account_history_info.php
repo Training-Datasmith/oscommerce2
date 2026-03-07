@@ -186,7 +186,7 @@
         echo '      <p class="pull-right"><small class="text-muted"><i class="fa fa-clock-o"></i> ' . DateTime::toShort($Qstatuses->value('date_added')) . '</small></p><h2 class="timeline-title">' . $Qstatuses->value('orders_status_name') . '</h2>';
         echo '    </div>';
         echo '    <div class="timeline-body">';
-        echo '      <p>' . (tep_not_null($Qstatuses->value('comments')) ? '<blockquote>' . nl2br($Qstatuses->valueProtected('comments')) . '</blockquote>' : '&nbsp;') . '</p>';
+        echo '      <p>' . (tep_not_null($Qstatuses->value('comments')) ? '<blockquote>' . nl2br((string) $Qstatuses->valueProtected('comments')) . '</blockquote>' : '&nbsp;') . '</p>';
         echo '    </div>';
         echo '  </div>';
         echo '</li>';
@@ -201,7 +201,7 @@
 
   <div class="clearfix"></div>
   <div class="buttonSet">
-    <?php echo HTML::button(OSCOM::getDef('image_button_back'), 'fa fa-angle-left', OSCOM::link('account_history.php', tep_get_all_get_params(array('order_id')))); ?>
+    <?php echo HTML::button(OSCOM::getDef('image_button_back'), 'fa fa-angle-left', OSCOM::link('account_history.php', tep_get_all_get_params(['order_id']))); ?>
   </div>
 </div>
 

@@ -12,22 +12,24 @@ use OSC\OM\OSCOM;
 
 class StartBefore
 {
-    public function execute($parameters) {
+    public function execute(array $parameters): void {
         if (SESSION_BLOCK_SPIDERS == 'True') {
             $user_agent = '';
 
             if (isset($_SERVER['HTTP_USER_AGENT'])) {
-                $user_agent = strtolower($_SERVER['HTTP_USER_AGENT']);
+                $user_agent = strtolower((string) $_SERVER['HTTP_USER_AGENT']);
             }
 
             if (!empty($user_agent)) {
                 foreach (file(OSCOM::getConfig('dir_root') . 'includes/spiders.txt') as $spider) {
-                    if (!empty($spider)) {
-                        if (strpos($user_agent, $spider) !== false) {
-                            $parameters['can_start'] = false;
-                            break;
-                        }
+                    if (empty($spider)) {
+                        continue;
                     }
+                    if (!str_contains($user_agent, $spider)) {
+                        continue;
+                    }
+                    $parameters['can_start'] = false;
+                    break;
                 }
             }
         }

@@ -27,10 +27,10 @@
     define('MODULE_CONTENT_INSTALLED', '');
   }
 
-  $modules_installed = (tep_not_null(MODULE_CONTENT_INSTALLED) ? explode(';', MODULE_CONTENT_INSTALLED) : array());
-  $modules = array('installed' => array(), 'new' => array());
+  $modules_installed = (tep_not_null(MODULE_CONTENT_INSTALLED) ? explode(';', MODULE_CONTENT_INSTALLED) : []);
+  $modules = ['installed' => [], 'new' => []];
 
-  $file_extension = substr($PHP_SELF, strrpos($PHP_SELF, '.'));
+  $file_extension = substr((string) $PHP_SELF, strrpos((string) $PHP_SELF, '.'));
 
   if ($maindir = @dir(OSCOM::getConfig('dir_root', 'Shop') . 'includes/modules/content/')) {
     while ($group = $maindir->read()) {
@@ -53,14 +53,14 @@
                   $module = new $class();
 
                   if (in_array($group . '/' . $class, $modules_installed)) {
-                    $modules['installed'][] = array('code' => $class,
+                    $modules['installed'][] = ['code' => $class,
                                                     'title' => $module->title,
                                                     'group' => $group,
-                                                    'sort_order' => (int)$module->sort_order);
+                                                    'sort_order' => (int)$module->sort_order];
                   } else {
-                    $modules['new'][] = array('code' => $class,
+                    $modules['new'][] = ['code' => $class,
                                               'title' => $module->title,
-                                              'group' => $group);
+                                              'group' => $group];
                   }
                 }
               }
@@ -78,34 +78,34 @@
       $module = new $class();
 
       if (in_array($k, $modules_installed)) {
-        $modules['installed'][] = array('code' => $k,
+        $modules['installed'][] = ['code' => $k,
                                         'title' => $module->title,
                                         'group' => $module->group,
-                                        'sort_order' => (int)$module->sort_order);
+                                        'sort_order' => (int)$module->sort_order];
       } else {
-        $modules['new'][] = array('code' => $k,
+        $modules['new'][] = ['code' => $k,
                                   'title' => $module->title,
-                                  'group' => $module->group);
+                                  'group' => $module->group];
       }
     }
 
-    function _sortContentModulesInstalled($a, $b) {
+    function _sortContentModulesInstalled(array $a, array $b): int {
       return strnatcmp($a['group'] . '-' . (int)$a['sort_order'] . '-' . $a['title'], $b['group'] . '-' . (int)$b['sort_order'] . '-' . $b['title']);
     }
 
-    function _sortContentModuleFiles($a, $b) {
+    function _sortContentModuleFiles(array $a, array $b): int {
       return strnatcmp($a['group'] . '-' . $a['title'], $b['group'] . '-' . $b['title']);
     }
 
-    usort($modules['installed'], '_sortContentModulesInstalled');
-    usort($modules['new'], '_sortContentModuleFiles');
+    usort($modules['installed'], _sortContentModulesInstalled(...));
+    usort($modules['new'], _sortContentModuleFiles(...));
   }
 
 // Update sort order in MODULE_CONTENT_INSTALLED
-  $_installed = array();
+  $_installed = [];
 
   foreach ( $modules['installed'] as $m ) {
-    if (strpos($m['code'], '\\') !== false) {
+    if (str_contains((string) $m['code'], '\\')) {
       $_installed[] = $m['code'];
     } else {
       $_installed[] = $m['group'] . '/' . $m['code'];
@@ -116,7 +116,7 @@
     Registry::get('Db')->save('configuration', ['configuration_value' => implode(';', $_installed), 'last_modified' => 'now()'], ['configuration_key' => 'MODULE_CONTENT_INSTALLED']);
   }
 
-  $action = (isset($_GET['action']) ? $_GET['action'] : '');
+  $action = ($_GET['action'] ?? '');
 
   if (tep_not_null($action)) {
     switch ($action) {
@@ -147,7 +147,7 @@
 
         foreach ( $modules['new'] as $m ) {
           if ( $m['code'] == $code ) {
-            if (strpos($code, '\\') !== false) {
+            if (str_contains((string) $code, '\\')) {
               $class = Apps::getModuleClass($code, 'Content');
             }
 
@@ -172,7 +172,7 @@
 
         foreach ( $modules['installed'] as $m ) {
           if ( $m['code'] == $code ) {
-            if (strpos($code, '\\') !== false) {
+            if (str_contains((string) $code, '\\')) {
               $class = Apps::getModuleClass($code, 'Content');
 
               $installed_code = $m['code'];
@@ -235,7 +235,7 @@
               </tr>
 <?php
     foreach ( $modules['new'] as $m ) {
-      if (strpos($m['code'], '\\') !== false) {
+      if (str_contains((string) $m['code'], '\\')) {
         $class = Apps::getModuleClass($m['code'], 'Content');
 
         $module = new $class();
@@ -245,11 +245,11 @@
       }
 
       if ((!isset($_GET['module']) || (isset($_GET['module']) && ($_GET['module'] == $module->code))) && !isset($mInfo)) {
-        $module_info = array('code' => $module->code,
+        $module_info = ['code' => $module->code,
                              'title' => $module->title,
                              'description' => $module->description,
-                             'signature' => (isset($module->signature) ? $module->signature : null),
-                             'api_version' => (isset($module->api_version) ? $module->api_version : null));
+                             'signature' => ($module->signature ?? null),
+                             'api_version' => ($module->api_version ?? null)];
 
         $mInfo = new \ArrayObject($module_info, \ArrayObject::ARRAY_AS_PROPS);
       }
@@ -280,7 +280,7 @@
               </tr>
 <?php
     foreach ( $modules['installed'] as $m ) {
-      if (strpos($m['code'], '\\') !== false) {
+      if (str_contains((string) $m['code'], '\\')) {
         $class = Apps::getModuleClass($m['code'], 'Content');
 
         $module = new $class();
@@ -290,13 +290,13 @@
       }
 
       if ((!isset($_GET['module']) || (isset($_GET['module']) && ($_GET['module'] == $module->code))) && !isset($mInfo)) {
-        $module_info = array('code' => $module->code,
+        $module_info = ['code' => $module->code,
                              'title' => $module->title,
                              'description' => $module->description,
-                             'signature' => (isset($module->signature) ? $module->signature : null),
-                             'api_version' => (isset($module->api_version) ? $module->api_version : null),
+                             'signature' => ($module->signature ?? null),
+                             'api_version' => ($module->api_version ?? null),
                              'sort_order' => (int)$module->sort_order,
-                             'keys' => array());
+                             'keys' => []];
 
         foreach ($module->keys() as $key) {
           $key = HTML::sanitize($key);
@@ -344,8 +344,8 @@
             <p class="smallText"><?php echo OSCOM::getDef('text_module_directory') . ' ' . OSCOM::getConfig('dir_root', 'Shop') . 'includes/modules/content/'; ?></p>
             </td>
 <?php
-  $heading = array();
-  $contents = array();
+  $heading = [];
+  $contents = [];
 
   switch ($action) {
     case 'edit':
@@ -365,30 +365,30 @@
 
       $keys = substr($keys, 0, strrpos($keys, '<br /><br />'));
 
-      $heading[] = array('text' => '<strong>' . $mInfo->title . '</strong>');
+      $heading[] = ['text' => '<strong>' . $mInfo->title . '</strong>'];
 
-      $contents = array('form' => HTML::form('modules', OSCOM::link('modules_content.php', 'module=' . $mInfo->code . '&action=save')));
-      $contents[] = array('text' => $keys);
-      $contents[] = array('align' => 'center', 'text' => '<br />' . HTML::button(OSCOM::getDef('image_save'), 'fa fa-save') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link('modules_content.php', 'module=' . $mInfo->code)));
+      $contents = ['form' => HTML::form('modules', OSCOM::link('modules_content.php', 'module=' . $mInfo->code . '&action=save'))];
+      $contents[] = ['text' => $keys];
+      $contents[] = ['align' => 'center', 'text' => '<br />' . HTML::button(OSCOM::getDef('image_save'), 'fa fa-save') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link('modules_content.php', 'module=' . $mInfo->code))];
 
       break;
 
     default:
       if ( isset($mInfo) ) {
-        $heading[] = array('text' => '<strong>' . $mInfo->title . '</strong>');
+        $heading[] = ['text' => '<strong>' . $mInfo->title . '</strong>'];
 
         if ($action == 'list_new') {
-          $contents[] = array('align' => 'center', 'text' => HTML::button(OSCOM::getDef('image_module_install'), 'fa fa-plus', OSCOM::link('modules_content.php', 'module=' . $mInfo->code . '&action=install')));
+          $contents[] = ['align' => 'center', 'text' => HTML::button(OSCOM::getDef('image_module_install'), 'fa fa-plus', OSCOM::link('modules_content.php', 'module=' . $mInfo->code . '&action=install'))];
 
-          if (isset($mInfo->signature) && (list($scode, $smodule, $sversion, $soscversion) = explode('|', $mInfo->signature))) {
-            $contents[] = array('text' => '<br />' . HTML::image(OSCOM::linkImage('icon_info.gif'), OSCOM::getDef('image_icon_info')) . '&nbsp;<strong>' . OSCOM::getDef('text_info_version') . '</strong> ' . $sversion . ' (<a href="http://sig.oscommerce.com/' . $mInfo->signature . '" target="_blank">' . OSCOM::getDef('text_info_online_status') . '</a>)');
+          if (isset($mInfo->signature) && ([$scode, $smodule, $sversion, $soscversion] = explode('|', $mInfo->signature))) {
+            $contents[] = ['text' => '<br />' . HTML::image(OSCOM::linkImage('icon_info.gif'), OSCOM::getDef('image_icon_info')) . '&nbsp;<strong>' . OSCOM::getDef('text_info_version') . '</strong> ' . $sversion . ' (<a href="http://sig.oscommerce.com/' . $mInfo->signature . '" target="_blank">' . OSCOM::getDef('text_info_online_status') . '</a>)'];
           }
 
           if (isset($mInfo->api_version)) {
-            $contents[] = array('text' => HTML::image(OSCOM::linkImage('icon_info.gif'), OSCOM::getDef('image_icon_info')) . '&nbsp;<strong>' . OSCOM::getDef('text_info_api_version') . '</strong> ' . $mInfo->api_version);
+            $contents[] = ['text' => HTML::image(OSCOM::linkImage('icon_info.gif'), OSCOM::getDef('image_icon_info')) . '&nbsp;<strong>' . OSCOM::getDef('text_info_api_version') . '</strong> ' . $mInfo->api_version];
           }
 
-          $contents[] = array('text' => '<br />' . $mInfo->description);
+          $contents[] = ['text' => '<br />' . $mInfo->description];
         } else {
           $keys = '';
 
@@ -398,8 +398,8 @@
             if ($value['use_function']) {
               $use_function = $value['use_function'];
 
-              if (preg_match('/->/', $use_function)) {
-                $class_method = explode('->', $use_function);
+              if (preg_match('/->/', (string) $use_function)) {
+                $class_method = explode('->', (string) $use_function);
 
                 if (!isset(${$class_method[0]}) || !is_object(${$class_method[0]})) {
                   include('includes/classes/' . $class_method[0] . '.php');
@@ -419,18 +419,18 @@
 
           $keys = substr($keys, 0, strrpos($keys, '<br /><br />'));
 
-          $contents[] = array('align' => 'center', 'text' => HTML::button(OSCOM::getDef('image_edit'), 'fa fa-edit', OSCOM::link('modules_content.php', 'module=' . $mInfo->code . '&action=edit')) . HTML::button(OSCOM::getDef('image_module_remove'), 'fa fa-minus', OSCOM::link('modules_content.php', 'module=' . $mInfo->code . '&action=remove')));
+          $contents[] = ['align' => 'center', 'text' => HTML::button(OSCOM::getDef('image_edit'), 'fa fa-edit', OSCOM::link('modules_content.php', 'module=' . $mInfo->code . '&action=edit')) . HTML::button(OSCOM::getDef('image_module_remove'), 'fa fa-minus', OSCOM::link('modules_content.php', 'module=' . $mInfo->code . '&action=remove'))];
 
-          if (isset($mInfo->signature) && (list($scode, $smodule, $sversion, $soscversion) = explode('|', $mInfo->signature))) {
-            $contents[] = array('text' => '<br />' . HTML::image(OSCOM::linkImage('icon_info.gif'), OSCOM::getDef('image_icon_info')) . '&nbsp;<strong>' . OSCOM::getDef('text_info_version') . '</strong> ' . $sversion . ' (<a href="http://sig.oscommerce.com/' . $mInfo->signature . '" target="_blank">' . OSCOM::getDef('text_info_online_status') . '</a>)');
+          if (isset($mInfo->signature) && ([$scode, $smodule, $sversion, $soscversion] = explode('|', $mInfo->signature))) {
+            $contents[] = ['text' => '<br />' . HTML::image(OSCOM::linkImage('icon_info.gif'), OSCOM::getDef('image_icon_info')) . '&nbsp;<strong>' . OSCOM::getDef('text_info_version') . '</strong> ' . $sversion . ' (<a href="http://sig.oscommerce.com/' . $mInfo->signature . '" target="_blank">' . OSCOM::getDef('text_info_online_status') . '</a>)'];
           }
 
           if (isset($mInfo->api_version)) {
-            $contents[] = array('text' => HTML::image(OSCOM::linkImage('icon_info.gif'), OSCOM::getDef('image_icon_info')) . '&nbsp;<strong>' . OSCOM::getDef('text_info_api_version') . '</strong> ' . $mInfo->api_version);
+            $contents[] = ['text' => HTML::image(OSCOM::linkImage('icon_info.gif'), OSCOM::getDef('image_icon_info')) . '&nbsp;<strong>' . OSCOM::getDef('text_info_api_version') . '</strong> ' . $mInfo->api_version];
           }
 
-          $contents[] = array('text' => '<br />' . $mInfo->description);
-          $contents[] = array('text' => '<br />' . $keys);
+          $contents[] = ['text' => '<br />' . $mInfo->description];
+          $contents[] = ['text' => '<br />' . $keys];
         }
       }
 

@@ -153,7 +153,7 @@ function check_form() {
       <label for="entryCategories" class="control-label col-sm-3"><?php echo OSCOM::getDef('entry_categories'); ?></label>
       <div class="col-sm-9">
         <?php
-        echo HTML::selectField('categories_id', tep_get_categories(array(array('id' => '', 'text' => OSCOM::getDef('text_all_categories')))), null, 'id="entryCategories"');
+        echo HTML::selectField('categories_id', tep_get_categories([['id' => '', 'text' => OSCOM::getDef('text_all_categories')]]), null, 'id="entryCategories"');
         ?>
       </div>
     </div>
@@ -171,7 +171,7 @@ function check_form() {
       <label for="entryManufacturers" class="control-label col-sm-3"><?php echo OSCOM::getDef('entry_manufacturers'); ?></label>
       <div class="col-sm-9">
         <?php
-        echo HTML::selectField('manufacturers_id', tep_get_manufacturers(array(array('id' => '', 'text' => OSCOM::getDef('text_all_manufacturers')))), null, 'id="entryManufacturers"');
+        echo HTML::selectField('manufacturers_id', tep_get_manufacturers([['id' => '', 'text' => OSCOM::getDef('text_all_manufacturers')]]), null, 'id="entryManufacturers"');
         ?>
       </div>
     </div>

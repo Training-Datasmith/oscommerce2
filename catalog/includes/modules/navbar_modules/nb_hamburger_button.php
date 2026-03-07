@@ -10,12 +10,18 @@
   use OSC\OM\Registry;
 
   class nb_hamburger_button {
-    var $code = 'nb_hamburger_button';
-    var $group = 'navbar_modules_home';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    public $code = 'nb_hamburger_button';
+    /**
+     * @var 'navbar_modules_home'|'navbar_modules_left'|'navbar_modules_right'
+     */
+    public $group = 'navbar_modules_home';
+    public $title;
+    public $description;
+    public $sort_order;
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
     function __construct() {
       $this->title = OSCOM::getDef('module_navbar_hamburger_button_title');
@@ -39,7 +45,7 @@
       }
     }
 
-    function getOutput() {
+    function getOutput(): void {
       global $oscTemplate;
 
       ob_start();
@@ -53,11 +59,11 @@
       return $this->enabled;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_NAVBAR_HAMBURGER_BUTTON_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -97,7 +103,7 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_NAVBAR_HAMBURGER_BUTTON_STATUS', 'MODULE_NAVBAR_HAMBURGER_BUTTON_CONTENT_PLACEMENT', 'MODULE_NAVBAR_HAMBURGER_BUTTON_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_NAVBAR_HAMBURGER_BUTTON_STATUS', 'MODULE_NAVBAR_HAMBURGER_BUTTON_CONTENT_PLACEMENT', 'MODULE_NAVBAR_HAMBURGER_BUTTON_SORT_ORDER'];
     }
   }

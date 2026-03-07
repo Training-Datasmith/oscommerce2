@@ -12,7 +12,10 @@ use OSC\OM\Apps;
 
 class Content extends \OSC\OM\ModulesAbstract
 {
-    public function getInfo($app, $key, $data)
+    /**
+     * @return class-string[]
+     */
+    public function getInfo($app, $key, $data): array
     {
         $result = [];
 
@@ -29,8 +32,8 @@ class Content extends \OSC\OM\ModulesAbstract
 
     public function getClass($module)
     {
-        list($group, $code) = explode('/', $module, 2);
-        list($vendor, $app, $code) = explode('\\', $code, 3);
+        [$group, $code] = explode('/', (string) $module, 2);
+        [$vendor, $app, $code] = explode('\\', $code, 3);
 
         $info = Apps::getInfo($vendor . '\\' . $app);
 

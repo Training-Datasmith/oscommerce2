@@ -10,9 +10,9 @@ namespace OSC\OM\Is;
 
 class email
 {
-    public static function execute($email, $disable_dns_check = false)
+    public static function execute($email, $disable_dns_check = false): bool
     {
-        $email = trim($email);
+        $email = trim((string) $email);
 
         if (!empty($email) && (strlen($email) <= 255) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
             if (($disable_dns_check === false) && (ENTRY_EMAIL_ADDRESS_CHECK == 'true')) {

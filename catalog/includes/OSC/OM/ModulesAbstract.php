@@ -10,6 +10,9 @@ namespace OSC\OM;
 
 abstract class ModulesAbstract
 {
+    /**
+     * @var string
+     */
     public $code;
     protected $interface;
     protected $ns = 'OSC\Apps\\';

@@ -11,7 +11,7 @@
   use OSC\OM\Registry;
 
   class table {
-    var $code, $title, $description, $icon, $enabled;
+    public $code, $title, $description, $icon, $enabled;
 
 // class constructor
     function __construct() {
@@ -69,11 +69,11 @@
         $shipping = $shipping * $shipping_num_boxes;
       }
 
-      $this->quotes = array('id' => $this->code,
+      $this->quotes = ['id' => $this->code,
                             'module' => OSCOM::getDef('module_shipping_table_text_title'),
-                            'methods' => array(array('id' => $this->code,
+                            'methods' => [['id' => $this->code,
                                                      'title' => OSCOM::getDef('module_shipping_table_text_way'),
-                                                     'cost' => $shipping + MODULE_SHIPPING_TABLE_HANDLING)));
+                                                     'cost' => $shipping + MODULE_SHIPPING_TABLE_HANDLING]]];
 
       if ($this->tax_class > 0) {
         $this->quotes['tax'] = tep_get_tax_rate($this->tax_class, $order->delivery['country']['id'], $order->delivery['zone_id']);
@@ -84,11 +84,11 @@
       return $this->quotes;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_SHIPPING_TABLE_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -172,8 +172,8 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_SHIPPING_TABLE_STATUS', 'MODULE_SHIPPING_TABLE_COST', 'MODULE_SHIPPING_TABLE_MODE', 'MODULE_SHIPPING_TABLE_HANDLING', 'MODULE_SHIPPING_TABLE_TAX_CLASS', 'MODULE_SHIPPING_TABLE_ZONE', 'MODULE_SHIPPING_TABLE_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_SHIPPING_TABLE_STATUS', 'MODULE_SHIPPING_TABLE_COST', 'MODULE_SHIPPING_TABLE_MODE', 'MODULE_SHIPPING_TABLE_HANDLING', 'MODULE_SHIPPING_TABLE_TAX_CLASS', 'MODULE_SHIPPING_TABLE_ZONE', 'MODULE_SHIPPING_TABLE_SORT_ORDER'];
     }
 
     function getShippableTotal() {
@@ -190,7 +190,7 @@
           $order_total += $currencies->calculate_price($order->products[$i]['final_price'], $order->products[$i]['tax'], $order->products[$i]['qty']);
 
           if (isset($order->products[$i]['attributes'])) {
-            foreach ( $order->products[$i]['attributes'] as $option => $value ) {
+            foreach ( $order->products[$i]['attributes'] as $value ) {
               $Qcheck = $OSCOM_Db->prepare('select pa.products_id from :table_products_attributes pa, :table_products_attributes_download pad where pa.products_id = :products_id and pa.options_values_id = :options_values_id and pa.products_attributes_id = pad.products_attributes_id');
               $Qcheck->bindInt(':products_id', $order->products[$i]['id']);
               $Qcheck->bindInt(':options_values_id', $value['value_id']);

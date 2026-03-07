@@ -10,20 +10,29 @@
   use OSC\OM\Registry;
 
   class cm_account_sage_pay_cards {
-    var $code;
-    var $group;
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    /**
+     * @var class-string<\cm_account_sage_pay_cards>
+     */
+    public $code;
+    /**
+     * @var string
+     */
+    public $group;
+    public $title;
+    public $description;
+    public $sort_order;
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
     protected $lang;
 
     function __construct() {
       $this->lang = Registry::get('Language');
 
-      $this->code = get_class($this);
-      $this->group = basename(dirname(__FILE__));
+      $this->code = static::class;
+      $this->group = basename(__DIR__);
 
       $this->title = OSCOM::getDef('module_content_account_sage_pay_cards_title');
       $this->description = OSCOM::getDef('module_content_account_sage_pay_cards_description');
@@ -37,7 +46,7 @@
 
       $sage_pay_enabled = false;
 
-      if ( defined('MODULE_PAYMENT_INSTALLED') && tep_not_null(MODULE_PAYMENT_INSTALLED) && in_array('sage_pay_direct.php', explode(';', MODULE_PAYMENT_INSTALLED)) ) {
+      if ( defined('MODULE_PAYMENT_INSTALLED') && tep_not_null(MODULE_PAYMENT_INSTALLED) && in_array('sage_pay_direct.php', explode(';', (string) MODULE_PAYMENT_INSTALLED)) ) {
         if ( !class_exists('sage_pay_direct') ) {
           $this->lang->loadDefinitions('modules/payment/sage_pay_direct');
           include(OSCOM::getConfig('dir_root', 'Shop') . 'includes/modules/payment/sage_pay_direct.php');
@@ -62,23 +71,23 @@
       }
     }
 
-    function execute() {
+    function execute(): void {
       global $oscTemplate;
 
-      $oscTemplate->_data['account']['account']['links']['sage_pay_cards'] = array('title' => $this->public_title,
+      $oscTemplate->_data['account']['account']['links']['sage_pay_cards'] = ['title' => $this->public_title,
                                                                                    'link' => OSCOM::link('ext/modules/content/account/sage_pay/cards.php'),
-                                                                                   'icon' => 'newwin');
+                                                                                   'icon' => 'newwin'];
     }
 
     function isEnabled() {
       return $this->enabled;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_CONTENT_ACCOUNT_SAGE_PAY_CARDS_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -107,8 +116,8 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_CONTENT_ACCOUNT_SAGE_PAY_CARDS_STATUS', 'MODULE_CONTENT_ACCOUNT_SAGE_PAY_CARDS_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_CONTENT_ACCOUNT_SAGE_PAY_CARDS_STATUS', 'MODULE_CONTENT_ACCOUNT_SAGE_PAY_CARDS_SORT_ORDER'];
     }
   }
 ?>

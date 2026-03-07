@@ -80,7 +80,7 @@
     }
 ?>
 
-<?php echo HTML::form('cart_quantity', OSCOM::link('product_info.php', tep_get_all_get_params(array('action')) . 'action=add_product'), 'post', 'class="form-horizontal" role="form"'); ?>
+<?php echo HTML::form('cart_quantity', OSCOM::link('product_info.php', tep_get_all_get_params(['action']) . 'action=add_product'), 'post', 'class="form-horizontal" role="form"'); ?>
 
 <div itemscope itemtype="http://schema.org/Product">
 
@@ -119,7 +119,7 @@
 
 <?php
         $pi_counter = 0;
-        $pi_html = array();
+        $pi_html = [];
 
         foreach ($pi as $image) {
           $pi_counter++;
@@ -168,7 +168,7 @@
     <p>
 <?php
       do {
-        $products_options_array = array();
+        $products_options_array = [];
 
         $Qpo = $OSCOM_Db->prepare('select pov.products_options_values_id, pov.products_options_values_name, pa.options_values_price, pa.price_prefix from :table_products_attributes pa, :table_products_options_values pov where pa.products_id = :products_id and pa.options_id = :options_id and pa.options_values_id = pov.products_options_values_id and pov.language_id = :language_id');
         $Qpo->bindInt(':products_id', $Qproduct->valueInt('products_id'));
@@ -177,7 +177,7 @@
         $Qpo->execute();
 
         while ($Qpo->fetch()) {
-          $products_options_array[] = array('id' => $Qpo->valueInt('products_options_values_id'), 'text' => $Qpo->value('products_options_values_name'));
+          $products_options_array[] = ['id' => $Qpo->valueInt('products_options_values_id'), 'text' => $Qpo->value('products_options_values_name')];
 
           if ($Qpo->valueDecimal('options_values_price') != 0) {
             $products_options_array[count($products_options_array)-1]['text'] .= ' (' . $Qpo->value('price_prefix') . $currencies->display_price($Qpo->valueDecimal('options_values_price'), tep_get_tax_rate($Qproduct->valueInt('products_tax_class_id'))) .') ';

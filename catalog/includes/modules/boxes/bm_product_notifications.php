@@ -10,12 +10,18 @@
   use OSC\OM\Registry;
 
   class bm_product_notifications {
-    var $code = 'bm_product_notifications';
-    var $group = 'boxes';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    public $code = 'bm_product_notifications';
+    /**
+     * @var 'boxes_column_left'|'boxes_column_right'
+     */
+    public $group = 'boxes';
+    public $title;
+    public $description;
+    public $sort_order;
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
     function __construct() {
       $this->title = OSCOM::getDef('module_boxes_product_notifications_title');
@@ -29,7 +35,7 @@
       }
     }
 
-    function execute() {
+    function execute(): void {
       global $PHP_SELF, $oscTemplate;
 
       if (isset($_GET['products_id'])) {
@@ -44,9 +50,9 @@
         $notif_contents = '';
 
         if ($notification_exists == true) {
-          $notif_contents = '<a href="' . OSCOM::link(basename($PHP_SELF), tep_get_all_get_params(array('action')) . 'action=notify_remove') . '"><span class="fa fa-remove"></span> ' . OSCOM::getDef('module_boxes_product_notifications_box_notify_remove', ['products_name' => tep_get_products_name($_GET['products_id'])]) .'</a>';
+          $notif_contents = '<a href="' . OSCOM::link(basename((string) $PHP_SELF), tep_get_all_get_params(['action']) . 'action=notify_remove') . '"><span class="fa fa-remove"></span> ' . OSCOM::getDef('module_boxes_product_notifications_box_notify_remove', ['products_name' => tep_get_products_name($_GET['products_id'])]) .'</a>';
         } else {
-          $notif_contents = '<a href="' . OSCOM::link(basename($PHP_SELF), tep_get_all_get_params(array('action')) . 'action=notify') . '"><span class="fa fa-envelope"></span> ' . OSCOM::getDef('module_boxes_product_notifications_box_notify', ['products_name' => tep_get_products_name($_GET['products_id'])]) .'</a>';
+          $notif_contents = '<a href="' . OSCOM::link(basename((string) $PHP_SELF), tep_get_all_get_params(['action']) . 'action=notify') . '"><span class="fa fa-envelope"></span> ' . OSCOM::getDef('module_boxes_product_notifications_box_notify', ['products_name' => tep_get_products_name($_GET['products_id'])]) .'</a>';
         }
 
         ob_start();
@@ -61,11 +67,11 @@
       return $this->enabled;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_BOXES_PRODUCT_NOTIFICATIONS_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -105,8 +111,8 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_BOXES_PRODUCT_NOTIFICATIONS_STATUS', 'MODULE_BOXES_PRODUCT_NOTIFICATIONS_CONTENT_PLACEMENT', 'MODULE_BOXES_PRODUCT_NOTIFICATIONS_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_BOXES_PRODUCT_NOTIFICATIONS_STATUS', 'MODULE_BOXES_PRODUCT_NOTIFICATIONS_CONTENT_PLACEMENT', 'MODULE_BOXES_PRODUCT_NOTIFICATIONS_SORT_ORDER'];
     }
   }
 

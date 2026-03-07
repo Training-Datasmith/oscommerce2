@@ -10,8 +10,8 @@
   use OSC\OM\Registry;
 
   class securityCheckExtended_admin_backup_directory_listing {
-    var $type = 'error';
-    var $has_doc = true;
+    public $type = 'error';
+    public $has_doc = true;
 
     protected $lang;
 
@@ -23,7 +23,7 @@
       $this->title = OSCOM::getDef('module_security_check_extended_admin_backup_directory_listing_title');
     }
 
-    function pass() {
+    function pass(): bool {
       $request = $this->getHttpRequest(OSCOM::link('includes/backups/'));
 
       return $request['http_code'] != 200;
@@ -38,7 +38,7 @@
 
     function getHttpRequest($url) {
 
-      $server = parse_url($url);
+      $server = parse_url((string) $url);
 
       if (isset($server['port']) === false) {
         $server['port'] = ($server['scheme'] == 'https') ? 443 : 80;
@@ -63,7 +63,7 @@
         $this->type = 'warning';
       }
 
-      $result = curl_exec($curl);
+      curl_exec($curl);
 
       $info = curl_getinfo($curl);
 

@@ -9,13 +9,19 @@
   use OSC\OM\OSCOM;
 
   class cfgm_header_tags {
-    var $code = 'header_tags';
-    var $directory;
-    var $language_directory;
-    var $site = 'Shop';
-    var $key = 'MODULE_HEADER_TAGS_INSTALLED';
-    var $title;
-    var $template_integration = true;
+    public $code = 'header_tags';
+    /**
+     * @var string
+     */
+    public $directory;
+    /**
+     * @var string
+     */
+    public $language_directory;
+    public $site = 'Shop';
+    public $key = 'MODULE_HEADER_TAGS_INSTALLED';
+    public $title;
+    public $template_integration = true;
 
     function __construct() {
       $this->directory = OSCOM::getConfig('dir_root', $this->site) . 'includes/modules/header_tags/';

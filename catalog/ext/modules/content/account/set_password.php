@@ -35,7 +35,7 @@
 
     $error = false;
 
-    if (strlen($password_new) < ENTRY_PASSWORD_MIN_LENGTH) {
+    if (strlen((string) $password_new) < ENTRY_PASSWORD_MIN_LENGTH) {
       $error = true;
 
       $messageStack->add('account_password', OSCOM::getDef('entry_password_new_error', ['min_length' => ENTRY_PASSWORD_MIN_LENGTH]));
@@ -81,7 +81,7 @@
       <label for="inputPassword" class="control-label col-sm-3"><?php echo OSCOM::getDef('entry_password_new'); ?></label>
       <div class="col-sm-9">
         <?php
-        echo HTML::passwordField('password_new', NULL, 'required aria-required="true" autofocus="autofocus" id="inputPassword" autocomplete="new-password" placeholder="' . OSCOM::getDef('entry_password_new_text') . '"', 'password');
+        echo HTML::passwordField('password_new', NULL, 'required aria-required="true" autofocus="autofocus" id="inputPassword" autocomplete="new-password" placeholder="' . OSCOM::getDef('entry_password_new_text') . '"');
         echo OSCOM::getDef('form_required_input');
         ?>
       </div>
@@ -90,7 +90,7 @@
       <label for="inputConfirmation" class="control-label col-sm-3"><?php echo OSCOM::getDef('entry_password_confirmation'); ?></label>
       <div class="col-sm-9">
         <?php
-        echo HTML::passwordField('password_confirmation', NULL, 'required aria-required="true" id="inputConfirmation" autocomplete="new-password" placeholder="' . OSCOM::getDef('entry_password_confirmation_text') . '"', 'password');
+        echo HTML::passwordField('password_confirmation', NULL, 'required aria-required="true" id="inputConfirmation" autocomplete="new-password" placeholder="' . OSCOM::getDef('entry_password_confirmation_text') . '"');
         echo OSCOM::getDef('form_required_input');
         ?>
       </div>

@@ -11,10 +11,10 @@ $configfile_array = [
 foreach ($configfile_array as $key => $f) {
     if (!is_file($f)) {
         continue;
-    } elseif (!FileSystem::isWritable($f)) {
-// try to chmod and try again
+    }
+    if (!FileSystem::isWritable($f)) {
+        // try to chmod and try again
         @chmod($f, 0777);
-
         if (!FileSystem::isWritable($f)) {
             continue;
         }
@@ -74,7 +74,7 @@ if (!empty($warning_array)) {
       <ul style="margin-top: 20px; margin-bottom: 20px;">
 
 <?php
-    foreach ($warning_array as $key => $value) {
+    foreach ($warning_array as $value) {
         echo '<li>' . $value . '</li>';
     }
 ?>

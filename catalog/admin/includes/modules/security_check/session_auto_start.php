@@ -10,7 +10,7 @@
   use OSC\OM\Registry;
 
   class securityCheck_session_auto_start {
-    var $type = 'warning';
+    public $type = 'warning';
 
     protected $lang;
 
@@ -20,7 +20,7 @@
       $this->lang->loadDefinitions('modules/security_check/session_auto_start');
     }
 
-    function pass() {
+    function pass(): bool {
       return ((bool)ini_get('session.auto_start') == false);
     }
 

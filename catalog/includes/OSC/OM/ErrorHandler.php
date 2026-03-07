@@ -13,7 +13,7 @@ use OSC\OM\OSCOM;
 
 class ErrorHandler
 {
-    public static function initialize()
+    public static function initialize(): void
     {
         ini_set('display_errors', false);
         ini_set('html_errors', false);
@@ -31,7 +31,7 @@ class ErrorHandler
         }
     }
 
-    public static function getDirectory()
+    public static function getDirectory(): string
     {
         return OSCOM::BASE_DIR . 'Work/Logs/';
     }

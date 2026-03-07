@@ -39,7 +39,7 @@ class Mail
         }
     }
 
-    public function addTo($email_address, $name = null)
+    public function addTo($email_address, $name = null): void
     {
         $this->to[] = [
             'name' => $name,
@@ -47,7 +47,7 @@ class Mail
         ];
     }
 
-    public function setFrom($email_address, $name = null)
+    public function setFrom($email_address, $name = null): void
     {
         $this->from = [
             'name' => $name,
@@ -55,7 +55,7 @@ class Mail
         ];
     }
 
-    public function addCC($email_address, $name = null)
+    public function addCC($email_address, $name = null): void
     {
         $this->cc[] = [
             'name' => $name,
@@ -63,7 +63,7 @@ class Mail
         ];
     }
 
-    public function addBCC($email_address, $name = null)
+    public function addBCC($email_address, $name = null): void
     {
         $this->bcc[] = [
             'name' => $name,
@@ -71,7 +71,7 @@ class Mail
         ];
     }
 
-    public function clearTo()
+    public function clearTo(): void
     {
         $this->to = [];
         $this->cc = [];
@@ -86,66 +86,63 @@ class Mail
         }
     }
 
-    public function setSubject($subject)
+    public function setSubject($subject): void
     {
         $this->subject = $subject;
     }
 
-    public function setBody($text, $html = null)
+    public function setBody($text, $html = null): void
     {
         $this->setBodyPlain($text);
 
         if (!isset($html) || empty($html)) {
-            $html = nl2br($text);
+            $html = nl2br((string) $text);
         }
 
         $this->setBodyHTML($html);
     }
 
-    public function setBodyPlain($body)
+    public function setBodyPlain($body): void
     {
         $this->body_plain = $body;
         $this->body = null;
     }
 
-    public function setBodyHTML($body)
+    public function setBodyHTML($body): void
     {
         $this->body_html = $body;
         $this->body = null;
     }
 
-    public function setContentTransferEncoding($encoding)
+    public function setContentTransferEncoding($encoding): void
     {
         $this->content_transfer_encoding = $encoding;
     }
 
-    public function setCharset($charset)
+    public function setCharset($charset): void
     {
         $this->charset = $charset;
     }
 
     public function addHeader($key, $value)
     {
-        if ((strpos($key, "\n") !== false) || (strpos($key, "\r") !== false)) {
+        if ((str_contains((string) $key, "\n")) || (str_contains((string) $key, "\r"))) {
             return false;
         }
 
-        if ((strpos($value, "\n") !== false) || (strpos($value, "\r") !== false)) {
+        if ((str_contains((string) $value, "\n")) || (str_contains((string) $value, "\r"))) {
             return false;
         }
 
         $this->headers[$key] = $value;
     }
 
-    public function addAttachment($file, $is_uploaded = false)
+    public function addAttachment($file, $is_uploaded = false): void
     {
-        if ($is_uploaded === true) {
-        } elseif (file_exists($file) && is_readable($file)) {
+        if ($is_uploaded !== true && (file_exists($file) && is_readable($file))) {
             $data = file_get_contents($file);
             $filename = basename($file);
             $mimetype = $this->get_mime_type($filename);
-        } else {
-            return false;
         }
 
         $this->attachments[] = [
@@ -155,15 +152,12 @@ class Mail
         ];
     }
 
-    public function addImage($file, $is_uploaded = false)
+    public function addImage($file, $is_uploaded = false): void
     {
-        if ($is_uploaded === true) {
-        } elseif (file_exists($file) && is_readable($file)) {
+        if ($is_uploaded !== true && (file_exists($file) && is_readable($file))) {
             $data = file_get_contents($file);
             $filename = basename($file);
             $mimetype = $this->get_mime_type($filename);
-        } else {
-            return false;
         }
 
         $this->images[] = [
@@ -301,11 +295,11 @@ class Mail
         $to_email_addresses = [];
 
         foreach ($this->to as $to) {
-            if ((strpos($to['email_address'], "\n") !== false) || (strpos($to['email_address'], "\r") !== false)) {
+            if ((str_contains((string) $to['email_address'], "\n")) || (str_contains((string) $to['email_address'], "\r"))) {
                 return false;
             }
 
-            if ((strpos($to['name'], "\n") !== false) || (strpos($to['name'], "\r") !== false)) {
+            if ((str_contains((string) $to['name'], "\n")) || (str_contains((string) $to['name'], "\r"))) {
                 return false;
             }
 
@@ -372,14 +366,14 @@ class Mail
             ini_set('sendmail_from', '"' . $this->from['name'] . '" <' . $this->from['email_address'] . '>');
         }
 
-        mail(implode(', ', $to_email_addresses), $this->subject, $this->body, $headers, '-f' . $this->from['email_address']);
+        mail(implode(', ', $to_email_addresses), (string) $this->subject, (string) $this->body, $headers, '-f' . $this->from['email_address']);
 
         ini_restore('sendmail_from');
     }
 
-    protected function get_mime_type($file)
+    protected function get_mime_type($file): string
     {
-        $ext = substr($file, strrpos($file, '.') + 1);
+        $ext = substr((string) $file, strrpos((string) $file, '.') + 1);
 
         $mime_types = [
             'gif' => 'image/gif',
@@ -393,14 +387,10 @@ class Mail
             'swf' => 'application/x-shockwave-flash'
         ];
 
-        if (isset($mime_types[$ext])) {
-            return $mime_types[$ext];
-        } else {
-            return 'application/octet-stream';
-        }
+        return $mime_types[$ext] ?? 'application/octet-stream';
     }
 
-    protected function build_attachment($attachment, $boundary)
+    protected function build_attachment(array $attachment, string $boundary): string
     {
         return '--' . $boundary . "\n" .
                'Content-Type: ' . $attachment['mimetype'] . '; name="' . $attachment['filename'] . '"' . "\n" .
@@ -409,7 +399,7 @@ class Mail
                 $attachment['data'] . "\n\n";
     }
 
-    protected function build_image($image, $boundary)
+    protected function build_image(array $image, string $boundary): string
     {
         return '--' . $boundary . "\n" .
                'Content-Type: ' . $image['mimetype'] . '; name="' . $image['filename'] . '"' . "\n" .

@@ -13,7 +13,7 @@
 
     require('includes/application_top.php');
 
-    $action = (isset($_GET['action']) ? $_GET['action'] : '');
+    $action = ($_GET['action'] ?? '');
 
     if (tep_not_null($action)) {
         switch ($action) {
@@ -24,9 +24,9 @@
             if (isset($_POST['definition_value'])) $definition_value = $_POST['definition_value'];
 
             foreach ($definition_value as $id => $definition) {
-                $sql_data_array = array(
+                $sql_data_array = [
                     'definition_value' => $definition
-                );
+                ];
                 $OSCOM_Db->save('languages_definitions', $sql_data_array, ['id' => (int)$id]);
             }
             
@@ -99,8 +99,8 @@
                                             while ($Qdefinitions->fetch()) {
                                              ?>
                                                 <tr>
-                                                  <td><input type="hidden" name="definition_key[<?= $Qdefinitions->value('id'); ?>]" value="<?= htmlentities($Qdefinitions->value('definition_key')); ?>"><?= $Qdefinitions->value('definition_key'); ?></td>
-                                                  <td><input type="text" class="form-control" name="definition_value[<?= $Qdefinitions->value('id'); ?>]" value="<?= htmlentities($Qdefinitions->value('definition_value')); ?>"></td>
+                                                  <td><input type="hidden" name="definition_key[<?= $Qdefinitions->value('id'); ?>]" value="<?= htmlentities((string) $Qdefinitions->value('definition_key')); ?>"><?= $Qdefinitions->value('definition_key'); ?></td>
+                                                  <td><input type="text" class="form-control" name="definition_value[<?= $Qdefinitions->value('id'); ?>]" value="<?= htmlentities((string) $Qdefinitions->value('definition_value')); ?>"></td>
                                                 </tr>
                                             
                                              <?php

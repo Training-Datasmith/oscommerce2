@@ -15,7 +15,7 @@
 
   require('includes/application.php');
 
-  $dir_fs_www_root = dirname(__FILE__);
+  $dir_fs_www_root = __DIR__;
 
   $result = [
     'status' => '-100',
@@ -26,7 +26,7 @@
     switch ($_GET['action']) {
       case 'httpsCheck':
         if (isset($_GET['subaction']) && ($_GET['subaction'] == 'do')) {
-          if ((isset($_SERVER['HTTPS']) && (strtolower($_SERVER['HTTPS']) == 'on')) || (isset($_SERVER['SERVER_PORT']) && ($_SERVER['SERVER_PORT'] == 443))) {
+          if ((isset($_SERVER['HTTPS']) && (strtolower((string) $_SERVER['HTTPS']) == 'on')) || (isset($_SERVER['SERVER_PORT']) && ($_SERVER['SERVER_PORT'] == 443))) {
             $result['status'] = '1';
             $result['message'] = 'success';
           }
@@ -48,7 +48,7 @@
           ]);
 
           if (!empty($response)) {
-            $response = json_decode($response, true);
+            $response = json_decode((string) $response, true);
 
             if (is_array($response) && isset($response['status']) && ($response['status'] == '1')) {
               $result['status'] = '1';
@@ -61,7 +61,7 @@
 
       case 'dbCheck':
         try {
-          $OSCOM_Db = Db::initialize(isset($_POST['server']) ? $_POST['server'] : '', isset($_POST['username']) ? $_POST['username'] : '', isset($_POST['password']) ? $_POST['password'] : '', isset($_POST['name']) ? $_POST['name'] : '', null, null, ['log_errors' => false]);
+          $OSCOM_Db = Db::initialize($_POST['server'] ?? '', $_POST['username'] ?? '', $_POST['password'] ?? '', $_POST['name'] ?? '', null, null, ['log_errors' => false]);
 
           $result['status'] = '1';
           $result['message'] = 'success';
@@ -88,7 +88,7 @@
 
       case 'dbImport':
         try {
-          $OSCOM_Db = Db::initialize(isset($_POST['server']) ? $_POST['server'] : '', isset($_POST['username']) ? $_POST['username'] : '', isset($_POST['password']) ? $_POST['password'] : '', isset($_POST['name']) ? $_POST['name'] : '');
+          $OSCOM_Db = Db::initialize($_POST['server'] ?? '', $_POST['username'] ?? '', $_POST['password'] ?? '', $_POST['name'] ?? '');
           $OSCOM_Db->setTablePrefix('');
 
           $OSCOM_Db->exec('SET FOREIGN_KEY_CHECKS = 0');

@@ -11,9 +11,9 @@
 
   require('includes/application_top.php');
 
-  $gID = (isset($_GET['gID'])) ? $_GET['gID'] : 1;
+  $gID = $_GET['gID'] ?? 1;
 
-  $action = (isset($_GET['action']) ? $_GET['action'] : '');
+  $action = ($_GET['action'] ?? '');
 
   if (tep_not_null($action)) {
     switch ($action) {
@@ -67,7 +67,7 @@
         $cInfo = new objectInfo($Qcfg->toArray());
 
         if ($action == 'edit') {
-          $heading[] = array('text' => $cInfo->configuration_title);
+          $heading[] = ['text' => $cInfo->configuration_title];
 
           if (!empty($cInfo->set_function)) {
             eval('$value_field = ' . $cInfo->set_function . '"' . htmlspecialchars($cInfo->configuration_value) . '");');
@@ -75,11 +75,11 @@
             $value_field = HTML::inputField('configuration_value', $cInfo->configuration_value);
           }
 
-          $contents = array('form' => HTML::form('configuration', OSCOM::link(FILENAME_CONFIGURATION, 'gID=' . $gID . '&cID=' . $cInfo->configuration_id . '&action=save')));
-          $contents[] = array('text' => OSCOM::getDef('text_info_edit_intro'));
-          $contents[] = array('text' => $cInfo->configuration_description);
-          $contents[] = array('text' => $value_field);
-          $contents[] = array('text' => HTML::button(OSCOM::getDef('image_save'), 'fa fa-save', null, null, 'btn-success') . HTML::button(OSCOM::getDef('image_cancel'), null, OSCOM::link(FILENAME_CONFIGURATION, 'gID=' . $gID), null, 'link'));
+          $contents = ['form' => HTML::form('configuration', OSCOM::link(FILENAME_CONFIGURATION, 'gID=' . $gID . '&cID=' . $cInfo->configuration_id . '&action=save'))];
+          $contents[] = ['text' => OSCOM::getDef('text_info_edit_intro')];
+          $contents[] = ['text' => $cInfo->configuration_description];
+          $contents[] = ['text' => $value_field];
+          $contents[] = ['text' => HTML::button(OSCOM::getDef('image_save'), 'fa fa-save', null, null, 'btn-success') . HTML::button(OSCOM::getDef('image_cancel'), null, OSCOM::link(FILENAME_CONFIGURATION, 'gID=' . $gID), null, 'link')];
         }
       }
     }
@@ -117,8 +117,8 @@
     while ($Qcfg->fetch()) {
       if ($Qcfg->hasValue('use_function') && tep_not_null($Qcfg->value('use_function'))) {
         $use_function = $Qcfg->value('use_function');
-        if (preg_match('/->/', $use_function)) {
-          $class_method = explode('->', $use_function);
+        if (preg_match('/->/', (string) $use_function)) {
+          $class_method = explode('->', (string) $use_function);
           if (!is_object(${$class_method[0]})) {
             include('includes/classes/' . $class_method[0] . '.php');
             ${$class_method[0]} = new $class_method[0]();
@@ -134,7 +134,7 @@
 
     <tr>
       <td><?= $Qcfg->value('configuration_title'); ?></td>
-      <td><?= htmlspecialchars($cfgValue); ?></td>
+      <td><?= htmlspecialchars((string) $cfgValue); ?></td>
       <td class="action"><a href="<?= OSCOM::link('configuration.php', 'gID=' . $gID . '&cID=' . $Qcfg->valueInt('configuration_id') . '&action=edit'); ?>"><i class="fa fa-pencil" title="<?= OSCOM::getDef('image_edit'); ?>"></i></a></td>
     </tr>
 

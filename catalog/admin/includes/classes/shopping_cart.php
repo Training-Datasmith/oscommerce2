@@ -9,16 +9,16 @@
   use OSC\OM\Registry;
 
   class shoppingCart {
-    var $db, $contents, $total, $weight;
+    public $db, $contents, $total, $weight;
 
-    function shoppingCart() {
+    function __construct() {
       $this->db = Registry::get('Db');
 
-      $this->contents = array();
+      $this->contents = [];
       $this->total = 0;
     }
 
-    function add_cart($products_id, $qty = '', $attributes = '') {
+    function add_cart($products_id, $qty = '', $attributes = ''): void {
       $products_id = tep_get_uprid($products_id, $attributes);
 
       if ($this->in_cart($products_id)) {
@@ -26,7 +26,7 @@
       } else {
         if ($qty == '') $qty = '1'; // if no quantity is supplied, then add '1' to the customers basket
 
-        $this->contents[$products_id] = array('qty' => $qty);
+        $this->contents[$products_id] = ['qty' => $qty];
 
         if (is_array($attributes)) {
           foreach( $attributes as $option => $value ) {
@@ -40,7 +40,7 @@
     function update_quantity($products_id, $quantity = '', $attributes = '') {
       if ($quantity == '') return true; // nothing needs to be updated if theres no quantity, so we return true..
 
-      $this->contents[$products_id] = array('qty' => $quantity);
+      $this->contents[$products_id] = ['qty' => $quantity];
 
       if (is_array($attributes)) {
         foreach( $attributes as $option => $value ) {
@@ -49,7 +49,7 @@
       }
     }
 
-    function cleanup() {
+    function cleanup(): void {
       foreach( array_keys($this->contents) as $key ) {
         if ($this->contents[$key]['qty'] < 1) {
           unset($this->contents[$key]);
@@ -57,12 +57,11 @@
       }
     }
 
-    function in_cart($products_id) {
+    function in_cart($products_id): bool {
       if (isset($this->contents[$products_id])) {
         return true;
-      } else {
-        return false;
       }
+      return false;
     }
 
     function calculate() {

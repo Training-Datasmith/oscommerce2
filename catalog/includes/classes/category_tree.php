@@ -9,10 +9,10 @@
   use OSC\OM\OSCOM;
   use OSC\OM\Registry;
 
-  class category_tree {
-    protected $_data = array();
+  class category_tree implements \Stringable {
+    protected $_data = [];
 
-    var $root_category_id = 0,
+    public $root_category_id = 0,
         $max_level = 0,
         $root_start_string = '',
         $root_end_string = '',
@@ -28,7 +28,7 @@
         $spacer_string = '',
         $spacer_multiplier = 1,
         $follow_cpath = false,
-        $cpath_array = array(),
+        $cpath_array = [],
         $cpath_start_string = '',
         $cpath_end_string = '';
 
@@ -47,15 +47,15 @@
         $Qcategories->execute();
 
         while ($Qcategories->fetch()) {
-          $this->_data[$Qcategories->valueInt('parent_id')][$Qcategories->valueInt('categories_id')] = array('name' => $Qcategories->value('categories_name'),
-                                                                                                             'image' => $Qcategories->value('categories_image'));
+          $this->_data[$Qcategories->valueInt('parent_id')][$Qcategories->valueInt('categories_id')] = ['name' => $Qcategories->value('categories_name'),
+                                                                                                             'image' => $Qcategories->value('categories_image')];
         }
 
         $_category_tree_data = $this->_data;
       }
     }
 
-    protected function _buildBranch($parent_id, $level = 0) {
+    protected function _buildBranch($parent_id, $level = 0): string {
       $result = ((($level === 0) && ($this->parent_group_apply_to_root === true)) || ($level > 0)) ? $this->parent_group_start_string : null;
 
       if ( isset($this->_data[$parent_id]) ) {
@@ -83,7 +83,7 @@
           }
 
           $result .= '<a href="' . OSCOM::link('index.php', 'cPath=' . $category_link) . '">';
-          $result .= str_repeat($this->spacer_string, $this->spacer_multiplier * $level);
+          $result .= str_repeat((string) $this->spacer_string, $this->spacer_multiplier * $level);
           $result .= $link_title . '</a>';
 
           if ( $level === 0 ) {
@@ -117,7 +117,7 @@
 
     function buildBranchArray($parent_id, $level = 0, $result = '') {
       if (empty($result)) {
-        $result = array();
+        $result = [];
       }
 
       if (isset($this->_data[$parent_id])) {
@@ -128,8 +128,8 @@
             $category_link = $category_id;
           }
 
-          $result[] = array('id' => $category_link,
-                            'title' => str_repeat($this->spacer_string, $this->spacer_multiplier * $level) . $category['name']);
+          $result[] = ['id' => $category_link,
+                            'title' => str_repeat((string) $this->spacer_string, $this->spacer_multiplier * $level) . $category['name']];
 
           if (isset($this->_data[$category_id]) && (($this->max_level == '0') || ($this->max_level > $level+1))) {
             if ($this->follow_cpath === true) {
@@ -180,17 +180,15 @@
     }
 
 /**
- * Magic function; return a formated string representation of the category structure relationship data
- *
- * This is used when echoing the class object, eg:
- *
- * echo $osC_CategoryTree;
- *
- * @access public
- * @return string
- */
-
-    public function __toString() {
+     * Magic function; return a formated string representation of the category structure relationship data
+     *
+     * This is used when echoing the class object, eg:
+     *
+     * echo $osC_CategoryTree;
+     *
+     * @access public
+     */
+    public function __toString(): string {
       return $this->getTree();
     }
 
@@ -198,8 +196,8 @@
       return $this->buildBranchArray((empty($parent_id) ? $this->root_category_id : $parent_id));
     }
 
-    function exists($id) {
-      foreach ($this->_data as $parent => $categories) {
+    function exists($id): bool {
+      foreach ($this->_data as $categories) {
         foreach ($categories as $category_id => $info) {
           if ($id == $category_id) {
             return true;
@@ -210,7 +208,7 @@
       return false;
     }
 
-    function getChildren($category_id, &$array = array()) {
+    function getChildren($category_id, &$array = []) {
       foreach ($this->_data as $parent => $categories) {
         if ($parent == $category_id) {
           foreach ($categories as $id => $info) {
@@ -236,10 +234,10 @@
       foreach ( $this->_data as $parent => $categories ) {
         foreach ( $categories as $category_id => $info ) {
           if ( $id == $category_id ) {
-            $data = array('id' => $id,
+            $data = ['id' => $id,
                           'name' => $info['name'],
                           'parent_id' => $parent,
-                          'image' => $info['image']);
+                          'image' => $info['image']];
 
             return ( isset($key) ? $data[$key] : $data );
           }
@@ -261,40 +259,40 @@
       return $this->getData($id, 'parent_id');
     }
 
-    function setRootCategoryID($root_category_id) {
+    function setRootCategoryID($root_category_id): void {
       $this->root_category_id = $root_category_id;
     }
 
-    function setMaximumLevel($max_level) {
+    function setMaximumLevel($max_level): void {
       $this->max_level = $max_level;
     }
 
-    function setRootString($root_start_string, $root_end_string) {
+    function setRootString($root_start_string, $root_end_string): void {
       $this->root_start_string = $root_start_string;
       $this->root_end_string = $root_end_string;
     }
 
-    function setParentString($parent_start_string, $parent_end_string) {
+    function setParentString($parent_start_string, $parent_end_string): void {
       $this->parent_start_string = $parent_start_string;
       $this->parent_end_string = $parent_end_string;
     }
 
-    function setParentGroupString($parent_group_start_string, $parent_group_end_string, $apply_to_root = false) {
+    function setParentGroupString($parent_group_start_string, $parent_group_end_string, $apply_to_root = false): void {
       $this->parent_group_start_string = $parent_group_start_string;
       $this->parent_group_end_string = $parent_group_end_string;
       $this->parent_group_apply_to_root = $apply_to_root;
     }
 
-    function setChildString($child_start_string, $child_end_string) {
+    function setChildString($child_start_string, $child_end_string): void {
       $this->child_start_string = $child_start_string;
       $this->child_end_string = $child_end_string;
     }
 
-    function setBreadcrumbSeparator($breadcrumb_separator) {
+    function setBreadcrumbSeparator($breadcrumb_separator): void {
       $this->breadcrumb_separator = $breadcrumb_separator;
     }
 
-    function setBreadcrumbUsage($breadcrumb_usage) {
+    function setBreadcrumbUsage($breadcrumb_usage): void {
       if ($breadcrumb_usage === true) {
         $this->breadcrumb_usage = true;
       } else {
@@ -302,19 +300,19 @@
       }
     }
 
-    function setSpacerString($spacer_string, $spacer_multiplier = 2) {
+    function setSpacerString($spacer_string, $spacer_multiplier = 2): void {
       $this->spacer_string = $spacer_string;
       $this->spacer_multiplier = $spacer_multiplier;
     }
 
-    function setCategoryPath($cpath, $cpath_start_string = '', $cpath_end_string = '') {
+    function setCategoryPath($cpath, $cpath_start_string = '', $cpath_end_string = ''): void {
       $this->follow_cpath = true;
-      $this->cpath_array = explode($this->breadcrumb_separator, $cpath);
+      $this->cpath_array = explode($this->breadcrumb_separator, (string) $cpath);
       $this->cpath_start_string = $cpath_start_string;
       $this->cpath_end_string = $cpath_end_string;
     }
 
-    function setFollowCategoryPath($follow_cpath) {
+    function setFollowCategoryPath($follow_cpath): void {
       if ($follow_cpath === true) {
         $this->follow_cpath = true;
       } else {
@@ -322,7 +320,7 @@
       }
     }
 
-    function setCategoryPathString($cpath_start_string, $cpath_end_string) {
+    function setCategoryPathString($cpath_start_string, $cpath_end_string): void {
       $this->cpath_start_string = $cpath_start_string;
       $this->cpath_end_string = $cpath_end_string;
     }

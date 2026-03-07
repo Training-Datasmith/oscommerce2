@@ -19,7 +19,7 @@
     $_GET['page'] = 1;
   }
 
-  $action = (isset($_GET['action']) ? $_GET['action'] : '');
+  $action = ($_GET['action'] ?? '');
 
   if (tep_not_null($action)) {
     switch ($action) {
@@ -34,7 +34,7 @@
         $specials_price = HTML::sanitize($_POST['specials_price']);
         $expdate = HTML::sanitize($_POST['expdate']);
 
-        if (substr($specials_price, -1) == '%') {
+        if (str_ends_with((string) $specials_price, '%')) {
           $Qproduct = $OSCOM_Db->get('products', 'products_price', ['products_id' => (int)$products_id]);
 
           $products_price = $Qproduct->value('products_price');
@@ -43,7 +43,7 @@
 
         $expires_date = '';
         if (tep_not_null($expdate)) {
-          $expires_date = substr($expdate, 0, 4) . substr($expdate, 5, 2) . substr($expdate, 8, 2);
+          $expires_date = substr((string) $expdate, 0, 4) . substr((string) $expdate, 5, 2) . substr((string) $expdate, 8, 2);
         }
 
         $OSCOM_Db->save('specials', [
@@ -62,11 +62,11 @@
         $specials_price = HTML::sanitize($_POST['specials_price']);
         $expdate = HTML::sanitize($_POST['expdate']);
 
-        if (substr($specials_price, -1) == '%') $specials_price = ($products_price - (($specials_price / 100) * $products_price));
+        if (str_ends_with((string) $specials_price, '%')) $specials_price = ($products_price - (($specials_price / 100) * $products_price));
 
         $expires_date = '';
         if (tep_not_null($expdate)) {
-          $expires_date = substr($expdate, 0, 4) . substr($expdate, 5, 2) . substr($expdate, 8, 2);
+          $expires_date = substr((string) $expdate, 0, 4) . substr((string) $expdate, 5, 2) . substr((string) $expdate, 8, 2);
         }
 
         $OSCOM_Db->save('specials', [
@@ -130,11 +130,11 @@
 
       $sInfo = new objectInfo($Qproduct->toArray());
     } else {
-      $sInfo = new objectInfo(array());
+      $sInfo = new objectInfo([]);
 
 // create an array of products on special, which will be excluded from the pull down menu of products
 // (when creating a new product on special)
-      $specials_array = array();
+      $specials_array = [];
 
       $Qspecials = $OSCOM_Db->get([
         'products p',
@@ -153,15 +153,15 @@
       }
     }
 ?>
-      <tr><form name="new_special" action="<?php echo OSCOM::link(FILENAME_SPECIALS, tep_get_all_get_params(array('action', 'info', 'sID')) . 'action=' . $form_action); ?>" method="post"><?php if ($form_action == 'update') echo HTML::hiddenField('specials_id', $_GET['sID']); ?>
+      <tr><form name="new_special" action="<?php echo OSCOM::link(FILENAME_SPECIALS, tep_get_all_get_params(['action', 'info', 'sID']) . 'action=' . $form_action); ?>" method="post"><?php if ($form_action == 'update') echo HTML::hiddenField('specials_id', $_GET['sID']); ?>
         <td><br /><table border="0" cellspacing="0" cellpadding="2">
           <tr>
             <td class="main"><?php echo OSCOM::getDef('text_specials_product'); ?>&nbsp;</td>
-            <td class="main"><?php echo (isset($sInfo->products_name)) ? $sInfo->products_name . ' <small>(' . $currencies->format($sInfo->products_price) . ')</small>' : tep_draw_products_pull_down('products_id', 'style="font-size:10px"', $specials_array); echo HTML::hiddenField('products_price', (isset($sInfo->products_price) ? $sInfo->products_price : '')); ?></td>
+            <td class="main"><?php echo (isset($sInfo->products_name)) ? $sInfo->products_name . ' <small>(' . $currencies->format($sInfo->products_price) . ')</small>' : tep_draw_products_pull_down('products_id', 'style="font-size:10px"', $specials_array); echo HTML::hiddenField('products_price', ($sInfo->products_price ?? '')); ?></td>
           </tr>
           <tr>
             <td class="main"><?php echo OSCOM::getDef('text_specials_special_price'); ?>&nbsp;</td>
-            <td class="main"><?php echo HTML::inputField('specials_price', (isset($sInfo->specials_new_products_price) ? $sInfo->specials_new_products_price : '')); ?></td>
+            <td class="main"><?php echo HTML::inputField('specials_price', ($sInfo->specials_new_products_price ?? '')); ?></td>
           </tr>
           <tr>
             <td class="main"><?php echo OSCOM::getDef('text_specials_expires_date'); ?>&nbsp;</td>
@@ -252,40 +252,40 @@ $('#expdate').datepicker({
               </tr>
             </table></td>
 <?php
-  $heading = array();
-  $contents = array();
+  $heading = [];
+  $contents = [];
 
   switch ($action) {
     case 'delete':
-      $heading[] = array('text' => '<strong>' . OSCOM::getDef('text_info_heading_delete_specials') . '</strong>');
+      $heading[] = ['text' => '<strong>' . OSCOM::getDef('text_info_heading_delete_specials') . '</strong>'];
 
-      $contents = array('form' => HTML::form('specials', OSCOM::link(FILENAME_SPECIALS, 'page=' . $_GET['page'] . '&sID=' . $sInfo->specials_id . '&action=deleteconfirm')));
-      $contents[] = array('text' => OSCOM::getDef('text_info_delete_intro'));
-      $contents[] = array('text' => '<br /><strong>' . $sInfo->products_name . '</strong>');
-      $contents[] = array('align' => 'center', 'text' => '<br />' . HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_SPECIALS, 'page=' . $_GET['page'] . '&sID=' . $sInfo->specials_id)));
+      $contents = ['form' => HTML::form('specials', OSCOM::link(FILENAME_SPECIALS, 'page=' . $_GET['page'] . '&sID=' . $sInfo->specials_id . '&action=deleteconfirm'))];
+      $contents[] = ['text' => OSCOM::getDef('text_info_delete_intro')];
+      $contents[] = ['text' => '<br /><strong>' . $sInfo->products_name . '</strong>'];
+      $contents[] = ['align' => 'center', 'text' => '<br />' . HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_SPECIALS, 'page=' . $_GET['page'] . '&sID=' . $sInfo->specials_id))];
       break;
     default:
       if (is_object($sInfo)) {
-        $heading[] = array('text' => '<strong>' . $sInfo->products_name . '</strong>');
+        $heading[] = ['text' => '<strong>' . $sInfo->products_name . '</strong>'];
 
-        $contents[] = array('align' => 'center', 'text' => HTML::button(OSCOM::getDef('image_edit'), 'fa fa-edit', OSCOM::link(FILENAME_SPECIALS, 'page=' . $_GET['page'] . '&sID=' . $sInfo->specials_id . '&action=edit')) . HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash', OSCOM::link(FILENAME_SPECIALS, 'page=' . $_GET['page'] . '&sID=' . $sInfo->specials_id . '&action=delete')));
-        $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_date_added') . ' ' . DateTime::toShort($sInfo->specials_date_added));
+        $contents[] = ['align' => 'center', 'text' => HTML::button(OSCOM::getDef('image_edit'), 'fa fa-edit', OSCOM::link(FILENAME_SPECIALS, 'page=' . $_GET['page'] . '&sID=' . $sInfo->specials_id . '&action=edit')) . HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash', OSCOM::link(FILENAME_SPECIALS, 'page=' . $_GET['page'] . '&sID=' . $sInfo->specials_id . '&action=delete'))];
+        $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_date_added') . ' ' . DateTime::toShort($sInfo->specials_date_added)];
 
         if (isset($sInfo->specials_last_modified)) {
-          $contents[] = array('text' => '' . OSCOM::getDef('text_info_last_modified') . ' ' . DateTime::toShort($sInfo->specials_last_modified));
+          $contents[] = ['text' => '' . OSCOM::getDef('text_info_last_modified') . ' ' . DateTime::toShort($sInfo->specials_last_modified)];
         }
 
-        $contents[] = array('align' => 'center', 'text' => '<br />' . tep_info_image($sInfo->products_image, $sInfo->products_name, SMALL_IMAGE_WIDTH, SMALL_IMAGE_HEIGHT));
-        $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_original_price') . ' ' . $currencies->format($sInfo->products_price));
-        $contents[] = array('text' => '' . OSCOM::getDef('text_info_new_price') . ' ' . $currencies->format($sInfo->specials_new_products_price));
-        $contents[] = array('text' => '' . OSCOM::getDef('text_info_percentage') . ' ' . number_format(100 - (($sInfo->specials_new_products_price / $sInfo->products_price) * 100)) . '%');
+        $contents[] = ['align' => 'center', 'text' => '<br />' . tep_info_image($sInfo->products_image, $sInfo->products_name, SMALL_IMAGE_WIDTH, SMALL_IMAGE_HEIGHT)];
+        $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_original_price') . ' ' . $currencies->format($sInfo->products_price)];
+        $contents[] = ['text' => '' . OSCOM::getDef('text_info_new_price') . ' ' . $currencies->format($sInfo->specials_new_products_price)];
+        $contents[] = ['text' => '' . OSCOM::getDef('text_info_percentage') . ' ' . number_format(100 - (($sInfo->specials_new_products_price / $sInfo->products_price) * 100)) . '%'];
 
         if (isset($sInfo->expires_date)) {
-          $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_expires_date') . ' <strong>' . DateTime::toShort($sInfo->expires_date) . '</strong>');
+          $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_expires_date') . ' <strong>' . DateTime::toShort($sInfo->expires_date) . '</strong>'];
         }
 
         if (isset($sInfo->date_status_change)) {
-          $contents[] = array('text' => '' . OSCOM::getDef('text_info_status_change') . ' ' . DateTime::toShort($sInfo->date_status_change));
+          $contents[] = ['text' => '' . OSCOM::getDef('text_info_status_change') . ' ' . DateTime::toShort($sInfo->date_status_change)];
         }
       }
       break;

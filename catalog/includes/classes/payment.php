@@ -11,35 +11,35 @@
   use OSC\OM\Registry;
 
   class payment {
-    var $modules, $selected_module;
+    public $modules, $selected_module;
 
     protected $lang;
 
-    function __construct($module = '') {
+    function __construct(string $module = '') {
       global $PHP_SELF;
 
       $this->lang = Registry::get('Language');
 
       if (defined('MODULE_PAYMENT_INSTALLED') && tep_not_null(MODULE_PAYMENT_INSTALLED)) {
-        $this->modules = explode(';', MODULE_PAYMENT_INSTALLED);
+        $this->modules = explode(';', (string) MODULE_PAYMENT_INSTALLED);
 
-        $include_modules = array();
+        $include_modules = [];
 
-        if ( (tep_not_null($module)) && (in_array($module . '.' . substr($PHP_SELF, (strrpos($PHP_SELF, '.')+1)), $this->modules) || in_array($module, $this->modules)) ) {
+        if ( (tep_not_null($module)) && (in_array($module . '.' . substr((string) $PHP_SELF, (strrpos((string) $PHP_SELF, '.')+1)), $this->modules) || in_array($module, $this->modules)) ) {
           $this->selected_module = $module;
 
-          if (strpos($module, '\\') !== false) {
+          if (str_contains($module, '\\')) {
             $class = Apps::getModuleClass($module, 'Payment');
             $include_modules[] = [
               'class' => $module,
               'file' => $class
             ];
           } else {
-            $include_modules[] = array('class' => $module, 'file' => $module . '.php');
+            $include_modules[] = ['class' => $module, 'file' => $module . '.php'];
           }
         } else {
           foreach($this->modules as $value) {
-            if (strpos($value, '\\') !== false) {
+            if (str_contains($value, '\\')) {
               $class = Apps::getModuleClass($value, 'Payment');
               $include_modules[] = [
                 'class' => $value,
@@ -47,16 +47,16 @@
               ];
             } else {
               $class = basename($value, '.php');
-              $include_modules[] = array('class' => $class, 'file' => $value);
+              $include_modules[] = ['class' => $class, 'file' => $value];
             }
           }
         }
 
         for ($i=0, $n=sizeof($include_modules); $i<$n; $i++) {
-          if (strpos($include_modules[$i]['class'], '\\') !== false) {
+          if (str_contains($include_modules[$i]['class'], '\\')) {
             Registry::set('Payment_' . str_replace('\\', '_', $include_modules[$i]['class']), new $include_modules[$i]['file']);
           } else {
-            $this->lang->loadDefinitions('modules/payment/' . pathinfo($include_modules[$i]['file'], PATHINFO_FILENAME));
+            $this->lang->loadDefinitions('modules/payment/' . pathinfo((string) $include_modules[$i]['file'], PATHINFO_FILENAME));
             include('includes/modules/payment/' . $include_modules[$i]['file']);
 
             $GLOBALS[$include_modules[$i]['class']] = new $include_modules[$i]['class'];
@@ -70,8 +70,8 @@
           $_SESSION['payment'] = $include_modules[0]['class'];
         }
 
-        if ( (tep_not_null($module)) && (in_array($module . '.' . substr($PHP_SELF, (strrpos($PHP_SELF, '.')+1)), $this->modules) || in_array($module, $this->modules)) ) {
-          if (strpos($module, '\\') !== false) {
+        if ( (tep_not_null($module)) && (in_array($module . '.' . substr((string) $PHP_SELF, (strrpos((string) $PHP_SELF, '.')+1)), $this->modules) || in_array($module, $this->modules)) ) {
+          if (str_contains($module, '\\')) {
             $OSCOM_PM = Registry::get('Payment_' . str_replace('\\', '_', $module));
 
             if (isset($OSCOM_PM->form_action_url)) {
@@ -93,9 +93,9 @@
    payment modules available which would break the modules in the contributions
    section. This should be looked into again post 2.2.
 */
-    function update_status() {
+    function update_status(): void {
       if (is_array($this->modules)) {
-        if (strpos($this->selected_module, '\\') !== false) {
+        if (str_contains((string) $this->selected_module, '\\')) {
           $code = 'Payment_' . str_replace('\\', '_', $this->selected_module);
 
           if (Registry::exists($code)) {
@@ -115,7 +115,7 @@
       }
     }
 
-    function javascript_validation() {
+    function javascript_validation(): string {
       $js = '';
       if (is_array($this->modules)) {
         $js = '<script><!-- ' . "\n" .
@@ -136,14 +136,14 @@
               '  }' . "\n\n";
 
         foreach($this->modules as $value) {
-          if (strpos($value, '\\') !== false) {
+          if (str_contains((string) $value, '\\')) {
             $OSCOM_PM = Registry::get('Payment_' . str_replace('\\', '_', $value));
 
             if ($OSCOM_PM->enabled) {
               $js .= $OSCOM_PM->javascript_validation();
             }
           } else {
-            $class = basename($value, '.php');
+            $class = basename((string) $value, '.php');
             if ($GLOBALS[$class]->enabled) {
               $js .= $GLOBALS[$class]->javascript_validation();
             }
@@ -167,19 +167,22 @@
       return $js;
     }
 
-    function checkout_initialization_method() {
-      $initialize_array = array();
+    /**
+     * @return mixed[]
+     */
+    function checkout_initialization_method(): array {
+      $initialize_array = [];
 
       if (is_array($this->modules)) {
         foreach($this->modules as $value) {
-          if (strpos($value, '\\') !== false) {
+          if (str_contains((string) $value, '\\')) {
             $OSCOM_PM = Registry::get('Payment_' . str_replace('\\', '_', $value));
 
             if ($OSCOM_PM->enabled && method_exists($OSCOM_PM, 'checkout_initialization_method')) {
               $initialize_array[] = $OSCOM_PM->checkout_initialization_method();
             }
           } else {
-            $class = basename($value, '.php');
+            $class = basename((string) $value, '.php');
             if ($GLOBALS[$class]->enabled && method_exists($GLOBALS[$class], 'checkout_initialization_method')) {
               $initialize_array[] = $GLOBALS[$class]->checkout_initialization_method();
             }
@@ -190,12 +193,15 @@
       return $initialize_array;
     }
 
-    function selection() {
-      $selection_array = array();
+    /**
+     * @return mixed[][]
+     */
+    function selection(): array {
+      $selection_array = [];
 
       if (is_array($this->modules)) {
         foreach($this->modules as $value) {
-          if (strpos($value, '\\') !== false) {
+          if (str_contains((string) $value, '\\')) {
             $OSCOM_PM = Registry::get('Payment_' . str_replace('\\', '_', $value));
 
             if ($OSCOM_PM->enabled) {
@@ -203,7 +209,7 @@
               if (is_array($selection)) $selection_array[] = $selection;
             }
           } else {
-            $class = basename($value, '.php');
+            $class = basename((string) $value, '.php');
             if ($GLOBALS[$class]->enabled) {
               $selection = $GLOBALS[$class]->selection();
               if (is_array($selection)) $selection_array[] = $selection;
@@ -215,9 +221,9 @@
       return $selection_array;
     }
 
-    function pre_confirmation_check() {
+    function pre_confirmation_check(): void {
       if (is_array($this->modules)) {
-        if (strpos($this->selected_module, '\\') !== false) {
+        if (str_contains((string) $this->selected_module, '\\')) {
           $OSCOM_PM = Registry::get('Payment_' . str_replace('\\', '_', $this->selected_module));
 
           if ($OSCOM_PM->enabled) {
@@ -233,7 +239,7 @@
 
     function confirmation() {
       if (is_array($this->modules)) {
-        if (strpos($this->selected_module, '\\') !== false) {
+        if (str_contains((string) $this->selected_module, '\\')) {
           $OSCOM_PM = Registry::get('Payment_' . str_replace('\\', '_', $this->selected_module));
 
           if ($OSCOM_PM->enabled) {
@@ -249,7 +255,7 @@
 
     function process_button() {
       if (is_array($this->modules)) {
-        if (strpos($this->selected_module, '\\') !== false) {
+        if (str_contains((string) $this->selected_module, '\\')) {
           $OSCOM_PM = Registry::get('Payment_' . str_replace('\\', '_', $this->selected_module));
 
           if ($OSCOM_PM->enabled) {
@@ -265,7 +271,7 @@
 
     function before_process() {
       if (is_array($this->modules)) {
-        if (strpos($this->selected_module, '\\') !== false) {
+        if (str_contains((string) $this->selected_module, '\\')) {
           $OSCOM_PM = Registry::get('Payment_' . str_replace('\\', '_', $this->selected_module));
 
           if ($OSCOM_PM->enabled) {
@@ -281,7 +287,7 @@
 
     function after_process() {
       if (is_array($this->modules)) {
-        if (strpos($this->selected_module, '\\') !== false) {
+        if (str_contains((string) $this->selected_module, '\\')) {
           $OSCOM_PM = Registry::get('Payment_' . str_replace('\\', '_', $this->selected_module));
 
           if ($OSCOM_PM->enabled) {
@@ -297,7 +303,7 @@
 
     function get_error() {
       if (is_array($this->modules)) {
-        if (strpos($this->selected_module, '\\') !== false) {
+        if (str_contains((string) $this->selected_module, '\\')) {
           $OSCOM_PM = Registry::get('Payment_' . str_replace('\\', '_', $this->selected_module));
 
           if ($OSCOM_PM->enabled) {

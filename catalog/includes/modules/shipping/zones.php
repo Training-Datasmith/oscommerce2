@@ -96,7 +96,7 @@
   use OSC\OM\Registry;
 
   class zones {
-    var $code, $title, $description, $enabled, $num_zones;
+    public $code, $title, $description, $enabled, $num_zones;
 
 // class constructor
     function __construct() {
@@ -122,7 +122,7 @@
 
       for ($i=1; $i<=$this->num_zones; $i++) {
         $countries_table = constant('MODULE_SHIPPING_ZONES_COUNTRIES_' . $i);
-        $country_zones = preg_split("/[,]/", $countries_table);
+        $country_zones = preg_split("/[,]/", (string) $countries_table);
         if (in_array($dest_country, $country_zones)) {
           $dest_zone = $i;
           break;
@@ -135,7 +135,7 @@
         $shipping = -1;
         $zones_cost = constant('MODULE_SHIPPING_ZONES_COST_' . $dest_zone);
 
-        $zones_table = preg_split("/[:,]/" , $zones_cost);
+        $zones_table = preg_split("/[:,]/" , (string) $zones_cost);
         $size = sizeof($zones_table);
         for ($i=0; $i<$size; $i+=2) {
           if ($shipping_weight <= $zones_table[$i]) {
@@ -153,11 +153,11 @@
         }
       }
 
-      $this->quotes = array('id' => $this->code,
+      $this->quotes = ['id' => $this->code,
                             'module' => OSCOM::getDef('module_shipping_zones_text_title'),
-                            'methods' => array(array('id' => $this->code,
+                            'methods' => [['id' => $this->code,
                                                      'title' => $shipping_method,
-                                                     'cost' => $shipping_cost)));
+                                                     'cost' => $shipping_cost]]];
 
       if ($this->tax_class > 0) {
         $this->quotes['tax'] = tep_get_tax_rate($this->tax_class, $order->delivery['country']['id'], $order->delivery['zone_id']);
@@ -170,11 +170,11 @@
       return $this->quotes;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_SHIPPING_ZONES_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -252,8 +252,11 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      $keys = array('MODULE_SHIPPING_ZONES_STATUS', 'MODULE_SHIPPING_ZONES_TAX_CLASS', 'MODULE_SHIPPING_ZONES_SORT_ORDER');
+    /**
+     * @return string[]
+     */
+    function keys(): array {
+      $keys = ['MODULE_SHIPPING_ZONES_STATUS', 'MODULE_SHIPPING_ZONES_TAX_CLASS', 'MODULE_SHIPPING_ZONES_SORT_ORDER'];
 
       for ($i=1; $i<=$this->num_zones; $i++) {
         $keys[] = 'MODULE_SHIPPING_ZONES_COUNTRIES_' . $i;

@@ -12,7 +12,7 @@
   use OSC\OM\Registry;
 
   class product_notification {
-    var $show_choose_audience, $title, $content, $content_html;
+    public $show_choose_audience, $title, $content, $content_html;
 
     function __construct($title, $content, $content_html = null) {
       $this->show_choose_audience = true;
@@ -21,7 +21,7 @@
       $this->content_html = $content_html;
     }
 
-    function choose_audience() {
+    function choose_audience(): string {
       $OSCOM_Db = Registry::get('Db');
       $OSCOM_Language = Registry::get('Language');
 
@@ -96,21 +96,13 @@ function selectAll(FormName, SelectBox) {
 
       $cancel_button = HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_NEWSLETTERS, 'page=' . $_GET['page'] . '&nID=' . $_GET['nID']));
 
-      $choose_audience_string .= '<form name="notifications" action="' . OSCOM::link(FILENAME_NEWSLETTERS, 'page=' . $_GET['page'] . '&nID=' . $_GET['nID'] . '&action=confirm') . '" method="post" onsubmit="return selectAll(\'notifications\', \'chosen[]\')"><table border="0" width="100%" cellspacing="0" cellpadding="2">' . "\n" .
-                                 '  <tr>' . "\n" .
-                                 '    <td align="center" class="smallText"><strong>' . OSCOM::getDef('text_products') . '</strong><br />' . HTML::selectField('products', $products_array, '', 'size="20" style="width: 20em;" multiple') . '</td>' . "\n" .
-                                 '    <td align="center" class="smallText">&nbsp;<br />' . $global_button . '<br /><br /><br /><input type="button" value="' . OSCOM::getDef('button_select') . '" style="width: 8em;" onClick="mover(\'remove\');"><br /><br /><input type="button" value="' . OSCOM::getDef('button_unselect') . '" style="width: 8em;" onClick="mover(\'add\');"><br /><br /><br />' . HTML::button(OSCOM::getDef('image_send'), 'fa fa-envelope') . '<br /><br />' . $cancel_button . '</td>' . "\n" .
-                                 '    <td align="center" class="smallText"><strong>' . OSCOM::getDef('text_selected_products') . '</strong><br />' . HTML::selectField('chosen[]', array(), '', 'size="20" style="width: 20em;" multiple') . '</td>' . "\n" .
-                                 '  </tr>' . "\n" .
-                                 '</table></form>';
-
-      return $choose_audience_string;
+      return $choose_audience_string . ('<form name="notifications" action="' . OSCOM::link(FILENAME_NEWSLETTERS, 'page=' . $_GET['page'] . '&nID=' . $_GET['nID'] . '&action=confirm') . '" method="post" onsubmit="return selectAll(\'notifications\', \'chosen[]\')"><table border="0" width="100%" cellspacing="0" cellpadding="2">' . "\n" . '  <tr>' . "\n" . '    <td align="center" class="smallText"><strong>' . OSCOM::getDef('text_products') . '</strong><br />' . HTML::selectField('products', $products_array, '', 'size="20" style="width: 20em;" multiple') . '</td>' . "\n" . '    <td align="center" class="smallText">&nbsp;<br />' . $global_button . '<br /><br /><br /><input type="button" value="' . OSCOM::getDef('button_select') . '" style="width: 8em;" onClick="mover(\'remove\');"><br /><br /><input type="button" value="' . OSCOM::getDef('button_unselect') . '" style="width: 8em;" onClick="mover(\'add\');"><br /><br /><br />' . HTML::button(OSCOM::getDef('image_send'), 'fa fa-envelope') . '<br /><br />' . $cancel_button . '</td>' . "\n" . '    <td align="center" class="smallText"><strong>' . OSCOM::getDef('text_selected_products') . '</strong><br />' . HTML::selectField('chosen[]', [], '', 'size="20" style="width: 20em;" multiple') . '</td>' . "\n" . '  </tr>' . "\n" . '</table></form>');
     }
 
-    function confirm() {
+    function confirm(): string {
       $OSCOM_Db = Registry::get('Db');
 
-      $audience = array();
+      $audience = [];
 
       if (isset($_GET['global']) && ($_GET['global'] == 'true')) {
         $Qproducts = $OSCOM_Db->get('products_notifications', 'distinct customers_id');
@@ -133,9 +125,7 @@ function selectAll(FormName, SelectBox) {
           }
         }
 
-        $ids = array_map(function($k) {
-          return ':products_id_' . $k;
-        }, array_keys($chosen));
+        $ids = array_map(fn(int $k) => ':products_id_' . $k, array_keys($chosen));
 
         $Qproducts = $OSCOM_Db->prepare('select distinct customers_id from :table_products_notifications where products_id in (' . implode(', ', $ids) . ')');
 
@@ -190,7 +180,7 @@ function selectAll(FormName, SelectBox) {
                         '          </script>' . "\n" .
                         '        </div>' . "\n" .
                         '        <div role="tabpanel" class="tab-pane" id="plain_preview">' . "\n" .
-                        '          ' . nl2br(HTML::outputProtected($this->content)) . "\n" .
+                        '          ' . nl2br((string) HTML::outputProtected($this->content)) . "\n" .
                         '        </div>' . "\n" .
                         '      </div>' . "\n" .
                         '    </td>' . "\n" .
@@ -210,18 +200,14 @@ function selectAll(FormName, SelectBox) {
         }
         $confirm_string .= HTML::button(OSCOM::getDef('image_send'), 'fa fa-envelope');
       }
-      $confirm_string .= HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_NEWSLETTERS, 'page=' . $_GET['page'] . '&nID=' . $_GET['nID'] . '&action=send')) . '</td>' . "\n" .
-                         '  </tr>' . "\n" .
-                         '</table>' . "\n" .
-                         '</form>';
 
-      return $confirm_string;
+      return $confirm_string . (HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_NEWSLETTERS, 'page=' . $_GET['page'] . '&nID=' . $_GET['nID'] . '&action=send')) . '</td>' . "\n" . '  </tr>' . "\n" . '</table>' . "\n" . '</form>');
     }
 
-    function send($newsletter_id) {
+    function send($newsletter_id): void {
       $OSCOM_Db = Registry::get('Db');
 
-      $audience = array();
+      $audience = [];
 
       if (isset($_POST['global']) && ($_POST['global'] == 'true')) {
         $Qproducts = $OSCOM_Db->get([
@@ -277,9 +263,7 @@ function selectAll(FormName, SelectBox) {
           }
         }
 
-        $ids = array_map(function($k) {
-          return ':products_id_' . $k;
-        }, array_keys($chosen));
+        $ids = array_map(fn(int $k) => ':products_id_' . $k, array_keys($chosen));
 
         $Qproducts = $OSCOM_Db->prepare('select distinct pn.customers_id, c.customers_firstname, c.customers_lastname, c.customers_email_address from :table_customers c, :table_products_notifications pn where c.customers_id = pn.customers_id and pn.products_id in (' . implode(', ', $ids) . ')');
 
@@ -333,7 +317,7 @@ function selectAll(FormName, SelectBox) {
         $notificationEmail->setBodyHTML($this->content_html);
       }
 
-      foreach ( $audience as $key => $value ) {
+      foreach ( $audience as $value ) {
         $notificationEmail->clearTo();
 
         $notificationEmail->addTo($value['email_address'], $value['firstname'] . ' ' . $value['lastname']);

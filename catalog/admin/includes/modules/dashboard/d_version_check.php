@@ -13,13 +13,16 @@
   use OSC\OM\Registry;
 
   class d_version_check {
-    var $code = 'd_version_check';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    public $code = 'd_version_check';
+    public $title;
+    public $description;
+    public $sort_order;
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
-    function d_version_check() {
+    function __construct() {
       $this->title = OSCOM::getDef('module_admin_dashboard_version_check_title');
       $this->description = OSCOM::getDef('module_admin_dashboard_version_check_description');
 
@@ -29,7 +32,7 @@
       }
     }
 
-    function getOutput() {
+    function getOutput(): string {
       $current_version = OSCOM::getVersion();
       $new_version = false;
 
@@ -41,7 +44,7 @@
         $releases = $VersionCache->get();
 
         foreach ($releases as $version) {
-          $version_array = explode('|', $version);
+          $version_array = explode('|', (string) $version);
 
           if (version_compare($current_version, $version_array[0], '<')) {
             $new_version = true;
@@ -67,25 +70,23 @@
                         </tr>';
       }
 
-      $output .= '    <tr>
+      return $output . ('    <tr>
                         <td><a href="' . OSCOM::link('online_update.php') . '">' . OSCOM::getDef('module_admin_dashboard_version_check_check_now') . '</a></td>
                         <td class="text-right">' . $date_last_checked . '</td>
                       </tr>
                     </tbody>
-                  </table>';
-
-      return $output;
+                  </table>');
     }
 
     function isEnabled() {
       return $this->enabled;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_ADMIN_DASHBOARD_VERSION_CHECK_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -114,8 +115,8 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_ADMIN_DASHBOARD_VERSION_CHECK_STATUS', 'MODULE_ADMIN_DASHBOARD_VERSION_CHECK_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_ADMIN_DASHBOARD_VERSION_CHECK_STATUS', 'MODULE_ADMIN_DASHBOARD_VERSION_CHECK_SORT_ORDER'];
     }
   }
 ?>

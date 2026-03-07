@@ -19,7 +19,7 @@
 
   $current_version = OSCOM::getVersion();
 
-  preg_match('/^(\d+\.)?(\d+\.)?(\d+)$/', $current_version, $version);
+  preg_match('/^(\d+\.)?(\d+\.)?(\d+)$/', (string) $current_version, $version);
 
   $major_version = (int)$version[1];
   $minor_version = (int)$version[2];
@@ -38,9 +38,9 @@
       $releases = explode("\n", trim($releases));
 
       if (preg_match('/^(\d+\.)?(\d+\.)?(\d+)\|[0-9]{8}$/', $releases[0]) === 1) {
-        usort($releases, function($a, $b) {
-          $aa = explode('|', $a);
-          $ba = explode('|', $b);
+        usort($releases, function($a, $b): bool {
+          $aa = explode('|', (string) $a);
+          $ba = explode('|', (string) $b);
 
           return version_compare($aa[0], $ba[0], '>');
         });
@@ -56,7 +56,7 @@
 
   if (is_array($releases) && !empty($releases)) {
     foreach ($releases as $version) {
-      $version_array = explode('|', $version);
+      $version_array = explode('|', (string) $version);
 
       if (version_compare($current_version, $version_array[0], '<')) {
         $versions[] = [
@@ -67,14 +67,14 @@
     }
   }
 
-  $action = (isset($_GET['action']) ? $_GET['action'] : '');
+  $action = ($_GET['action'] ?? '');
 
   if (tep_not_null($action)) {
     switch ($action) {
       case 'getUpdateLog':
         $check = false;
 
-        if (isset($_POST['version']) && preg_match('/^(\d+\.)?(\d+\.)?(\d+)$/', $_POST['version'])) {
+        if (isset($_POST['version']) && preg_match('/^(\d+\.)?(\d+\.)?(\d+)$/', (string) $_POST['version'])) {
           foreach ($versions as $v) {
             if ($v['version'] == $_POST['version']) {
               $check = true;
@@ -104,12 +104,11 @@
         echo json_encode($result);
 
         exit;
-        break;
 
       case 'getReleaseNotes':
         $check = false;
 
-        if (isset($_POST['version']) && preg_match('/^(\d+\.)?(\d+\.)?(\d+)$/', $_POST['version'])) {
+        if (isset($_POST['version']) && preg_match('/^(\d+\.)?(\d+\.)?(\d+)$/', (string) $_POST['version'])) {
           foreach ($versions as $v) {
             if ($v['version'] == $_POST['version']) {
               $check = true;
@@ -147,12 +146,11 @@
         echo $notes;
 
         exit;
-        break;
 
       case 'downloadRelease':
         $check = false;
 
-        if (isset($_POST['version']) && preg_match('/^(\d+\.)?(\d+\.)?(\d+)$/', $_POST['version'])) {
+        if (isset($_POST['version']) && preg_match('/^(\d+\.)?(\d+\.)?(\d+)$/', (string) $_POST['version'])) {
           foreach ($versions as $v) {
             if ($v['version'] == $_POST['version']) {
               $check = true;
@@ -205,12 +203,11 @@
         echo json_encode($result);
 
         exit;
-        break;
 
       case 'applyRelease':
         $check = false;
 
-        if (isset($_POST['version']) && preg_match('/^(\d+\.)?(\d+\.)?(\d+)$/', $_POST['version'])) {
+        if (isset($_POST['version']) && preg_match('/^(\d+\.)?(\d+\.)?(\d+)$/', (string) $_POST['version'])) {
           foreach ($versions as $v) {
             if ($v['version'] == $_POST['version']) {
               $check = true;
@@ -357,13 +354,13 @@
           $update_pkg_contents = FileSystem::getDirectoryContents($work_dir . '/' . $_POST['version']);
 
           foreach ($update_pkg_contents as $file) {
-            $pathname = substr($file, strlen($work_dir . '/' . $_POST['version'] . '/'));
+            $pathname = substr((string) $file, strlen($work_dir . '/' . $_POST['version'] . '/'));
 
             $file_source = null;
 
-            if (substr($pathname, 0, 8) == 'catalog/') {
+            if (str_starts_with($pathname, 'catalog/')) {
               $file_source = OSCOM::getConfig('dir_root', 'Shop') . substr($pathname, 8);
-            } elseif (substr($pathname, 0, 6) == 'admin/') {
+            } elseif (str_starts_with($pathname, 'admin/')) {
               $file_source = OSCOM::getConfig('dir_root') . substr($pathname, 6);
             }
 
@@ -383,9 +380,9 @@
             foreach ($to_del as $d) {
               $file_source = null;
 
-              if (substr($d, 0, 8) == 'catalog/') {
+              if (str_starts_with($d, 'catalog/')) {
                 $file_source = OSCOM::getConfig('dir_root', 'Shop') . substr($d, 8);
-              } elseif (substr($d, 0, 6) == 'admin/') {
+              } elseif (str_starts_with($d, 'admin/')) {
                 $file_source = OSCOM::getConfig('dir_root') . substr($d, 6);
               }
 
@@ -393,7 +390,7 @@
                 if (file_exists($file_source)) {
                   if (is_dir($file_source)) {
                     foreach (FileSystem::getDirectoryContents($file_source) as $dr) {
-                      if (!FileSystem::isWritable($dr, true) || !FileSystem::isWritable(dirname($dr), true)) {
+                      if (!FileSystem::isWritable($dr, true) || !FileSystem::isWritable(dirname((string) $dr), true)) {
                         $errors[] = FileSystem::displayPath($dr);
                       }
                     }
@@ -432,13 +429,13 @@
           }
 
           foreach ($update_pkg_contents as $file) {
-            $pathname = substr($file, strlen($work_dir . '/' . $_POST['version'] . '/'));
+            $pathname = substr((string) $file, strlen($work_dir . '/' . $_POST['version'] . '/'));
 
             $file_source = null;
 
-            if (substr($pathname, 0, 8) == 'catalog/') {
+            if (str_starts_with($pathname, 'catalog/')) {
               $file_source = OSCOM::getConfig('dir_root', 'Shop') . substr($pathname, 8);
-            } elseif (substr($pathname, 0, 6) == 'admin/') {
+            } elseif (str_starts_with($pathname, 'admin/')) {
               $file_source = OSCOM::getConfig('dir_root') . substr($pathname, 6);
             }
 
@@ -461,32 +458,30 @@
             }
           }
 
-          if (!empty($to_del)) {
-            foreach ($to_del as $d) {
-              $file_source = null;
+          foreach ($to_del as $d) {
+            $file_source = null;
 
-              if (substr($d, 0, 8) == 'catalog/') {
-                $file_source = OSCOM::getConfig('dir_root', 'Shop') . substr($d, 8);
-              } elseif (substr($d, 0, 6) == 'admin/') {
-                $file_source = OSCOM::getConfig('dir_root') . substr($d, 6);
-              }
+            if (str_starts_with($d, 'catalog/')) {
+              $file_source = OSCOM::getConfig('dir_root', 'Shop') . substr($d, 8);
+            } elseif (str_starts_with($d, 'admin/')) {
+              $file_source = OSCOM::getConfig('dir_root') . substr($d, 6);
+            }
 
-              if (isset($file_source)) {
-                if (file_exists($file_source)) {
-                  if (is_dir($file_source)) {
-                    foreach (FileSystem::rmdir($file_source) as $delresult) {
-                      if ($delresult['result'] === true) {
-                        OnlineUpdate::log('- DELETED: ' . FileSystem::displayPath($delresult['source']), $_POST['version']);
-                      } else {
-                        OnlineUpdate::log('--- DELETE ERROR: Could not delete the following file or directory: ' . FileSystem::displayPath($delresult['source']), $_POST['version']);
-                      }
-                    }
-                  } else {
-                    if (unlink($file_source)) {
-                      OnlineUpdate::log('- DELETED: ' . FileSystem::displayPath($file_source), $_POST['version']);
+            if (isset($file_source)) {
+              if (file_exists($file_source)) {
+                if (is_dir($file_source)) {
+                  foreach (FileSystem::rmdir($file_source) as $delresult) {
+                    if ($delresult['result'] === true) {
+                      OnlineUpdate::log('- DELETED: ' . FileSystem::displayPath($delresult['source']), $_POST['version']);
                     } else {
-                      OnlineUpdate::log('--- DELETE ERROR: Could not delete the following file: ' . FileSystem::displayPath($file_source), $_POST['version']);
+                      OnlineUpdate::log('--- DELETE ERROR: Could not delete the following file or directory: ' . FileSystem::displayPath($delresult['source']), $_POST['version']);
                     }
+                  }
+                } else {
+                  if (unlink($file_source)) {
+                    OnlineUpdate::log('- DELETED: ' . FileSystem::displayPath($file_source), $_POST['version']);
+                  } else {
+                    OnlineUpdate::log('--- DELETE ERROR: Could not delete the following file: ' . FileSystem::displayPath($file_source), $_POST['version']);
                   }
                 }
               }
@@ -517,7 +512,6 @@
         echo json_encode($result);
 
         exit;
-        break;
     }
   }
 
@@ -563,8 +557,8 @@
 <?php
     $heading = $contents = [];
 
-    $heading[] = array('text' => 'Success!');
-    $contents[] = array('text' => 'osCommerce Online Merchant has been successfully updated to the latest version!');
+    $heading[] = ['text' => 'Success!'];
+    $contents[] = ['text' => 'osCommerce Online Merchant has been successfully updated to the latest version!'];
 
     echo HTML::panel($heading, $contents, ['type' => 'success']);
 ?>
@@ -580,8 +574,8 @@
 <?php
     $heading = $contents = [];
 
-    $heading[] = array('text' => 'v{{version}} ({{date}})');
-    $contents[] = array('text' => '');
+    $heading[] = ['text' => 'v{{version}} ({{date}})'];
+    $contents[] = ['text' => ''];
 
     echo HTML::panel($heading, $contents, ['type' => 'info']);
 ?>
@@ -671,11 +665,11 @@ $(function() {
         $('#' + upDivId + ' .panel-body .row').html('Downloading..');
         $('#' + upDivId + ' .panel-body').show();
 
-        $.post('<?= addslashes(OSCOM::link('online_update.php', 'action=downloadRelease')); ?>', {version: versions[i].version}, function(data) {
+        $.post('<?= addslashes((string) OSCOM::link('online_update.php', 'action=downloadRelease')); ?>', {version: versions[i].version}, function(data) {
           if ((typeof data == 'object') && ('result' in data) && (data.result === 1)) {
             $('#' + upDivId + ' .panel-body .row').html('Applying..');
 
-            $.post('<?= addslashes(OSCOM::link('online_update.php', 'action=applyRelease')); ?>', {version: versions[i].version}, function(data) {
+            $.post('<?= addslashes((string) OSCOM::link('online_update.php', 'action=applyRelease')); ?>', {version: versions[i].version}, function(data) {
               if ((typeof data == 'object') && ('result' in data) && (data.result === 1)) {
                 $('#' + upDivId + ' .panel-body').hide();
                 $('#' + upDivId + ' .panel-heading i[data-icon="status"]').removeClass('fa-spin').removeClass('fa-refresh').addClass('fa-check');

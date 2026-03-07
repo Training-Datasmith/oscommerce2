@@ -18,13 +18,13 @@ class MessageStack
 
     public function __construct()
     {
-        register_shutdown_function(function() {
+        register_shutdown_function(function(): void {
             if (!empty($this->data)) {
                 $_SESSION['MessageStack_Data'] = $this->data;
             }
         });
 
-        Registry::get('Hooks')->watch('Session', 'StartAfter', 'execute', function() {
+        Registry::get('Hooks')->watch('Session', 'StartAfter', 'execute', function(): void {
             if (isset($_SESSION['MessageStack_Data']) && !empty($_SESSION['MessageStack_Data'])) {
                 foreach ($_SESSION['MessageStack_Data'] as $group => $messages) {
                     foreach ($messages as $message) {
@@ -36,12 +36,12 @@ class MessageStack
             }
         });
 
-        Registry::get('Hooks')->watch('Account', 'LogoutAfter', 'execute', function() {
+        Registry::get('Hooks')->watch('Account', 'LogoutAfter', 'execute', function(): void {
           $this->reset('main');
         });
     }
 
-    public function add($message, $type = 'error', $group = 'main')
+    public function add($message, $type = 'error', $group = 'main'): void
     {
         switch ($type) {
             case 'error':
@@ -59,7 +59,7 @@ class MessageStack
         }
     }
 
-    public function reset($group = null)
+    public function reset($group = null): void
     {
         if (isset($group)) {
             if ($this->exists($group)) {
@@ -70,7 +70,7 @@ class MessageStack
         }
     }
 
-    public function exists($group = null)
+    public function exists($group = null): bool
     {
         if (isset($group)) {
             return array_key_exists($group, $this->data);
@@ -79,7 +79,7 @@ class MessageStack
         return !empty($this->data);
     }
 
-    public function get($group)
+    public function get($group): string
     {
         $result = '';
 
@@ -119,7 +119,7 @@ class MessageStack
         return $this->data;
     }
 
-    public function size($group = null)
+    public function size($group = null): int
     {
         if (isset($group)) {
             if ($this->exists($group)) {

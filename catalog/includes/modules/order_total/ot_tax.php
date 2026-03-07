@@ -10,7 +10,7 @@
   use OSC\OM\Registry;
 
   class ot_tax {
-    var $title, $output;
+    public $title, $output;
 
     function __construct() {
       $this->code = 'ot_tax';
@@ -19,30 +19,30 @@
       $this->enabled = defined('MODULE_ORDER_TOTAL_TAX_STATUS') && (MODULE_ORDER_TOTAL_TAX_STATUS == 'true') ? true : false;
       $this->sort_order = defined('MODULE_ORDER_TOTAL_TAX_SORT_ORDER') && ((int)MODULE_ORDER_TOTAL_TAX_SORT_ORDER > 0) ? (int)MODULE_ORDER_TOTAL_TAX_SORT_ORDER : 0;
 
-      $this->output = array();
+      $this->output = [];
     }
 
-    function process() {
+    function process(): void {
       global $order, $currencies;
 
       foreach ( $order->info['tax_groups'] as $key => $value ) {
         if ($value > 0) {
-          $this->output[] = array('title' => $key . ':',
+          $this->output[] = ['title' => $key . ':',
                                   'text' => $currencies->format($value, true, $order->info['currency'], $order->info['currency_value']),
-                                  'value' => $value);
+                                  'value' => $value];
         }
       }
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_ORDER_TOTAL_TAX_STATUS');
     }
 
-    function keys() {
-      return array('MODULE_ORDER_TOTAL_TAX_STATUS', 'MODULE_ORDER_TOTAL_TAX_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_ORDER_TOTAL_TAX_STATUS', 'MODULE_ORDER_TOTAL_TAX_SORT_ORDER'];
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [

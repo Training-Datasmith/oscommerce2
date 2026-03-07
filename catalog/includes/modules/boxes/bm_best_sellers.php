@@ -10,12 +10,18 @@
   use OSC\OM\Registry;
 
   class bm_best_sellers {
-    var $code = 'bm_best_sellers';
-    var $group = 'boxes';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    public $code = 'bm_best_sellers';
+    /**
+     * @var 'boxes_column_left'|'boxes_column_right'
+     */
+    public $group = 'boxes';
+    public $title;
+    public $description;
+    public $sort_order;
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
     function __construct() {
       $this->title = OSCOM::getDef('module_boxes_best_sellers_title');
@@ -29,7 +35,7 @@
       }
     }
 
-    function execute() {
+    function execute(): void {
       global $current_category_id, $oscTemplate;
 
       $OSCOM_Db = Registry::get('Db');
@@ -79,11 +85,11 @@
       return $this->enabled;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_BOXES_BEST_SELLERS_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -123,8 +129,8 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_BOXES_BEST_SELLERS_STATUS', 'MODULE_BOXES_BEST_SELLERS_CONTENT_PLACEMENT', 'MODULE_BOXES_BEST_SELLERS_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_BOXES_BEST_SELLERS_STATUS', 'MODULE_BOXES_BEST_SELLERS_CONTENT_PLACEMENT', 'MODULE_BOXES_BEST_SELLERS_SORT_ORDER'];
     }
   }
 

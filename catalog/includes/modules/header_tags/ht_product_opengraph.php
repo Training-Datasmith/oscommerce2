@@ -11,12 +11,15 @@
   use OSC\OM\Registry;
 
   class ht_product_opengraph {
-    var $code = 'ht_product_opengraph';
-    var $group = 'header_tags';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    public $code = 'ht_product_opengraph';
+    public $group = 'header_tags';
+    public $title;
+    public $description;
+    public $sort_order;
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
     function __construct() {
       $this->title = OSCOM::getDef('module_header_tags_product_opengraph_title');
@@ -28,13 +31,13 @@
       }
     }
 
-    function execute() {
+    function execute(): void {
       global $PHP_SELF, $oscTemplate;
 
       $OSCOM_Db = Registry::get('Db');
       $OSCOM_Language = Registry::get('Language');
 
-      if (basename($PHP_SELF) == 'product_info.php') {
+      if (basename((string) $PHP_SELF) == 'product_info.php') {
         $Qproduct = $OSCOM_Db->prepare('select
                                           p.products_id,
                                           pd.products_name,
@@ -57,11 +60,11 @@
         $Qproduct->execute();
 
         if ($Qproduct->fetch() !== false) {
-          $data = array('og:type' => 'product',
+          $data = ['og:type' => 'product',
                         'og:title' => $Qproduct->value('products_name'),
-                        'og:site_name' => STORE_NAME);
+                        'og:site_name' => STORE_NAME];
 
-          $product_description = substr(trim(preg_replace('/\s\s+/', ' ', strip_tags($Qproduct->value('products_description')))), 0, 197) . '...';
+          $product_description = substr(trim((string) preg_replace('/\s\s+/', ' ', strip_tags((string) $Qproduct->value('products_description')))), 0, 197) . '...';
           $data['og:description'] = $product_description;
 
           $products_image = $Qproduct->value('products_image');
@@ -100,11 +103,11 @@
       return $this->enabled;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_HEADER_TAGS_PRODUCT_OPENGRAPH_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -133,11 +136,11 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_HEADER_TAGS_PRODUCT_OPENGRAPH_STATUS', 'MODULE_HEADER_TAGS_PRODUCT_OPENGRAPH_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_HEADER_TAGS_PRODUCT_OPENGRAPH_STATUS', 'MODULE_HEADER_TAGS_PRODUCT_OPENGRAPH_SORT_ORDER'];
     }
 
-    function format_raw($number, $currency_code = '', $currency_value = '') {
+    function format_raw($number, $currency_code = '', $currency_value = ''): string {
       global $currencies;
 
       if (empty($currency_code) || !$currencies->is_set($currency_code)) {

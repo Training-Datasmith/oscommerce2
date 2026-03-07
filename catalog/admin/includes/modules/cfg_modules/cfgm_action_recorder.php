@@ -9,13 +9,19 @@
   use OSC\OM\OSCOM;
 
   class cfgm_action_recorder {
-    var $code = 'action_recorder';
-    var $directory;
-    var $language_directory;
-    var $site = 'Shop';
-    var $key = 'MODULE_ACTION_RECORDER_INSTALLED';
-    var $title;
-    var $template_integration = false;
+    public $code = 'action_recorder';
+    /**
+     * @var string
+     */
+    public $directory;
+    /**
+     * @var string
+     */
+    public $language_directory;
+    public $site = 'Shop';
+    public $key = 'MODULE_ACTION_RECORDER_INSTALLED';
+    public $title;
+    public $template_integration = false;
 
     function __construct() {
       $this->directory = OSCOM::getConfig('dir_root', $this->site) . 'includes/modules/action_recorder/';

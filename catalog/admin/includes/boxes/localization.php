@@ -8,24 +8,24 @@
 
   use OSC\OM\OSCOM;
 
-  $cl_box_groups[] = array(
+  $cl_box_groups[] = [
     'heading' => OSCOM::getDef('box_heading_localization'),
-    'apps' => array(
-      array(
+    'apps' => [
+      [
         'code' => FILENAME_CURRENCIES,
         'title' => OSCOM::getDef('box_localization_currencies'),
         'link' => OSCOM::link(FILENAME_CURRENCIES)
-      ),
-      array(
+      ],
+      [
         'code' => FILENAME_LANGUAGES,
         'title' => OSCOM::getDef('box_localization_languages'),
         'link' => OSCOM::link(FILENAME_LANGUAGES)
-      ),
-      array(
+      ],
+      [
         'code' => FILENAME_ORDERS_STATUS,
         'title' => OSCOM::getDef('box_localization_orders_status'),
         'link' => OSCOM::link(FILENAME_ORDERS_STATUS)
-      )
-    )
-  );
+      ]
+    ]
+  ];
 ?>

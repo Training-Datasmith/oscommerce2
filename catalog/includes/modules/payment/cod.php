@@ -10,7 +10,7 @@
   use OSC\OM\Registry;
 
   class cod {
-    var $code, $title, $description, $enabled;
+    public $code, $title, $description, $enabled;
 
     function __construct() {
       global $order;
@@ -29,7 +29,7 @@
       }
     }
 
-    function update_status() {
+    function update_status(): void {
       global $order;
 
       $OSCOM_Db = Registry::get('Db');
@@ -60,44 +60,44 @@
       }
     }
 
-    function javascript_validation() {
+    function javascript_validation(): bool {
       return false;
     }
 
-    function selection() {
-      return array('id' => $this->code,
-                   'module' => $this->title);
+    function selection(): array {
+      return ['id' => $this->code,
+                   'module' => $this->title];
     }
 
-    function pre_confirmation_check() {
+    function pre_confirmation_check(): bool {
       return false;
     }
 
-    function confirmation() {
+    function confirmation(): bool {
       return false;
     }
 
-    function process_button() {
+    function process_button(): bool {
       return false;
     }
 
-    function before_process() {
+    function before_process(): bool {
       return false;
     }
 
-    function after_process() {
+    function after_process(): bool {
       return false;
     }
 
-    function get_error() {
+    function get_error(): bool {
       return false;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_PAYMENT_COD_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -150,8 +150,8 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_PAYMENT_COD_STATUS', 'MODULE_PAYMENT_COD_ZONE', 'MODULE_PAYMENT_COD_ORDER_STATUS_ID', 'MODULE_PAYMENT_COD_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_PAYMENT_COD_STATUS', 'MODULE_PAYMENT_COD_ZONE', 'MODULE_PAYMENT_COD_ORDER_STATUS_ID', 'MODULE_PAYMENT_COD_SORT_ORDER'];
     }
   }
 ?>

@@ -11,13 +11,13 @@
 
   require('includes/application_top.php');
 
-  function tep_sort_secmodules($a, $b) {
-    return strcasecmp($a['title'], $b['title']);
+  function tep_sort_secmodules(array $a, array $b): int {
+    return strcasecmp((string) $a['title'], (string) $b['title']);
   }
 
-  $types = array('info', 'warning', 'error');
+  $types = ['info', 'warning', 'error'];
 
-  $modules = array();
+  $modules = [];
 
   if ($secdir = @dir(OSCOM::getConfig('dir_root') . 'includes/modules/security_check/')) {
     while ($file = $secdir->read()) {
@@ -26,11 +26,11 @@
           $class = 'securityCheck_' . substr($file, 0, strrpos($file, '.'));
 
           include(OSCOM::getConfig('dir_root') . 'includes/modules/security_check/' . $file);
-          $$class = new $class();
+          ${$class} = new $class();
 
-          $modules[] = array('title' => isset($$class->title) ? $$class->title : substr($file, 0, strrpos($file, '.')),
+          $modules[] = ['title' => ${$class}->title ?? substr($file, 0, strrpos($file, '.')),
                              'class' => $class,
-                             'code' => substr($file, 0, strrpos($file, '.')));
+                             'code' => substr($file, 0, strrpos($file, '.'))];
         }
       }
     }
@@ -44,18 +44,18 @@
           $class = 'securityCheckExtended_' . substr($file, 0, strrpos($file, '.'));
 
           include(OSCOM::getConfig('dir_root') . 'includes/modules/security_check/extended/' . $file);
-          $$class = new $class();
+          ${$class} = new $class();
 
-          $modules[] = array('title' => isset($$class->title) ? $$class->title : substr($file, 0, strrpos($file, '.')),
+          $modules[] = ['title' => ${$class}->title ?? substr($file, 0, strrpos($file, '.')),
                              'class' => $class,
-                             'code' => substr($file, 0, strrpos($file, '.')));
+                             'code' => substr($file, 0, strrpos($file, '.'))];
         }
       }
     }
     $extdir->close();
   }
 
-  usort($modules, 'tep_sort_secmodules');
+  usort($modules, tep_sort_secmodules(...));
 
   require($oscTemplate->getFile('template_top.php'));
 ?>

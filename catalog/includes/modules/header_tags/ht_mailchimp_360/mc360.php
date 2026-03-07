@@ -3,14 +3,20 @@ use OSC\OM\Mail;
 use OSC\OM\Registry;
 
 class mc360 {
-    var $system = "osc";
-    var $version = "1.1";
+    public $system = "osc";
+    public $version = "1.1";
 
-    var $debug = false;
+    /**
+     * @var true
+     */
+    public $debug = false;
 
-    var $apikey = '';
-    var $key_valid = false;
-    var $store_id = '';
+    public $apikey = '';
+    /**
+     * @var bool
+     */
+    public $key_valid = false;
+    public $store_id = '';
 
     function __construct() {
         $this->apikey = MODULE_HEADER_TAGS_MAILCHIMP_360_API_KEY;
@@ -24,11 +30,11 @@ class mc360 {
         $this->validate_cfg();
     }
 
-    function complain($msg){
+    function complain(string $msg): void{
             echo '<div style="position:absolute;left:0;top:0;width:100%;font-size:24px;text-align:center;background:#CCCCCC;color:#660000">MC360 Module: '.$msg.'</div><br />';
     }
 
-    function validate_cfg(){
+    function validate_cfg(): void{
         $OSCOM_Db = Registry::get('Db');
 
         $this->valid_cfg = false;
@@ -44,14 +50,12 @@ class mc360 {
             if ($api->errorMessage!=''){
                 $this->complain('Server said: "'.$api->errorMessage.'". Your API key is likely invalid. Please read the installation instructions.');
                 return;
-            } else {
-                $this->key_valid = true;
-                $OSCOM_Db->save('configuration', ['configuration_value' => 'true'], ['configuration_key' => 'MODULE_HEADER_TAGS_MAILCHIMP_360_KEY_VALID']);
-
-                if (empty($this->store_id)){
-                    $this->store_id = md5(uniqid(rand(), true));
-                    $OSCOM_Db->save('configuration', ['configuration_value' => $this->store_id], ['configuration_key' => 'MODULE_HEADER_TAGS_MAILCHIMP_360_STORE_ID']);
-                }
+            }
+            $this->key_valid = true;
+            $OSCOM_Db->save('configuration', ['configuration_value' => 'true'], ['configuration_key' => 'MODULE_HEADER_TAGS_MAILCHIMP_360_KEY_VALID']);
+            if (empty($this->store_id)){
+                $this->store_id = md5(uniqid(random_int(0, mt_getrandmax()), true));
+                $OSCOM_Db->save('configuration', ['configuration_value' => $this->store_id], ['configuration_key' => 'MODULE_HEADER_TAGS_MAILCHIMP_360_STORE_ID']);
             }
         }
 
@@ -61,21 +65,20 @@ class mc360 {
             $this->valid_cfg = true;
         }
     }
-    function set_cookies(){
+    function set_cookies(): void{
         if (!$this->valid_cfg){
             return;
         }
         $thirty_days = time()+60*60*24*30;
         if (isset($_REQUEST['mc_cid'])){
-            setcookie('mailchimp_campaign_id',trim($_REQUEST['mc_cid']), $thirty_days);
+            setcookie('mailchimp_campaign_id',trim((string) $_REQUEST['mc_cid']), ['expires' => $thirty_days]);
         }
         if (isset($_REQUEST['mc_eid'])){
-            setcookie('mailchimp_email_id',trim($_REQUEST['mc_eid']), $thirty_days);
+            setcookie('mailchimp_email_id',trim((string) $_REQUEST['mc_eid']), ['expires' => $thirty_days]);
         }
-        return;
     }
 
-    function process() {
+    function process(): void {
         if (!$this->valid_cfg){
             return;
         }
@@ -108,39 +111,39 @@ class mc360 {
 
         $Qorder = $OSCOM_Db->get('orders', 'orders_id', ['customers_id' => $_SESSION['customer_id']], 'date_purchased desc', 1);
 
-        $totals_array = array();
+        $totals_array = [];
         $Qtotals = $OSCOM_Db->get('orders_total', ['value', 'class'], ['orders_id' => $Qorder->valueInt('orders_id')]);
         while ($Qtotals->fetch()) {
             $totals_array[$Qtotals->value('class')] = $Qtotals->value('value');
         }
 
-        $products_array = array();
+        $products_array = [];
         $Qproducts = $OSCOM_Db->get('orders_products', ['products_id', 'products_model', 'products_name', 'products_tax', 'products_quantity', 'final_price'], ['orders_id' => $Qorder->valueInt('orders_id')]);
         while ($Qproducts->fetch()) {
-            $products_array[] = array('id' => $Qproducts->valueInt('products_id'),
+            $products_array[] = ['id' => $Qproducts->valueInt('products_id'),
                                     'name' => $Qproducts->value('products_name'),
                                     'model' => $Qproducts->value('products_model'),
                                     'qty' => $Qproducts->value('products_quantity'),
                                     'final_price' => $Qproducts->value('final_price'),
-                                    );
+                                    ];
             $totals_array['ot_tax'] += $Qproducts->value('product_tax');
         }
 
-        $mcorder = array(
+        $mcorder = [
                 'id' => $Qorder->valueInt('orders_id'),
                 'total'=>$totals_array['ot_total'],
                 'shipping'=>$totals_array['ot_shipping'],
                 'tax'  =>$totals_array['ot_tax'],
-                'items'=>array(),
+                'items'=>[],
                 'store_id'=>$this->store_id,
                 'store_name' => $_SERVER['SERVER_NAME'],
                 'campaign_id'=>$_COOKIE['mailchimp_campaign_id'],
                 'email_id'=>$_COOKIE['mailchimp_email_id'],
                 'plugin_id'=>1216
-                );
+                ];
 
         foreach($products_array as $product){
-            $item = array();
+            $item = [];
             $item['line_num'] = $line;
             $item['product_id'] = $product['id'];
             $item['product_name'] = $product['name'];
@@ -154,7 +157,6 @@ class mc360 {
             $cat_id = $Qcat->valueInt('categories_id');
 
             $item['category_id'] = $cat_id;
-            $cat_name == '';
             $continue = true;
             while($continue){
             //now recurse up the categories tree...
@@ -179,7 +181,7 @@ class mc360 {
 
         $GLOBALS["mc_api_key"] = $this->apikey;
         $api = new MCAPI('notused','notused');
-        $res = $api->campaignEcommAddOrder($mcorder);
+        $api->campaignEcommAddOrder($mcorder);
         if ($api->errorMessage!=''){
             if ($this->debug) {
               $debug_email .= 'Error:' . "\n" .

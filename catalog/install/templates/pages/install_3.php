@@ -5,8 +5,8 @@ use OSC\OM\HTML;
 
 $dir_fs_document_root = $_POST['DIR_FS_DOCUMENT_ROOT'];
 
-if ((substr($dir_fs_document_root, -1) != '\\') && (substr($dir_fs_document_root, -1) != '/')) {
-    if (strrpos($dir_fs_document_root, '\\') !== false) {
+if ((!str_ends_with((string) $dir_fs_document_root, '\\')) && (!str_ends_with((string) $dir_fs_document_root, '/'))) {
+    if (strrpos((string) $dir_fs_document_root, '\\') !== false) {
         $dir_fs_document_root .= '\\';
     } else {
         $dir_fs_document_root .= '/';

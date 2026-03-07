@@ -10,12 +10,15 @@
   use OSC\OM\Registry;
 
   class sb_facebook_like {
-    var $code = 'sb_facebook_like';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $icon = 'facebook.png';
-    var $enabled = false;
+    public $code = 'sb_facebook_like';
+    public $title;
+    public $description;
+    public $sort_order;
+    public $icon = 'facebook.png';
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
     function __construct() {
       $this->title = OSCOM::getDef('module_social_bookmarks_facebook_like_title');
@@ -28,7 +31,7 @@
       }
     }
 
-    function getOutput() {
+    function getOutput(): string {
       $style = (MODULE_SOCIAL_BOOKMARKS_FACEBOOK_LIKE_STYLE == 'Standard') ? 'standard' : 'button_count';
       $faces = (MODULE_SOCIAL_BOOKMARKS_FACEBOOK_LIKE_FACES == 'True') ? 'true' : 'false';
       $width = MODULE_SOCIAL_BOOKMARKS_FACEBOOK_LIKE_WIDTH;
@@ -50,11 +53,11 @@
       return $this->public_title;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_SOCIAL_BOOKMARKS_FACEBOOK_LIKE_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -137,8 +140,8 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_SOCIAL_BOOKMARKS_FACEBOOK_LIKE_STATUS', 'MODULE_SOCIAL_BOOKMARKS_FACEBOOK_LIKE_STYLE', 'MODULE_SOCIAL_BOOKMARKS_FACEBOOK_LIKE_FACES', 'MODULE_SOCIAL_BOOKMARKS_FACEBOOK_LIKE_WIDTH', 'MODULE_SOCIAL_BOOKMARKS_FACEBOOK_LIKE_VERB', 'MODULE_SOCIAL_BOOKMARKS_FACEBOOK_LIKE_SCHEME', 'MODULE_SOCIAL_BOOKMARKS_FACEBOOK_LIKE_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_SOCIAL_BOOKMARKS_FACEBOOK_LIKE_STATUS', 'MODULE_SOCIAL_BOOKMARKS_FACEBOOK_LIKE_STYLE', 'MODULE_SOCIAL_BOOKMARKS_FACEBOOK_LIKE_FACES', 'MODULE_SOCIAL_BOOKMARKS_FACEBOOK_LIKE_WIDTH', 'MODULE_SOCIAL_BOOKMARKS_FACEBOOK_LIKE_VERB', 'MODULE_SOCIAL_BOOKMARKS_FACEBOOK_LIKE_SCHEME', 'MODULE_SOCIAL_BOOKMARKS_FACEBOOK_LIKE_SORT_ORDER'];
     }
   }
 ?>

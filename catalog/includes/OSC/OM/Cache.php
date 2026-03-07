@@ -20,14 +20,14 @@ class Cache
 
     public function __construct($key)
     {
-        $this->setPath();
+        static::setPath();
 
         $this->setKey($key);
     }
 
-    public function setKey($key)
+    public function setKey(string $key)
     {
-        if (!$this->hasSafeName($key)) {
+        if (!static::hasSafeName($key)) {
             trigger_error('OSC\\OM\\Cache: Invalid key name (\'' . $key . '\'). Valid characters are a-zA-Z0-9-_');
 
             return false;
@@ -50,7 +50,7 @@ class Cache
         return false;
     }
 
-    public function exists($expire = null)
+    public function exists($expire = null): bool
     {
         $filename = static::$path . $this->key . '.cache';
 
@@ -80,12 +80,12 @@ class Cache
         return $this->data;
     }
 
-    public static function hasSafeName($key)
+    public static function hasSafeName($key): bool
     {
-        return preg_match('/^[a-zA-Z0-9-_]+$/', $key) === 1;
+        return preg_match('/^[a-zA-Z0-9-_]+$/', (string) $key) === 1;
     }
 
-    public function getTime()
+    public function getTime(): int|false
     {
         $filename = static::$path . $this->key . '.cache';
 
@@ -96,7 +96,7 @@ class Cache
         return false;
     }
 
-    public static function find($key, $strict = true)
+    public static function find(string $key, $strict = true): bool
     {
         if (!static::hasSafeName($key)) {
             trigger_error('OSC\\OM\\Cache::find(): Invalid key name (\'' . $key . '\'). Valid characters are a-zA-Z0-9-_');
@@ -125,7 +125,7 @@ class Cache
         return false;
     }
 
-    public static function setPath()
+    public static function setPath(): void
     {
         static::$path = OSCOM::BASE_DIR . 'Work/Cache/';
     }
@@ -139,7 +139,7 @@ class Cache
         return static::$path;
     }
 
-    public static function clear($key)
+    public static function clear(string $key)
     {
         if (!static::hasSafeName($key)) {
             trigger_error('OSC\\OM\\Cache::clear(): Invalid key name (\'' . $key . '\'). Valid characters are a-zA-Z0-9-_');
@@ -154,7 +154,7 @@ class Cache
         }
     }
 
-    public static function clearAll()
+    public static function clearAll(): void
     {
         if (FileSystem::isWritable(static::$path)) {
             foreach (glob(static::$path . '*.cache') as $c) {

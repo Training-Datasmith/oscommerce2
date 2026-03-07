@@ -10,7 +10,7 @@
   use OSC\OM\Registry;
 
   class shoppingCart {
-    var $contents, $total, $weight, $cartID, $content_type;
+    public $contents, $total, $weight, $cartID, $content_type;
 
     function __construct() {
       $this->reset();
@@ -53,7 +53,7 @@
       $Qproducts->execute();
 
       while ($Qproducts->fetch()) {
-        $this->contents[$Qproducts->value('products_id')] = array('qty' => $Qproducts->valueInt('customers_basket_quantity'));
+        $this->contents[$Qproducts->value('products_id')] = ['qty' => $Qproducts->valueInt('customers_basket_quantity')];
 
 // attributes
         $Qattributes = $OSCOM_Db->prepare('select products_options_id, products_options_value_id from :table_customers_basket_attributes where customers_id = :customers_id and products_id = :products_id');
@@ -72,10 +72,10 @@
       $this->cartID = $this->generate_cart_id();
     }
 
-    function reset($reset_database = false) {
+    function reset($reset_database = false): void {
       $OSCOM_Db = Registry::get('Db');
 
-      $this->contents = array();
+      $this->contents = [];
       $this->total = 0;
       $this->weight = 0;
       $this->content_type = false;
@@ -89,7 +89,7 @@
       if (isset($_SESSION['cartID'])) unset($_SESSION['cartID']);
     }
 
-    function add_cart($products_id, $qty = '1', $attributes = '', $notify = true) {
+    function add_cart($products_id, $qty = '1', $attributes = '', $notify = true): void {
       $OSCOM_Db = Registry::get('Db');
 
       $products_id_string = tep_get_uprid($products_id, $attributes);
@@ -136,7 +136,7 @@
           if ($this->in_cart($products_id_string)) {
             $this->update_quantity($products_id_string, $qty, $attributes);
           } else {
-            $this->contents[$products_id_string] = array('qty' => (int)$qty);
+            $this->contents[$products_id_string] = ['qty' => (int)$qty];
 
 // insert into database
             if (isset($_SESSION['customer_id'])) {
@@ -163,7 +163,7 @@
       }
     }
 
-    function update_quantity($products_id, $quantity = '', $attributes = '') {
+    function update_quantity($products_id, $quantity = '', $attributes = ''): void {
       $OSCOM_Db = Registry::get('Db');
 
       $products_id_string = tep_get_uprid($products_id, $attributes);
@@ -185,7 +185,7 @@
       }
 
       if (is_numeric($products_id) && isset($this->contents[$products_id_string]) && is_numeric($quantity) && ($attributes_pass_check == true)) {
-        $this->contents[$products_id_string] = array('qty' => (int)$quantity);
+        $this->contents[$products_id_string] = ['qty' => (int)$quantity];
 
 // update database
         if (isset($_SESSION['customer_id'])) {
@@ -208,7 +208,7 @@
       }
     }
 
-    function cleanup() {
+    function cleanup(): void {
       $OSCOM_Db = Registry::get('Db');
 
       foreach ( array_keys($this->contents) as $key ) {
@@ -224,7 +224,7 @@
       }
     }
 
-    function count_contents() {  // get total number of items in cart
+    function count_contents(): int|float {  // get total number of items in cart
       $total_items = 0;
       if (is_array($this->contents)) {
         foreach ( array_keys($this->contents) as $products_id ) {
@@ -238,20 +238,18 @@
     function get_quantity($products_id) {
       if (isset($this->contents[$products_id])) {
         return $this->contents[$products_id]['qty'];
-      } else {
-        return 0;
       }
+      return 0;
     }
 
-    function in_cart($products_id) {
+    function in_cart($products_id): bool {
       if (isset($this->contents[$products_id])) {
         return true;
-      } else {
-        return false;
       }
+      return false;
     }
 
-    function remove($products_id) {
+    function remove($products_id): void {
       $OSCOM_Db = Registry::get('Db');
 
       unset($this->contents[$products_id]);
@@ -266,11 +264,11 @@
       $this->cartID = $this->generate_cart_id();
     }
 
-    function remove_all() {
+    function remove_all(): void {
       $this->reset();
     }
 
-    function get_product_id_list() {
+    function get_product_id_list(): string {
       $product_id_list = '';
       if (is_array($this->contents)) {
        foreach ( array_keys($this->contents) as $products_id ) {
@@ -337,7 +335,7 @@
       }
     }
 
-    function attributes_price($products_id) {
+    function attributes_price($products_id): float|int {
       $OSCOM_Db = Registry::get('Db');
 
       $attributes_price = 0;
@@ -363,13 +361,13 @@
       return $attributes_price;
     }
 
-    function get_products() {
+    function get_products(): false|array {
       $OSCOM_Db = Registry::get('Db');
       $OSCOM_Language = Registry::get('Language');
 
       if (!is_array($this->contents)) return false;
 
-      $products_array = array();
+      $products_array = [];
 
       foreach ( array_keys($this->contents) as $products_id ) {
         $Qproducts = $OSCOM_Db->prepare('select p.products_id, pd.products_name, p.products_model, p.products_image, p.products_price, p.products_weight, p.products_tax_class_id from :table_products p, :table_products_description pd where p.products_id = :products_id and p.products_id = pd.products_id and pd.language_id = :language_id');
@@ -388,7 +386,7 @@
             $products_price = $Qspecial->valueDecimal('specials_new_products_price');
           }
 
-          $products_array[] = array('id' => $products_id,
+          $products_array[] = ['id' => $products_id,
                                     'name' => $Qproducts->value('products_name'),
                                     'model' => $Qproducts->value('products_model'),
                                     'image' => $Qproducts->value('products_image'),
@@ -397,7 +395,7 @@
                                     'weight' => $Qproducts->valueDecimal('products_weight'),
                                     'final_price' => ($products_price + $this->attributes_price($products_id)),
                                     'tax_class_id' => $Qproducts->valueInt('products_tax_class_id'),
-                                    'attributes' => (isset($this->contents[$products_id]['attributes']) ? $this->contents[$products_id]['attributes'] : ''));
+                                    'attributes' => ($this->contents[$products_id]['attributes'] ?? '')];
         }
       }
 
@@ -416,11 +414,11 @@
       return $this->weight;
     }
 
-    function generate_cart_id($length = 5) {
+    function generate_cart_id($length = 5): string|false {
       return Hash::getRandomString($length, 'digits');
     }
 
-    function get_content_type() {
+    function get_content_type(): string|false {
       $OSCOM_Db = Registry::get('Db');
 
       $this->content_type = false;
@@ -440,7 +438,6 @@
                     $this->content_type = 'mixed';
 
                     return $this->content_type;
-                    break;
                   default:
                     $this->content_type = 'virtual';
                     break;
@@ -451,7 +448,6 @@
                     $this->content_type = 'mixed';
 
                     return $this->content_type;
-                    break;
                   default:
                     $this->content_type = 'physical';
                     break;
@@ -464,7 +460,6 @@
                 $this->content_type = 'mixed';
 
                 return $this->content_type;
-                break;
               default:
                 $this->content_type = 'physical';
                 break;
@@ -478,7 +473,7 @@
       return $this->content_type;
     }
 
-    function unserialize($broken) {
+    function unserialize($broken): void {
       for(reset($broken);$kv=each($broken);) {
         $key=$kv['key'];
         if (gettype($this->$key)!="user function")

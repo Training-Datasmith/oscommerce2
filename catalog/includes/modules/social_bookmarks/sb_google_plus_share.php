@@ -11,12 +11,15 @@
   use OSC\OM\Registry;
 
   class sb_google_plus_share {
-    var $code = 'sb_google_plus_share';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $icon;
-    var $enabled = false;
+    public $code = 'sb_google_plus_share';
+    public $title;
+    public $description;
+    public $sort_order;
+    public $icon;
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
     protected $lang;
 
@@ -33,7 +36,7 @@
       }
     }
 
-    function getOutput() {
+    function getOutput(): string {
       $button_height = (int)MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_HEIGHT;
 
       if (MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_ANNOTATION == 'Vertical-Bubble') {
@@ -48,7 +51,7 @@
 
       $output .= ' data-height="' . $button_height . '" data-align="' . strtolower(MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_ALIGN) . '"></div>';
 
-      $output .= '<script>
+      return $output . ('<script>
   if ( typeof window.___gcfg == "undefined" ) {
     window.___gcfg = { };
   }
@@ -62,9 +65,7 @@
     po.src = \'https://apis.google.com/js/plusone.js\';
     var s = document.getElementsByTagName(\'script\')[0]; s.parentNode.insertBefore(po, s);
   })();
-</script>';
-
-      return $output;
+</script>');
     }
 
     function isEnabled() {
@@ -79,11 +80,11 @@
       return $this->public_title;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -155,8 +156,8 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_STATUS', 'MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_ANNOTATION', 'MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_WIDTH', 'MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_HEIGHT', 'MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_ALIGN', 'MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_STATUS', 'MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_ANNOTATION', 'MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_WIDTH', 'MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_HEIGHT', 'MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_ALIGN', 'MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_SORT_ORDER'];
     }
   }
 ?>

@@ -12,8 +12,8 @@
 
   require('includes/application_top.php');
 
-  $file_extension = substr($PHP_SELF, strrpos($PHP_SELF, '.'));
-  $directory_array = array();
+  $file_extension = substr((string) $PHP_SELF, strrpos((string) $PHP_SELF, '.'));
+  $directory_array = [];
   if ($dir = @dir(OSCOM::getConfig('dir_root', 'Shop') . 'includes/modules/action_recorder/')) {
     while ($file = $dir->read()) {
       if (!is_dir(OSCOM::getConfig('dir_root', 'Shop') . 'includes/modules/action_recorder/' . $file)) {
@@ -41,8 +41,8 @@
     }
   }
 
-  $modules_array = array();
-  $modules_list_array = array(array('id' => '', 'text' => OSCOM::getDef('text_all_modules')));
+  $modules_array = [];
+  $modules_list_array = [['id' => '', 'text' => OSCOM::getDef('text_all_modules')]];
 
   $Qmodules = $OSCOM_Db->get('action_recorder', 'distinct module', null, 'module');
 
@@ -55,7 +55,7 @@
     ];
   }
 
-  $action = (isset($_GET['action']) ? $_GET['action'] : '');
+  $action = ($_GET['action'] ?? '');
 
   if (tep_not_null($action)) {
     switch ($action) {
@@ -114,7 +114,7 @@
   <tbody>
 
 <?php
-  $filter = array();
+  $filter = [];
 
   if (isset($_GET['module']) && in_array($_GET['module'], $modules_array)) {
     $filter[] = 'module = :module';

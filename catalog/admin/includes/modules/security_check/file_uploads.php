@@ -10,7 +10,7 @@
   use OSC\OM\Registry;
 
   class securityCheck_file_uploads {
-    var $type = 'warning';
+    public $type = 'warning';
 
     protected $lang;
 
@@ -20,7 +20,7 @@
       $this->lang->loadDefinitions('modules/security_check/file_uploads');
     }
 
-    function pass() {
+    function pass(): bool {
       return (bool)ini_get('file_uploads');
     }
 

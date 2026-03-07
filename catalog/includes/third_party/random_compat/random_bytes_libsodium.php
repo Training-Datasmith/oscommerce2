@@ -37,14 +37,12 @@ if (!is_callable('random_bytes')) {
      * @param int $bytes
      *
      * @throws Exception
-     *
-     * @return string
      */
-    function random_bytes($bytes)
+    function random_bytes($bytes): string
     {
         try {
             $bytes = RandomCompat_intval($bytes);
-        } catch (TypeError $ex) {
+        } catch (TypeError) {
             throw new TypeError(
                 'random_bytes(): $bytes must be an integer'
             );
@@ -72,10 +70,8 @@ if (!is_callable('random_bytes')) {
             $buf = \Sodium\randombytes_buf($bytes);
         }
 
-        if ($buf !== false) {
-            if (RandomCompat_strlen($buf) === $bytes) {
-                return $buf;
-            }
+        if (RandomCompat_strlen($buf) === $bytes) {
+            return $buf;
         }
 
         /**

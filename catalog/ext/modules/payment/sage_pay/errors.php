@@ -6,7 +6,7 @@
   * @license MIT; https://www.oscommerce.com/license/mit.txt
   */
 
-  $errors = array('400' => 'The syntax of the request was not understood by the server.',
+  $errors = ['400' => 'The syntax of the request was not understood by the server.',
                   '401' => 'The request needs user authentication.',
                   '403' => 'The server has refused to fulfill the request.',
                   '404' => 'The document/file requested by the client was not found.',
@@ -201,5 +201,5 @@
                   '5997' => 'A communication related error occured.',
                   '5998' => 'Duplicate vendor notification attempt.',
                   '5999' => 'The Session is invalid or has expired.',
-                  '6000' => 'Data Access Error.');
+                  '6000' => 'Data Access Error.'];
 ?>

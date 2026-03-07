@@ -21,7 +21,7 @@ class MySQL extends \OSC\OM\SessionAbstract implements \SessionHandlerInterface
         session_set_save_handler($this, true);
     }
 
-    public function exists($session_id)
+    public function exists($session_id): bool
     {
         $Qsession = $this->db->prepare('select 1 from :table_sessions where sesskey = :sesskey');
         $Qsession->bindValue(':sesskey', $session_id);

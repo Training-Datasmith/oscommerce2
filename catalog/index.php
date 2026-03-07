@@ -85,18 +85,18 @@
 <?php
   } elseif ($category_depth == 'products' || (isset($_GET['manufacturers_id']) && !empty($_GET['manufacturers_id']))) {
 // create column list
-    $define_list = array('PRODUCT_LIST_MODEL' => PRODUCT_LIST_MODEL,
+    $define_list = ['PRODUCT_LIST_MODEL' => PRODUCT_LIST_MODEL,
                          'PRODUCT_LIST_NAME' => PRODUCT_LIST_NAME,
                          'PRODUCT_LIST_MANUFACTURER' => PRODUCT_LIST_MANUFACTURER,
                          'PRODUCT_LIST_PRICE' => PRODUCT_LIST_PRICE,
                          'PRODUCT_LIST_QUANTITY' => PRODUCT_LIST_QUANTITY,
                          'PRODUCT_LIST_WEIGHT' => PRODUCT_LIST_WEIGHT,
                          'PRODUCT_LIST_IMAGE' => PRODUCT_LIST_IMAGE,
-                         'PRODUCT_LIST_BUY_NOW' => PRODUCT_LIST_BUY_NOW);
+                         'PRODUCT_LIST_BUY_NOW' => PRODUCT_LIST_BUY_NOW];
 
     asort($define_list);
 
-    $column_list = array();
+    $column_list = [];
     foreach($define_list as $key => $value) {
       if ($value > 0) $column_list[] = $key;
     }
@@ -146,7 +146,7 @@
       }
     }
 
-    if ( (!isset($_GET['sort'])) || (!preg_match('/^[1-8][ad]$/', $_GET['sort'])) || (substr($_GET['sort'], 0, 1) > sizeof($column_list)) ) {
+    if ( (!isset($_GET['sort'])) || (!preg_match('/^[1-8][ad]$/', (string) $_GET['sort'])) || (substr((string) $_GET['sort'], 0, 1) > sizeof($column_list)) ) {
       for ($i=0, $n=sizeof($column_list); $i<$n; $i++) {
         if ($column_list[$i] == 'PRODUCT_LIST_NAME') {
           $_GET['sort'] = $i+1 . 'a';
@@ -155,8 +155,8 @@
         }
       }
     } else {
-      $sort_col = substr($_GET['sort'], 0 , 1);
-      $sort_order = substr($_GET['sort'], 1);
+      $sort_col = substr((string) $_GET['sort'], 0 , 1);
+      $sort_order = substr((string) $_GET['sort'], 1);
 
       switch ($column_list[$sort_col-1]) {
         case 'PRODUCT_LIST_MODEL':
@@ -257,16 +257,16 @@ if (tep_not_null($Qtitle->value('catdesc'))) {
         echo '<div>' . HTML::form('filter', OSCOM::link('index.php', '', false), 'get', null, ['session_id' => true]) . '<p align="right">' . OSCOM::getDef('text_show') . '&nbsp;';
         if (isset($_GET['manufacturers_id']) && !empty($_GET['manufacturers_id'])) {
           echo HTML::hiddenField('manufacturers_id', $_GET['manufacturers_id']);
-          $options = array(array('id' => '', 'text' => OSCOM::getDef('text_all_categories')));
+          $options = [['id' => '', 'text' => OSCOM::getDef('text_all_categories')]];
         } else {
           echo HTML::hiddenField('cPath', $cPath);
-          $options = array(array('id' => '', 'text' => OSCOM::getDef('text_all_manufacturers')));
+          $options = [['id' => '', 'text' => OSCOM::getDef('text_all_manufacturers')]];
         }
         echo HTML::hiddenField('sort', $_GET['sort']);
         while ($Qfilter->fetch()) {
-          $options[] = array('id' => $Qfilter->valueInt('id'), 'text' => $Qfilter->value('name'));
+          $options[] = ['id' => $Qfilter->valueInt('id'), 'text' => $Qfilter->value('name')];
         }
-        echo HTML::selectField('filter_id', $options, (isset($_GET['filter_id']) ? $_GET['filter_id'] : ''), 'onchange="this.form.submit()"');
+        echo HTML::selectField('filter_id', $options, ($_GET['filter_id'] ?? ''), 'onchange="this.form.submit()"');
         echo '</p></form></div>' . "\n";
       }
     }

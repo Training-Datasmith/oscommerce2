@@ -7,18 +7,18 @@
   */
 
   class navigationHistory {
-    var $path, $snapshot;
+    public $path, $snapshot;
 
     function __construct() {
       $this->reset();
     }
 
-    function reset() {
-      $this->path = array();
-      $this->snapshot = array();
+    function reset(): void {
+      $this->path = [];
+      $this->snapshot = [];
     }
 
-    function add_current_page() {
+    function add_current_page(): void {
       global $PHP_SELF, $cPath;
 
       $set = 'true';
@@ -27,21 +27,20 @@
           if (isset($cPath)) {
             if (!isset($this->path[$i]['get']['cPath'])) {
               continue;
+            }
+            if ($this->path[$i]['get']['cPath'] == $cPath) {
+              array_splice($this->path, ($i+1));
+              $set = 'false';
+              break;
             } else {
-              if ($this->path[$i]['get']['cPath'] == $cPath) {
-                array_splice($this->path, ($i+1));
-                $set = 'false';
-                break;
-              } else {
-                $old_cPath = explode('_', $this->path[$i]['get']['cPath']);
-                $new_cPath = explode('_', $cPath);
+              $old_cPath = explode('_', (string) $this->path[$i]['get']['cPath']);
+              $new_cPath = explode('_', $cPath);
 
-                for ($j=0, $n2=sizeof($old_cPath); $j<$n2; $j++) {
-                  if ($old_cPath[$j] != $new_cPath[$j]) {
-                    array_splice($this->path, ($i));
-                    $set = 'true';
-                    break 2;
-                  }
+              for ($j=0, $n2=sizeof($old_cPath); $j<$n2; $j++) {
+                if ($old_cPath[$j] != $new_cPath[$j]) {
+                  array_splice($this->path, ($i));
+                  $set = 'true';
+                  break 2;
                 }
               }
             }
@@ -54,13 +53,13 @@
       }
 
       if ($set == 'true') {
-        $this->path[] = array('page' => $PHP_SELF,
+        $this->path[] = ['page' => $PHP_SELF,
                               'get' => $this->filter_parameters($_GET),
-                              'post' => $this->filter_parameters($_POST));
+                              'post' => $this->filter_parameters($_POST)];
       }
     }
 
-    function remove_current_page() {
+    function remove_current_page(): void {
       global $PHP_SELF;
 
       $last_entry_position = sizeof($this->path) - 1;
@@ -69,32 +68,32 @@
       }
     }
 
-    function set_snapshot($page = '') {
+    function set_snapshot($page = ''): void {
       global $PHP_SELF;
 
       if (is_array($page)) {
-        $this->snapshot = array('page' => isset($page['page']) ? $page['page'] : $PHP_SELF,
-                                'get' => isset($page['get']) ? $this->filter_parameters($page['get']) : array(),
-                                'post' => isset($page['post']) ? $this->filter_parameters($page['post']) : array());
+        $this->snapshot = ['page' => $page['page'] ?? $PHP_SELF,
+                                'get' => isset($page['get']) ? $this->filter_parameters($page['get']) : [],
+                                'post' => isset($page['post']) ? $this->filter_parameters($page['post']) : []];
       } else {
-        $this->snapshot = array('page' => $PHP_SELF,
+        $this->snapshot = ['page' => $PHP_SELF,
                                 'get' => $this->filter_parameters($_GET),
-                                'post' => $this->filter_parameters($_POST));
+                                'post' => $this->filter_parameters($_POST)];
       }
     }
 
-    function clear_snapshot() {
-      $this->snapshot = array();
+    function clear_snapshot(): void {
+      $this->snapshot = [];
     }
 
-    function set_path_as_snapshot($history = 0) {
+    function set_path_as_snapshot($history = 0): void {
       $pos = (sizeof($this->path)-1-$history);
-      $this->snapshot = array('page' => $this->path[$pos]['page'],
+      $this->snapshot = ['page' => $this->path[$pos]['page'],
                               'get' => $this->path[$pos]['get'],
-                              'post' => $this->path[$pos]['post']);
+                              'post' => $this->path[$pos]['post']];
     }
 
-    function debug() {
+    function debug(): void {
       for ($i=0, $n=sizeof($this->path); $i<$n; $i++) {
         echo $this->path[$i]['page'] . '?';
         foreach($this->path[$i]['get'] as $key => $value) {
@@ -112,16 +111,19 @@
       if (sizeof($this->snapshot) > 0) {
         echo '<br /><br />';
 
-        echo $this->snapshot['page'] . '?' . tep_array_to_string($this->snapshot['get'], array(session_name())) . '<br />';
+        echo $this->snapshot['page'] . '?' . tep_array_to_string($this->snapshot['get'], [session_name()]) . '<br />';
       }
     }
 
-    function filter_parameters($parameters) {
-      $clean = array();
+    /**
+     * @return mixed[]
+     */
+    function filter_parameters($parameters): array {
+      $clean = [];
 
       if (is_array($parameters)) {
         foreach($parameters as $key => $value) {
-          if (strpos($key, '_nh-dns') < 1) {
+          if (strpos((string) $key, '_nh-dns') < 1) {
             $clean[$key] = $value;
           }
         }
@@ -130,7 +132,7 @@
       return $clean;
     }
 
-    function unserialize($broken) {
+    function unserialize($broken): void {
       for(reset($broken);$kv=each($broken);) {
         $key=$kv['key'];
         if (gettype($this->$key)!="user function")

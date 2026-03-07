@@ -9,13 +9,19 @@
   use OSC\OM\OSCOM;
 
   class cfgm_boxes {
-    var $code = 'boxes';
-    var $directory;
-    var $language_directory;
-    var $site = 'Shop';
-    var $key = 'MODULE_BOXES_INSTALLED';
-    var $title;
-    var $template_integration = true;
+    public $code = 'boxes';
+    /**
+     * @var string
+     */
+    public $directory;
+    /**
+     * @var string
+     */
+    public $language_directory;
+    public $site = 'Shop';
+    public $key = 'MODULE_BOXES_INSTALLED';
+    public $title;
+    public $template_integration = true;
 
     function __construct() {
       $this->directory = OSCOM::getConfig('dir_root', $this->site) . 'includes/modules/boxes/';

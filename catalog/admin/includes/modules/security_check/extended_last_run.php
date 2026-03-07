@@ -10,7 +10,7 @@
   use OSC\OM\Registry;
 
   class securityCheck_extended_last_run {
-    var $type = 'warning';
+    public $type = 'warning';
 
     protected $lang;
 
@@ -49,7 +49,7 @@
       return defined('MODULE_SECURITY_CHECK_EXTENDED_LAST_RUN_DATETIME') && (MODULE_SECURITY_CHECK_EXTENDED_LAST_RUN_DATETIME > strtotime('-30 days'));
     }
 
-    function getMessage() {
+    function getMessage(): string {
       return '<a href="' . OSCOM::link('security_checks.php') . '">' . OSCOM::getDef('module_security_check_extended_last_run_old') . '</a>';
     }
   }

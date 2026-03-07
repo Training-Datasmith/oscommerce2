@@ -11,12 +11,18 @@
   use OSC\OM\Registry;
 
   class bm_card_acceptance {
-    var $code = 'bm_card_acceptance';
-    var $group = 'boxes';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    public $code = 'bm_card_acceptance';
+    /**
+     * @var 'boxes_column_left'|'boxes_column_right'
+     */
+    public $group = 'boxes';
+    public $title;
+    public $description;
+    public $sort_order;
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
     function __construct() {
       $this->title = OSCOM::getDef('module_boxes_card_acceptance_title');
@@ -30,10 +36,10 @@
       }
     }
 
-    function execute() {
+    function execute(): void {
       global $PHP_SELF, $oscTemplate;
 
-      if ( (substr(basename($PHP_SELF), 0, 8) != 'checkout') && tep_not_null(MODULE_BOXES_CARD_ACCEPTANCE_LOGOS) ) {
+      if ( (!str_starts_with(basename((string) $PHP_SELF), 'checkout')) && tep_not_null(MODULE_BOXES_CARD_ACCEPTANCE_LOGOS) ) {
         $output = NULL;
 
         foreach ( explode(';', MODULE_BOXES_CARD_ACCEPTANCE_LOGOS) as $logo ) {
@@ -52,11 +58,11 @@
       return $this->enabled;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_BOXES_CARD_ACCEPTANCE_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -108,18 +114,18 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_BOXES_CARD_ACCEPTANCE_STATUS', 'MODULE_BOXES_CARD_ACCEPTANCE_LOGOS', 'MODULE_BOXES_CARD_ACCEPTANCE_CONTENT_PLACEMENT', 'MODULE_BOXES_CARD_ACCEPTANCE_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_BOXES_CARD_ACCEPTANCE_STATUS', 'MODULE_BOXES_CARD_ACCEPTANCE_LOGOS', 'MODULE_BOXES_CARD_ACCEPTANCE_CONTENT_PLACEMENT', 'MODULE_BOXES_CARD_ACCEPTANCE_SORT_ORDER'];
     }
   }
 
-  function bm_card_acceptance_show_logos($text) {
+  function bm_card_acceptance_show_logos($text): string {
     $output = '';
 
     if ( !empty($text) ) {
       $output = '<ul style="list-style-type: none; margin: 0; padding: 5px; margin-bottom: 10px;">';
 
-      foreach (explode(';', $text) as $card) {
+      foreach (explode(';', (string) $text) as $card) {
         $output .= '<li style="padding: 2px;">' . HTML::image(OSCOM::linkImage('Shop/card_acceptance/' . basename($card)), basename($card)) . '</li>';
       }
 
@@ -129,13 +135,13 @@
     return $output;
   }
 
-  function bm_card_acceptance_edit_logos($values, $key) {
-    $files_array = array();
+  function bm_card_acceptance_edit_logos($values, string $key): string {
+    $files_array = [];
 
     if ( $dir = @dir(OSCOM::getConfig('dir_root', 'Shop') . 'images/card_acceptance') ) {
       while ( $file = $dir->read() ) {
         if ( !is_dir(OSCOM::getConfig('dir_root', 'Shop') . 'images/card_acceptance/' . $file) ) {
-          if ( in_array(substr($file, strrpos($file, '.')+1), array('gif', 'jpg', 'png')) ) {
+          if ( in_array(substr($file, strrpos($file, '.')+1), ['gif', 'jpg', 'png']) ) {
             $files_array[] = $file;
           }
         }
@@ -146,7 +152,7 @@
       $dir->close();
     }
 
-    $values_array = !empty($values) ? explode(';', $values) : array();
+    $values_array = !empty($values) ? explode(';', $values) : [];
 
     $output = '<h3>' . OSCOM::getDef('module_boxes_card_acceptance_shown_cards') . '</h3>' .
               '<ul id="ca_logos" style="list-style-type: none; margin: 0; padding: 5px; margin-bottom: 10px;">';
@@ -169,9 +175,9 @@
 
     $output .= HTML::hiddenField('configuration[' . $key . ']', '', 'id="ca_logo_cards"');
 
-    $drag_here_li = '<li id="caLogoEmpty" style="background-color: #fcf8e3; border: 1px #faedd0 solid; color: #a67d57; padding: 5px;">' . addslashes(OSCOM::getDef('module_boxes_card_acceptance_drag_here')) . '</li>';
+    $drag_here_li = '<li id="caLogoEmpty" style="background-color: #fcf8e3; border: 1px #faedd0 solid; color: #a67d57; padding: 5px;">' . addslashes((string) OSCOM::getDef('module_boxes_card_acceptance_drag_here')) . '</li>';
 
-    $output .= <<<EOD
+    return $output . <<<EOD
 <script>
 $(function() {
   var drag_here_li = '{$drag_here_li}';
@@ -223,7 +229,5 @@ $(function() {
 });
 </script>
 EOD;
-
-    return $output;
   }
 ?>

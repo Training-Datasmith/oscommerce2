@@ -15,7 +15,7 @@
     $_GET['page'] = 1;
   }
 
-  $action = (isset($_GET['action']) ? $_GET['action'] : '');
+  $action = ($_GET['action'] ?? '');
 
   if (tep_not_null($action)) {
     switch ($action) {
@@ -90,7 +90,7 @@
   $Qcountries->execute();
 
   while ($Qcountries->fetch()) {
-    if ((!isset($_GET['cID']) || (isset($_GET['cID']) && ((int)$_GET['cID'] == $Qcountries->valueInt('countries_id')))) && !isset($cInfo) && (substr($action, 0, 3) != 'new')) {
+    if ((!isset($_GET['cID']) || (isset($_GET['cID']) && ((int)$_GET['cID'] == $Qcountries->valueInt('countries_id')))) && !isset($cInfo) && (!str_starts_with($action, 'new'))) {
       $cInfo = new objectInfo($Qcountries->toArray());
     }
 
@@ -127,49 +127,49 @@
               </tr>
             </table></td>
 <?php
-  $heading = array();
-  $contents = array();
+  $heading = [];
+  $contents = [];
 
   switch ($action) {
     case 'new':
-      $heading[] = array('text' => '<strong>' . OSCOM::getDef('text_info_heading_new_country') . '</strong>');
+      $heading[] = ['text' => '<strong>' . OSCOM::getDef('text_info_heading_new_country') . '</strong>'];
 
-      $contents = array('form' => HTML::form('countries', OSCOM::link(FILENAME_COUNTRIES, 'page=' . $_GET['page'] . '&action=insert')));
-      $contents[] = array('text' => OSCOM::getDef('text_info_insert_intro'));
-      $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_country_name') . '<br />' . HTML::inputField('countries_name'));
-      $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_country_code_2') . '<br />' . HTML::inputField('countries_iso_code_2'));
-      $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_country_code_3') . '<br />' . HTML::inputField('countries_iso_code_3'));
-      $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_address_format') . '<br />' . HTML::selectField('address_format_id', tep_get_address_formats()));
-      $contents[] = array('align' => 'center', 'text' => '<br />' . HTML::button(OSCOM::getDef('image_save'), 'fa fa-save') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_COUNTRIES, 'page=' . $_GET['page'])));
+      $contents = ['form' => HTML::form('countries', OSCOM::link(FILENAME_COUNTRIES, 'page=' . $_GET['page'] . '&action=insert'))];
+      $contents[] = ['text' => OSCOM::getDef('text_info_insert_intro')];
+      $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_country_name') . '<br />' . HTML::inputField('countries_name')];
+      $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_country_code_2') . '<br />' . HTML::inputField('countries_iso_code_2')];
+      $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_country_code_3') . '<br />' . HTML::inputField('countries_iso_code_3')];
+      $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_address_format') . '<br />' . HTML::selectField('address_format_id', tep_get_address_formats())];
+      $contents[] = ['align' => 'center', 'text' => '<br />' . HTML::button(OSCOM::getDef('image_save'), 'fa fa-save') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_COUNTRIES, 'page=' . $_GET['page']))];
       break;
     case 'edit':
-      $heading[] = array('text' => '<strong>' . OSCOM::getDef('text_info_heading_edit_country') . '</strong>');
+      $heading[] = ['text' => '<strong>' . OSCOM::getDef('text_info_heading_edit_country') . '</strong>'];
 
-      $contents = array('form' => HTML::form('countries', OSCOM::link(FILENAME_COUNTRIES, 'page=' . $_GET['page'] . '&cID=' . $cInfo->countries_id . '&action=save')));
-      $contents[] = array('text' => OSCOM::getDef('text_info_edit_intro'));
-      $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_country_name') . '<br />' . HTML::inputField('countries_name', $cInfo->countries_name));
-      $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_country_code_2') . '<br />' . HTML::inputField('countries_iso_code_2', $cInfo->countries_iso_code_2));
-      $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_country_code_3') . '<br />' . HTML::inputField('countries_iso_code_3', $cInfo->countries_iso_code_3));
-      $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_address_format') . '<br />' . HTML::selectField('address_format_id', tep_get_address_formats(), $cInfo->address_format_id));
-      $contents[] = array('align' => 'center', 'text' => '<br />' . HTML::button(OSCOM::getDef('image_save'), 'fa fa-save') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_COUNTRIES, 'page=' . $_GET['page'] . '&cID=' . $cInfo->countries_id)));
+      $contents = ['form' => HTML::form('countries', OSCOM::link(FILENAME_COUNTRIES, 'page=' . $_GET['page'] . '&cID=' . $cInfo->countries_id . '&action=save'))];
+      $contents[] = ['text' => OSCOM::getDef('text_info_edit_intro')];
+      $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_country_name') . '<br />' . HTML::inputField('countries_name', $cInfo->countries_name)];
+      $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_country_code_2') . '<br />' . HTML::inputField('countries_iso_code_2', $cInfo->countries_iso_code_2)];
+      $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_country_code_3') . '<br />' . HTML::inputField('countries_iso_code_3', $cInfo->countries_iso_code_3)];
+      $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_address_format') . '<br />' . HTML::selectField('address_format_id', tep_get_address_formats(), $cInfo->address_format_id)];
+      $contents[] = ['align' => 'center', 'text' => '<br />' . HTML::button(OSCOM::getDef('image_save'), 'fa fa-save') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_COUNTRIES, 'page=' . $_GET['page'] . '&cID=' . $cInfo->countries_id))];
       break;
     case 'delete':
-      $heading[] = array('text' => '<strong>' . OSCOM::getDef('text_info_heading_delete_country') . '</strong>');
+      $heading[] = ['text' => '<strong>' . OSCOM::getDef('text_info_heading_delete_country') . '</strong>'];
 
-      $contents = array('form' => HTML::form('countries', OSCOM::link(FILENAME_COUNTRIES, 'page=' . $_GET['page'] . '&cID=' . $cInfo->countries_id . '&action=deleteconfirm')));
-      $contents[] = array('text' => OSCOM::getDef('text_info_delete_intro'));
-      $contents[] = array('text' => '<br /><strong>' . $cInfo->countries_name . '</strong>');
-      $contents[] = array('align' => 'center', 'text' => '<br />' . HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_COUNTRIES, 'page=' . $_GET['page'] . '&cID=' . $cInfo->countries_id)));
+      $contents = ['form' => HTML::form('countries', OSCOM::link(FILENAME_COUNTRIES, 'page=' . $_GET['page'] . '&cID=' . $cInfo->countries_id . '&action=deleteconfirm'))];
+      $contents[] = ['text' => OSCOM::getDef('text_info_delete_intro')];
+      $contents[] = ['text' => '<br /><strong>' . $cInfo->countries_name . '</strong>'];
+      $contents[] = ['align' => 'center', 'text' => '<br />' . HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_COUNTRIES, 'page=' . $_GET['page'] . '&cID=' . $cInfo->countries_id))];
       break;
     default:
       if (is_object($cInfo)) {
-        $heading[] = array('text' => '<strong>' . $cInfo->countries_name . '</strong>');
+        $heading[] = ['text' => '<strong>' . $cInfo->countries_name . '</strong>'];
 
-        $contents[] = array('align' => 'center', 'text' => HTML::button(OSCOM::getDef('image_edit'), 'fa fa-edit', OSCOM::link(FILENAME_COUNTRIES, 'page=' . $_GET['page'] . '&cID=' . $cInfo->countries_id . '&action=edit')) . HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash', OSCOM::link(FILENAME_COUNTRIES, 'page=' . $_GET['page'] . '&cID=' . $cInfo->countries_id . '&action=delete')));
-        $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_country_name') . '<br />' . $cInfo->countries_name);
-        $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_country_code_2') . ' ' . $cInfo->countries_iso_code_2);
-        $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_country_code_3') . ' ' . $cInfo->countries_iso_code_3);
-        $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_address_format') . ' ' . $cInfo->address_format_id);
+        $contents[] = ['align' => 'center', 'text' => HTML::button(OSCOM::getDef('image_edit'), 'fa fa-edit', OSCOM::link(FILENAME_COUNTRIES, 'page=' . $_GET['page'] . '&cID=' . $cInfo->countries_id . '&action=edit')) . HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash', OSCOM::link(FILENAME_COUNTRIES, 'page=' . $_GET['page'] . '&cID=' . $cInfo->countries_id . '&action=delete'))];
+        $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_country_name') . '<br />' . $cInfo->countries_name];
+        $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_country_code_2') . ' ' . $cInfo->countries_iso_code_2];
+        $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_country_code_3') . ' ' . $cInfo->countries_iso_code_3];
+        $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_address_format') . ' ' . $cInfo->address_format_id];
       }
       break;
   }

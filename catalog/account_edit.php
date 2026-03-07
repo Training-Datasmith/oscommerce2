@@ -39,13 +39,13 @@
       }
     }
 
-    if (strlen($firstname) < ENTRY_FIRST_NAME_MIN_LENGTH) {
+    if (strlen((string) $firstname) < ENTRY_FIRST_NAME_MIN_LENGTH) {
       $error = true;
 
       $messageStack->add('account_edit', OSCOM::getDef('entry_first_name_error', ['min_length' => ENTRY_FIRST_NAME_MIN_LENGTH]));
     }
 
-    if (strlen($lastname) < ENTRY_LAST_NAME_MIN_LENGTH) {
+    if (strlen((string) $lastname) < ENTRY_LAST_NAME_MIN_LENGTH) {
       $error = true;
 
       $messageStack->add('account_edit', OSCOM::getDef('entry_last_name_error', ['min_length' => ENTRY_LAST_NAME_MIN_LENGTH]));
@@ -54,7 +54,7 @@
     if (ACCOUNT_DOB == 'true') {
       $dobDateTime = new DateTime($dob);
 
-      if ((strlen($dob) < ENTRY_DOB_MIN_LENGTH) || ($dobDateTime->isValid() === false)) {
+      if ((strlen((string) $dob) < ENTRY_DOB_MIN_LENGTH) || ($dobDateTime->isValid() === false)) {
         $error = true;
 
         $messageStack->add('account_edit', OSCOM::getDef('entry_date_of_birth_error'));
@@ -84,18 +84,18 @@
       $messageStack->add('account_edit', OSCOM::getDef('entry_email_address_error_exists'));
     }
 
-    if (strlen($telephone) < ENTRY_TELEPHONE_MIN_LENGTH) {
+    if (strlen((string) $telephone) < ENTRY_TELEPHONE_MIN_LENGTH) {
       $error = true;
 
       $messageStack->add('account_edit', OSCOM::getDef('entry_telephone_number_error', ['min_length' => ENTRY_TELEPHONE_MIN_LENGTH]));
     }
 
     if ($error == false) {
-      $sql_data_array = array('customers_firstname' => $firstname,
+      $sql_data_array = ['customers_firstname' => $firstname,
                               'customers_lastname' => $lastname,
                               'customers_email_address' => $email_address,
                               'customers_telephone' => $telephone,
-                              'customers_fax' => $fax);
+                              'customers_fax' => $fax];
 
       if (ACCOUNT_GENDER == 'true') $sql_data_array['customers_gender'] = $gender;
       if (ACCOUNT_DOB == 'true') $sql_data_array['customers_dob'] = $dobDateTime->getRaw(false);

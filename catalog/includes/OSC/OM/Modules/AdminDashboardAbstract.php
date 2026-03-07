@@ -12,6 +12,9 @@ use OSC\OM\Registry;
 
 abstract class AdminDashboardAbstract implements \OSC\OM\Modules\AdminDashboardInterface
 {
+    /**
+     * @var string
+     */
     public $code;
     public $title;
     public $description;

@@ -10,16 +10,25 @@
   use OSC\OM\Registry;
 
   class cm_cs_downloads {
-    var $code;
-    var $group;
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    /**
+     * @var class-string<\cm_cs_downloads>
+     */
+    public $code;
+    /**
+     * @var string
+     */
+    public $group;
+    public $title;
+    public $description;
+    public $sort_order;
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
     function __construct() {
-      $this->code = get_class($this);
-      $this->group = basename(dirname(__FILE__));
+      $this->code = static::class;
+      $this->group = basename(__DIR__);
 
       $this->title = OSCOM::getDef('module_content_checkout_success_downloads_title');
       $this->description = OSCOM::getDef('module_content_checkout_success_downloads_description');
@@ -30,7 +39,7 @@
       }
     }
 
-    function execute() {
+    function execute(): void {
       global $oscTemplate;
 
       if ( DOWNLOAD_ENABLED == 'true' ) {
@@ -47,11 +56,11 @@
       return $this->enabled;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_CONTENT_CHECKOUT_SUCCESS_DOWNLOADS_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -80,8 +89,8 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_CONTENT_CHECKOUT_SUCCESS_DOWNLOADS_STATUS','MODULE_CONTENT_CHECKOUT_SUCCESS_DOWNLOADS_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_CONTENT_CHECKOUT_SUCCESS_DOWNLOADS_STATUS','MODULE_CONTENT_CHECKOUT_SUCCESS_DOWNLOADS_SORT_ORDER'];
     }
   }
 ?>

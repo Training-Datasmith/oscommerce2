@@ -10,16 +10,25 @@
   use OSC\OM\Registry;
 
   class cm_in_category_listing {
-    var $code;
-    var $group;
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    /**
+     * @var class-string<\cm_in_category_listing>
+     */
+    public $code;
+    /**
+     * @var string
+     */
+    public $group;
+    public $title;
+    public $description;
+    public $sort_order;
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
     function __construct() {
-      $this->code = get_class($this);
-      $this->group = basename(dirname(__FILE__));
+      $this->code = static::class;
+      $this->group = basename(__DIR__);
 
       $this->title = OSCOM::getDef('module_content_in_category_listing_title');
       $this->description = OSCOM::getDef('module_content_in_category_listing_description');
@@ -31,7 +40,7 @@
       }
     }
 
-    function execute() {
+    function execute(): void {
       global $oscTemplate, $category, $cPath_array, $cPath, $current_category_id;
 
       $OSCOM_Db = Registry::get('Db');
@@ -40,7 +49,7 @@
       $content_width  = MODULE_CONTENT_IN_CATEGORY_LISTING_CONTENT_WIDTH;
       $category_width = MODULE_CONTENT_IN_CATEGORY_LISTING_CONTENT_WIDTH_EACH;
 
-      if (isset($cPath) && strpos('_', $cPath)) {
+      if (isset($cPath) && strpos('_', (string) $cPath)) {
 // check to see if there are deeper categories within the current category
         $category_links = array_reverse($cPath_array);
         for($i=0, $n=sizeof($category_links); $i<$n; $i++) {
@@ -80,11 +89,11 @@
       return $this->enabled;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_CONTENT_IN_CATEGORY_LISTING_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -135,7 +144,7 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_CONTENT_IN_CATEGORY_LISTING_STATUS', 'MODULE_CONTENT_IN_CATEGORY_LISTING_CONTENT_WIDTH', 'MODULE_CONTENT_IN_CATEGORY_LISTING_CONTENT_WIDTH_EACH', 'MODULE_CONTENT_IN_CATEGORY_LISTING_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_CONTENT_IN_CATEGORY_LISTING_STATUS', 'MODULE_CONTENT_IN_CATEGORY_LISTING_CONTENT_WIDTH', 'MODULE_CONTENT_IN_CATEGORY_LISTING_CONTENT_WIDTH_EACH', 'MODULE_CONTENT_IN_CATEGORY_LISTING_SORT_ORDER'];
     }
   }

@@ -14,7 +14,7 @@
 
 // if the customer is not logged on, redirect them to the login page
   if (!isset($_SESSION['customer_id'])) {
-    $_SESSION['navigation']->set_snapshot(array('page' => 'checkout_payment.php'));
+    $_SESSION['navigation']->set_snapshot(['page' => 'checkout_payment.php']);
     OSCOM::redirect('login.php');
   }
 
@@ -50,7 +50,7 @@
 
   $payment_modules->update_status();
 
-  if (strpos($payment_modules->selected_module, '\\') !== false) {
+  if (str_contains((string) $payment_modules->selected_module, '\\')) {
     $code = 'Payment_' . str_replace('\\', '_', $payment_modules->selected_module);
 
     if (Registry::exists($code)) {
@@ -61,7 +61,7 @@
   }
 
   if ( !isset($OSCOM_PM) || ($payment_modules->selected_module != $_SESSION['payment']) || ($OSCOM_PM->enabled == false) ) {
-    OSCOM::redirect('checkout_payment.php', 'error_message=' . urlencode(OSCOM::getDef('error_no_payment_module_selected')));
+    OSCOM::redirect('checkout_payment.php', 'error_message=' . urlencode((string) OSCOM::getDef('error_no_payment_module_selected')));
   }
 
   if (is_array($payment_modules->modules)) {
@@ -273,7 +273,7 @@
   <h2><?php echo '<strong>' . OSCOM::getDef('heading_order_comments') . '</strong> ' . HTML::button(OSCOM::getDef('text_edit'), 'fa fa-edit', OSCOM::link('checkout_payment.php'), null, 'pull-right btn-info btn-xs' ); ?></h2>
 
   <blockquote>
-    <?php echo nl2br(HTML::outputProtected($order->info['comments'])) . HTML::hiddenField('comments', $order->info['comments']); ?>
+    <?php echo nl2br((string) HTML::outputProtected($order->info['comments'])) . HTML::hiddenField('comments', $order->info['comments']); ?>
   </blockquote>
 
 <?php
@@ -286,7 +286,7 @@
       if (is_array($payment_modules->modules)) {
         echo $payment_modules->process_button();
       }
-      echo HTML::button(OSCOM::getDef('image_button_pay_total_now', ['total' => $currencies->format($order->info['total'], true, $order->info['currency'], $order->info['currency_value'])]), 'fa fa-ok', null, array('params' => 'data-button="payNow"'), 'btn-success');
+      echo HTML::button(OSCOM::getDef('image_button_pay_total_now', ['total' => $currencies->format($order->info['total'], true, $order->info['currency'], $order->info['currency_value'])]), 'fa fa-ok', null, ['params' => 'data-button="payNow"'], 'btn-success');
       ?>
     </div>
   </div>
@@ -317,7 +317,7 @@
 $('form[name="checkout_confirmation"] button[data-button="payNow"]').data('orig-button-text', $('form[name="checkout_confirmation"] button[data-button="payNow"]').html());
 
 $('form[name="checkout_confirmation"]').submit(function() {
-  $('form[name="checkout_confirmation"] button[data-button="payNow"]').html('<?php echo addslashes(OSCOM::getDef('image_button_pay_total_processing')); ?>').prop('disabled', true);
+  $('form[name="checkout_confirmation"] button[data-button="payNow"]').html('<?php echo addslashes((string) OSCOM::getDef('image_button_pay_total_processing')); ?>').prop('disabled', true);
 });
 </script>
 

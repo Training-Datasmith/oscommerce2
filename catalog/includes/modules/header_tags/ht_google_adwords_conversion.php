@@ -11,12 +11,15 @@
   use OSC\OM\Registry;
 
   class ht_google_adwords_conversion {
-    var $code = 'ht_google_adwords_conversion';
-    var $group = 'footer_scripts';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    public $code = 'ht_google_adwords_conversion';
+    public $group = 'footer_scripts';
+    public $title;
+    public $description;
+    public $sort_order;
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
     protected $lang;
 
@@ -32,7 +35,7 @@
       }
     }
 
-    function execute() {
+    function execute(): void {
       global $PHP_SELF, $oscTemplate;
 
       $OSCOM_Db = Registry::get('Db');
@@ -78,7 +81,7 @@ EOD;
       }
     }
 
-    function format_raw($number, $currency_code = '', $currency_value = '') {
+    function format_raw($number, $currency_code = '', $currency_value = ''): string {
       global $currencies;
 
       if (empty($currency_code) || !$currencies->is_set($currency_code)) {
@@ -96,11 +99,11 @@ EOD;
       return $this->enabled;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_HEADER_TAGS_GOOGLE_ADWORDS_CONVERSION_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -182,13 +185,13 @@ EOD;
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_HEADER_TAGS_GOOGLE_ADWORDS_CONVERSION_STATUS', 'MODULE_HEADER_TAGS_GOOGLE_ADWORDS_CONVERSION_ID', 'MODULE_HEADER_TAGS_GOOGLE_ADWORDS_CONVERSION_FORMAT', 'MODULE_HEADER_TAGS_GOOGLE_ADWORDS_CONVERSION_COLOR', 'MODULE_HEADER_TAGS_GOOGLE_ADWORDS_CONVERSION_LABEL', 'MODULE_HEADER_TAGS_GOOGLE_ADWORDS_CONVERSION_JS_PLACEMENT', 'MODULE_HEADER_TAGS_GOOGLE_ADWORDS_CONVERSION_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_HEADER_TAGS_GOOGLE_ADWORDS_CONVERSION_STATUS', 'MODULE_HEADER_TAGS_GOOGLE_ADWORDS_CONVERSION_ID', 'MODULE_HEADER_TAGS_GOOGLE_ADWORDS_CONVERSION_FORMAT', 'MODULE_HEADER_TAGS_GOOGLE_ADWORDS_CONVERSION_COLOR', 'MODULE_HEADER_TAGS_GOOGLE_ADWORDS_CONVERSION_LABEL', 'MODULE_HEADER_TAGS_GOOGLE_ADWORDS_CONVERSION_JS_PLACEMENT', 'MODULE_HEADER_TAGS_GOOGLE_ADWORDS_CONVERSION_SORT_ORDER'];
     }
   }
 
-  function tep_cfg_google_adwords_conversion_set_format($key_value, $field_key) {
-    $format = array('1' => 'Single Line', '2' => 'Two Lines', '3' => 'No Indicator');
+  function tep_cfg_google_adwords_conversion_set_format($key_value, string $field_key): string {
+    $format = ['1' => 'Single Line', '2' => 'Two Lines', '3' => 'No Indicator'];
 
     $string = '';
 
@@ -203,8 +206,8 @@ EOD;
     return $string;
   }
 
-  function tep_cfg_google_adwords_conversion_get_format($value) {
-    $format = array('1' => 'Single Line', '2' => 'Two Lines', '3' => 'No Indicator');
+  function tep_cfg_google_adwords_conversion_get_format($value): string {
+    $format = ['1' => 'Single Line', '2' => 'Two Lines', '3' => 'No Indicator'];
 
     return $format[$value];
   }

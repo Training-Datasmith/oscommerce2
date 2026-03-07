@@ -3,7 +3,7 @@ use OSC\OM\FileSystem;
 use OSC\OM\HTML;
 use OSC\OM\OSCOM;
 
-if ((isset($_SERVER['HTTPS']) && (strtolower($_SERVER['HTTPS']) == 'on')) || (isset($_SERVER['SERVER_PORT']) && ($_SERVER['SERVER_PORT'] == 443))) {
+if ((isset($_SERVER['HTTPS']) && (strtolower((string) $_SERVER['HTTPS']) == 'on')) || (isset($_SERVER['SERVER_PORT']) && ($_SERVER['SERVER_PORT'] == 443))) {
     $conn = 'https';
 } else {
     $conn = 'http';
@@ -19,7 +19,7 @@ if (isset($_SERVER['REQUEST_URI']) && !empty($_SERVER['REQUEST_URI'])) {
 
 $www_location = substr($www_location, 0, strpos($www_location, 'install'));
 
-$dir_fs_www_root = dirname(dirname(OSCOM::BASE_DIR)) . '/';
+$dir_fs_www_root = dirname(OSCOM::BASE_DIR, 2) . '/';
 ?>
 
 <div class="row">

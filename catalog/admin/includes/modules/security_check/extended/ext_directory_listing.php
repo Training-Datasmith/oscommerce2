@@ -10,8 +10,8 @@
   use OSC\OM\Registry;
 
   class securityCheckExtended_ext_directory_listing {
-    var $type = 'warning';
-    var $has_doc = true;
+    public $type = 'warning';
+    public $has_doc = true;
 
     protected $lang;
 
@@ -23,7 +23,7 @@
       $this->title = OSCOM::getDef('module_security_check_extended_ext_directory_listing_title');
     }
 
-    function pass() {
+    function pass(): bool {
       $request = $this->getHttpRequest(OSCOM::link('Shop/ext/'));
 
       return $request['http_code'] != 200;
@@ -37,7 +37,7 @@
     }
 
     function getHttpRequest($url) {
-      $server = parse_url($url);
+      $server = parse_url((string) $url);
 
       if (isset($server['port']) === false) {
         $server['port'] = ($server['scheme'] == 'https') ? 443 : 80;
@@ -56,7 +56,7 @@
       curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'HEAD');
       curl_setopt($curl, CURLOPT_NOBODY, true);
 
-      $result = curl_exec($curl);
+      curl_exec($curl);
 
       $info = curl_getinfo($curl);
 

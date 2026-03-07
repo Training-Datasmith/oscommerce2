@@ -13,11 +13,11 @@
 
 ////
 // Parse the data used in the html tags to ensure the tags will not break
-  function tep_parse_input_field_data($data, $parse) {
-    return strtr(trim($data), $parse);
+  function tep_parse_input_field_data($data, $parse): string {
+    return strtr(trim((string) $data), $parse);
   }
 
-  function tep_customers_name($customers_id) {
+  function tep_customers_name($customers_id): string {
     $Qcustomer = Registry::get('Db')->get('customers', [
       'customers_firstname',
       'customers_lastname'
@@ -28,7 +28,7 @@
     return $Qcustomer->value('customers_firstname') . ' ' . $Qcustomer->value('customers_lastname');
   }
 
-  function tep_get_path($current_category_id = '') {
+  function tep_get_path(?string $current_category_id = ''): string {
     global $cPath_array;
 
     $OSCOM_Db = Registry::get('Db');
@@ -57,7 +57,7 @@
 
         $cPath_new .= '_' . $current_category_id;
 
-        if (substr($cPath_new, 0, 1) == '_') {
+        if (str_starts_with($cPath_new, '_')) {
           $cPath_new = substr($cPath_new, 1);
         }
       }
@@ -66,10 +66,10 @@
     return 'cPath=' . $cPath_new;
   }
 
-  function tep_get_all_get_params($exclude_array = '') {
+  function tep_get_all_get_params($exclude_array = ''): string {
 
     if ($exclude_array == '') {
-      $exclude_array = array();
+      $exclude_array = [];
     } elseif (is_string($exclude_array)) {
       $exclude_array = [
         $exclude_array
@@ -85,12 +85,12 @@
     return $get_url;
   }
 
-  function tep_get_category_tree($parent_id = '0', $spacing = '', $exclude = '', $category_tree_array = '', $include_itself = false) {
+  function tep_get_category_tree($parent_id = '0', string $spacing = '', $exclude = '', $category_tree_array = '', $include_itself = false) {
     $OSCOM_Db = Registry::get('Db');
     $OSCOM_Language = Registry::get('Language');
 
-    if (!is_array($category_tree_array)) $category_tree_array = array();
-    if ( (sizeof($category_tree_array) < 1) && ($exclude != '0') ) $category_tree_array[] = array('id' => '0', 'text' => OSCOM::getDef('text_top'));
+    if (!is_array($category_tree_array)) $category_tree_array = [];
+    if ( (sizeof($category_tree_array) < 1) && ($exclude != '0') ) $category_tree_array[] = ['id' => '0', 'text' => OSCOM::getDef('text_top')];
 
     if ($include_itself) {
       $Qcategory = $OSCOM_Db->get('categories_description', 'categories_name', ['language_id' => $OSCOM_Language->getId(), 'categories_id' => (int)$parent_id]);
@@ -120,21 +120,21 @@
     ]);
 
     while ($Qcategories->fetch()) {
-      if ($exclude != $Qcategories->valueInt('categories_id')) $category_tree_array[] = array('id' => $Qcategories->valueInt('categories_id'), 'text' => $spacing . $Qcategories->value('categories_name'));
+      if ($exclude != $Qcategories->valueInt('categories_id')) $category_tree_array[] = ['id' => $Qcategories->valueInt('categories_id'), 'text' => $spacing . $Qcategories->value('categories_name')];
       $category_tree_array = tep_get_category_tree($Qcategories->valueInt('categories_id'), $spacing . '&nbsp;&nbsp;&nbsp;', $exclude, $category_tree_array);
     }
 
     return $category_tree_array;
   }
 
-  function tep_draw_products_pull_down($name, $parameters = '', $exclude = '') {
+  function tep_draw_products_pull_down(string $name, ?string $parameters = '', $exclude = ''): string {
     global $currencies;
 
     $OSCOM_Db = Registry::get('Db');
     $OSCOM_Language = Registry::get('Language');
 
     if ($exclude == '') {
-      $exclude = array();
+      $exclude = [];
     }
 
     $select_string = '<select name="' . $name . '"';
@@ -165,12 +165,10 @@
       }
     }
 
-    $select_string .= '</select>';
-
-    return $select_string;
+    return $select_string . '</select>';
   }
 
-  function tep_format_system_info_array($array) {
+  function tep_format_system_info_array($array): string {
 
     $output = '';
     foreach ($array as $section => $child) {
@@ -207,21 +205,19 @@
     return $Qvalues->value('products_options_values_name');
   }
 
-  function tep_info_image($image, $alt, $width = '', $height = '') {
+  function tep_info_image(string $image, $alt, $width = '', $height = '') {
     if (tep_not_null($image) && is_file(OSCOM::getConfig('dir_root', 'Shop') . 'images/' . $image)) {
-      $image = HTML::image(OSCOM::linkImage('Shop/' . $image), $alt, $width, $height);
-    } else {
-      $image = OSCOM::getDef('text_image_nonexistent');
+      return HTML::image(OSCOM::linkImage('Shop/' . $image), $alt, $width, $height);
     }
 
-    return $image;
+    return OSCOM::getDef('text_image_nonexistent');
   }
 
-  function tep_break_string($string, $len, $break_char = '-') {
+  function tep_break_string($string, $len, string $break_char = '-'): string {
     $l = 0;
     $output = '';
-    for ($i=0, $n=strlen($string); $i<$n; $i++) {
-      $char = substr($string, $i, 1);
+    for ($i=0, $n=strlen((string) $string); $i<$n; $i++) {
+      $char = substr((string) $string, $i, 1);
       if ($char != ' ') {
         $l++;
       } else {
@@ -257,23 +253,20 @@
     return $default_zone;
   }
 
-  function tep_not_null($value) {
+  function tep_not_null($value): bool {
     if (is_array($value)) {
       if (sizeof($value) > 0) {
         return true;
-      } else {
-        return false;
       }
-    } else {
-      if ( (is_string($value) || is_int($value)) && ($value != '') && ($value != 'NULL') && (strlen(trim($value)) > 0)) {
-        return true;
-      } else {
-        return false;
-      }
+      return false;
     }
+    if ( (is_string($value) || is_int($value)) && ($value != '') && ($value != 'NULL') && (strlen(trim((string) $value)) > 0)) {
+      return true;
+    }
+    return false;
   }
 
-  function tep_tax_classes_pull_down($parameters, $selected = '') {
+  function tep_tax_classes_pull_down(string $parameters, $selected = ''): string {
     $select_string = '<select ' . $parameters . '>';
 
     $Qclasses = Registry::get('Db')->get('tax_class', [
@@ -291,12 +284,10 @@
       $select_string .= '>' . $Qclasses->value('tax_class_title') . '</option>';
     }
 
-    $select_string .= '</select>';
-
-    return $select_string;
+    return $select_string . '</select>';
   }
 
-  function tep_geo_zones_pull_down($parameters, $selected = '') {
+  function tep_geo_zones_pull_down(string $parameters, $selected = ''): string {
     $select_string = '<select ' . $parameters . '>';
 
     $Qzones = Registry::get('Db')->get('geo_zones', [
@@ -314,9 +305,7 @@
       $select_string .= '>' . $Qzones->value('geo_zone_name') . '</option>';
     }
 
-    $select_string .= '</select>';
-
-    return $select_string;
+    return $select_string . '</select>';
   }
 
   function tep_get_geo_zone_name($geo_zone_id) {
@@ -329,7 +318,7 @@
     return $geo_zone_id;
   }
 
-  function tep_address_format($address_format_id, $address, $html, $boln, $eoln) {
+  function tep_address_format($address_format_id, array $address, $html, string $boln, $eoln): string {
     $Qaddress = Registry::get('Db')->get('address_format', 'address_format', ['address_format_id' => (int)$address_format_id]);
 
     $replace = [
@@ -396,7 +385,7 @@
     $address = strtr($Qaddress->value('address_format'), $replace);
 
     if ( (ACCOUNT_COMPANY == 'true') && tep_not_null($replace['$company']) ) {
-      $address = $replace['$company'] . $replace['$cr'] . $address;
+      return $replace['$company'] . $replace['$cr'] . $address;
     }
 
     return $address;
@@ -427,7 +416,7 @@
 
   function tep_get_uprid($prid, $params) {
     $uprid = $prid;
-    if ( (is_array($params)) && (!strstr($prid, '{')) ) {
+    if ( (is_array($params)) && (!strstr((string) $prid, '{')) ) {
       foreach ( $params as $option => $value ) {
         $uprid = $uprid . '{' . $option . '}' . $value;
       }
@@ -436,13 +425,16 @@
     return $uprid;
   }
 
-  function tep_get_prid($uprid) {
-    $pieces = explode('{', $uprid);
+  function tep_get_prid($uprid): string {
+    $pieces = explode('{', (string) $uprid);
 
     return $pieces[0];
   }
 
-  function tep_get_languages() {
+  /**
+   * @return array{id: mixed, name: mixed, code: mixed, image: mixed, directory: mixed}[]
+   */
+  function tep_get_languages(): array {
     $languages_array = [];
 
     $Qlanguages = Registry::get('Db')->get('languages', [
@@ -483,7 +475,10 @@
     return $Qstatus->value('orders_status_name');
   }
 
-  function tep_get_orders_status() {
+  /**
+   * @return array{id: mixed, text: mixed}[]
+   */
+  function tep_get_orders_status(): array {
     $OSCOM_Db = Registry::get('Db');
     $OSCOM_Language = Registry::get('Language');
 
@@ -507,7 +502,7 @@
   }
 
   function tep_get_products_name($product_id, $language_id = 0) {
-    $OSCOM_Db = Registry::get('Db');
+    Registry::get('Db');
     $OSCOM_Language = Registry::get('Language');
 
     if (empty($language_id) || !is_numeric($language_id)) $language_id = $OSCOM_Language->getId();
@@ -585,7 +580,7 @@
 ////
 // Count how many subcategories exist in a category
 // TABLES: categories
-  function tep_childs_in_category_count($categories_id) {
+  function tep_childs_in_category_count($categories_id): int|float {
     $categories_count = 0;
 
     $Qcategories = Registry::get('Db')->get('categories', 'categories_id', ['parent_id' => (int)$categories_id]);
@@ -600,13 +595,16 @@
   }
 
 ////
-// Returns an array with countries
-// TABLES: countries
-  function tep_get_countries($default = '') {
-    $countries_array = array();
+  // Returns an array with countries
+  // TABLES: countries
+  /**
+   * @return array{id: mixed, text: mixed}[]
+   */
+  function tep_get_countries($default = ''): array {
+    $countries_array = [];
     if ($default) {
-      $countries_array[] = array('id' => '',
-                                 'text' => $default);
+      $countries_array[] = ['id' => '',
+                                 'text' => $default];
     }
 
     $Qcountries = Registry::get('Db')->get('countries', ['countries_id', 'countries_name'], null, 'countries_name');
@@ -622,9 +620,12 @@
   }
 
 ////
-// return an array with country zones
-  function tep_get_country_zones($country_id) {
-    $zones_array = array();
+  // return an array with country zones
+  /**
+   * @return array{id: mixed, text: mixed}[]
+   */
+  function tep_get_country_zones($country_id): array {
+    $zones_array = [];
 
     $Qzones = Registry::get('Db')->get('zones', [
       'zone_id',
@@ -643,22 +644,23 @@
     return $zones_array;
   }
 
-  function tep_prepare_country_zones_pull_down($country_id = '') {
+  function tep_prepare_country_zones_pull_down($country_id = ''): array {
     $zones = tep_get_country_zones($country_id);
 
     if (sizeof($zones) > 0) {
-      $zones_select = array(array('id' => '', 'text' => OSCOM::getDef('please_select')));
-      $zones = array_merge($zones_select, $zones);
-    } else {
-      $zones = array(array('id' => '', 'text' => OSCOM::getDef('type_below')));
+      $zones_select = [['id' => '', 'text' => OSCOM::getDef('please_select')]];
+      return array_merge($zones_select, $zones);
     }
 
-    return $zones;
+    return [['id' => '', 'text' => OSCOM::getDef('type_below')]];
   }
 
 ////
-// Get list of address_format_id's
-  function tep_get_address_formats() {
+  // Get list of address_format_id's
+  /**
+   * @return array{id: mixed, text: mixed}[]
+   */
+  function tep_get_address_formats(): array {
     $address_format_array = [];
 
     $Qaddress = Registry::get('Db')->get('address_format', 'address_format_id', null, 'address_format_id');
@@ -683,7 +685,7 @@
     return HTML::selectField('configuration_value', tep_get_country_zones(STORE_COUNTRY), $zone_id);
   }
 
-  function tep_cfg_pull_down_tax_classes($tax_class_id, $key = '') {
+  function tep_cfg_pull_down_tax_classes($tax_class_id, string $key = '') {
     $name = tep_not_null($key) ? 'configuration[' . $key . ']' : 'configuration_value';
 
     $tax_class_array = [
@@ -707,7 +709,7 @@
 
 ////
 // Function to read in text area in admin
- function tep_cfg_textarea($text, $key = '') {
+ function tep_cfg_textarea($text, string $key = '') {
     $name = tep_not_null($key) ? 'configuration[' . $key . ']' : 'configuration_value';
 
     return HTML::textareaField($name, 35, 5, $text);
@@ -727,105 +729,105 @@
 // Sets the status of a banner
   function tep_set_banner_status($banners_id, $status) {
     $OSCOM_Db = Registry::get('Db');
-
     if ($status == '1') {
-      return $OSCOM_Db->save('banners', [
-        'status' => '1',
-        'expires_impressions' => 'null',
-        'expires_date' => 'null',
-        'date_status_change' => 'null'
-      ], [
-        'banners_id' => (int)$banners_id
-      ]);
-    } elseif ($status == '0') {
-      return $OSCOM_Db->save('banners', [
-        'status' => '0',
-        'date_status_change' => 'now()'
-      ], [
-        'banners_id' => (int)$banners_id
-      ]);
-    } else {
-      return -1;
+        return $OSCOM_Db->save('banners', [
+          'status' => '1',
+          'expires_impressions' => 'null',
+          'expires_date' => 'null',
+          'date_status_change' => 'null'
+        ], [
+          'banners_id' => (int)$banners_id
+        ]);
     }
+
+    if ($status == '0') {
+        return $OSCOM_Db->save('banners', [
+          'status' => '0',
+          'date_status_change' => 'now()'
+        ], [
+          'banners_id' => (int)$banners_id
+        ]);
+    }
+    return -1;
   }
 
 ////
 // Sets the status of a product
   function tep_set_product_status($products_id, $status) {
     $OSCOM_Db = Registry::get('Db');
-
     if ($status == '1') {
-      return $OSCOM_Db->save('products', [
-        'products_status' => '1',
-        'products_last_modified' => 'now()'
-      ], [
-        'products_id' => (int)$products_id
-      ]);
-    } elseif ($status == '0') {
-      return $OSCOM_Db->save('products', [
-        'products_status' => '0',
-        'products_last_modified' => 'now()'
-      ], [
-        'products_id' => (int)$products_id
-      ]);
-    } else {
-      return -1;
+        return $OSCOM_Db->save('products', [
+          'products_status' => '1',
+          'products_last_modified' => 'now()'
+        ], [
+          'products_id' => (int)$products_id
+        ]);
     }
+
+    if ($status == '0') {
+        return $OSCOM_Db->save('products', [
+          'products_status' => '0',
+          'products_last_modified' => 'now()'
+        ], [
+          'products_id' => (int)$products_id
+        ]);
+    }
+    return -1;
   }
 
 ////
 // Sets the status of a review
   function tep_set_review_status($reviews_id, $status) {
     $OSCOM_Db = Registry::get('Db');
-
     if ($status == '1') {
-      return $OSCOM_Db->save('reviews', [
-        'reviews_status' => '1',
-        'last_modified' => 'now()'
-      ], [
-        'reviews_id' => (int)$reviews_id
-      ]);
-    } elseif ($status == '0') {
-      return $OSCOM_Db->save('reviews', [
-        'reviews_status' => '0',
-        'last_modified' => 'now()'
-      ], [
-        'reviews_id' => (int)$reviews_id
-      ]);
-    } else {
-      return -1;
+        return $OSCOM_Db->save('reviews', [
+          'reviews_status' => '1',
+          'last_modified' => 'now()'
+        ], [
+          'reviews_id' => (int)$reviews_id
+        ]);
     }
+
+    if ($status == '0') {
+        return $OSCOM_Db->save('reviews', [
+          'reviews_status' => '0',
+          'last_modified' => 'now()'
+        ], [
+          'reviews_id' => (int)$reviews_id
+        ]);
+    }
+    return -1;
   }
 
 ////
 // Sets the status of a product on special
   function tep_set_specials_status($specials_id, $status) {
     $OSCOM_Db = Registry::get('Db');
-
     if ($status == '1') {
-      return $OSCOM_Db->save('specials', [
-        'status' => '1',
-        'expires_date' => 'null',
-        'date_status_change' => 'null'
-      ], [
-        'specials_id' => (int)$specials_id
-      ]);
-    } elseif ($status == '0') {
-      return $OSCOM_Db->save('specials', [
-        'status' => '0',
-        'date_status_change' => 'now()'
-      ], [
-        'specials_id' => (int)$specials_id
-      ]);
-    } else {
-      return -1;
+        return $OSCOM_Db->save('specials', [
+          'status' => '1',
+          'expires_date' => 'null',
+          'date_status_change' => 'null'
+        ], [
+          'specials_id' => (int)$specials_id
+        ]);
     }
+
+    if ($status == '0') {
+        return $OSCOM_Db->save('specials', [
+          'status' => '0',
+          'date_status_change' => 'now()'
+        ], [
+          'specials_id' => (int)$specials_id
+        ]);
+    }
+    return -1;
   }
 
 ////
 // Sets timeout for the current script.
 // Cant be used in safe mode.
-  function tep_set_time_limit($limit) {
+  function tep_set_time_limit($limit): void {
     if (!get_cfg_var('safe_mode')) {
       set_time_limit($limit);
     }
@@ -833,7 +835,7 @@
 
 ////
 // Alias function for Store configuration values in the Administration Tool
-  function tep_cfg_select_option($select_array, $key_value, $key = '') {
+  function tep_cfg_select_option($select_array, $key_value, string $key = ''): string {
     $string = '';
 
     for ($i=0, $n=sizeof($select_array); $i<$n; $i++) {
@@ -851,7 +853,7 @@
 
 ////
 // Alias function for module configuration keys
-  function tep_mod_select_option($select_array, $key_name, $key_value) {
+  function tep_mod_select_option($select_array, string $key_name, $key_value): string {
     foreach ( $select_array as $key => $value ) {
       if (is_int($key)) $key = $value;
       $string .= '<br /><input type="radio" name="configuration[' . $key_name . ']" value="' . $key . '"';
@@ -864,27 +866,27 @@
 
 ////
 // Retreive server information
-  function tep_get_system_information() {
+  function tep_get_system_information(): array {
     $OSCOM_Db = Registry::get('Db');
 
     $Qdate = $OSCOM_Db->query('select now() as datetime');
 
-    @list($system, $host, $kernel) = preg_split('/[\s,]+/', @exec('uname -a'), 5);
+    @[$system, $host, $kernel] = preg_split('/[\s,]+/', @exec('uname -a'), 5);
 
-    $data = array();
+    $data = [];
 
-    $data['oscommerce']  = array('version' => OSCOM::getVersion());
+    $data['oscommerce']  = ['version' => OSCOM::getVersion()];
 
-    $data['system'] = array('date' => date('Y-m-d H:i:s O T'),
+    $data['system'] = ['date' => date('Y-m-d H:i:s O T'),
                             'os' => PHP_OS,
                             'kernel' => $kernel,
                             'uptime' => @exec('uptime'),
-                            'http_server' => $_SERVER['SERVER_SOFTWARE']);
+                            'http_server' => $_SERVER['SERVER_SOFTWARE']];
 
-    $data['mysql']  = array('version' => $OSCOM_Db->getAttribute(\PDO::ATTR_SERVER_VERSION),
-                            'date' => $Qdate->value('datetime'));
+    $data['mysql']  = ['version' => $OSCOM_Db->getAttribute(\PDO::ATTR_SERVER_VERSION),
+                            'date' => $Qdate->value('datetime')];
 
-    $data['php']    = array('version' => PHP_VERSION,
+    $data['php']    = ['version' => PHP_VERSION,
                             'zend' => zend_version(),
                             'sapi' => PHP_SAPI,
                             'int_size'	=> defined('PHP_INT_SIZE') ? PHP_INT_SIZE : '',
@@ -908,7 +910,7 @@
                             'unicode.semantics' => (int) @ini_get('unicode.semantics'),
                             'zend_thread_safty'	=> (int) function_exists('zend_thread_id'),
                             'opcache.enable' => @ini_get('opcache.enable'),
-                            'extensions' => get_loaded_extensions());
+                            'extensions' => get_loaded_extensions()];
 
     return $data;
   }
@@ -998,7 +1000,7 @@
     }
     $calculated_category_path_string = substr($calculated_category_path_string, 0, -6);
 
-    if (strlen($calculated_category_path_string) < 1) $calculated_category_path_string = OSCOM::getDef('text_top');
+    if (strlen($calculated_category_path_string) < 1) return OSCOM::getDef('text_top');
 
     return $calculated_category_path_string;
   }
@@ -1014,12 +1016,12 @@
     }
     $calculated_category_path_string = substr($calculated_category_path_string, 0, -6);
 
-    if (strlen($calculated_category_path_string) < 1) $calculated_category_path_string = OSCOM::getDef('text_top');
+    if (strlen($calculated_category_path_string) < 1) return OSCOM::getDef('text_top');
 
     return $calculated_category_path_string;
   }
 
-  function tep_remove_category($category_id) {
+  function tep_remove_category($category_id): void {
     $OSCOM_Db = Registry::get('Db');
 
     $Qimage = $OSCOM_Db->get('categories', 'categories_image', ['categories_id' => (int)$category_id]);
@@ -1046,7 +1048,7 @@
     Cache::clear('products-also_purchased');
   }
 
-  function tep_remove_product($product_id) {
+  function tep_remove_product($product_id): void {
     $OSCOM_Db = Registry::get('Db');
 
     $Qimage = $OSCOM_Db->get('products', 'products_image', ['products_id' => (int)$product_id]);
@@ -1115,7 +1117,7 @@
     Cache::clear('products-also_purchased');
   }
 
-  function tep_remove_order($order_id, $restock = false) {
+  function tep_remove_order($order_id, $restock = false): void {
     $OSCOM_Db = Registry::get('Db');
 
     if ($restock == 'on') {
@@ -1140,7 +1142,7 @@
     $OSCOM_Db->delete('orders_total', ['orders_id' => (int)$order_id]);
   }
 
-  function tep_get_file_permissions($mode) {
+  function tep_get_file_permissions($mode): string {
 // determine type
     if ( ($mode & 0xC000) == 0xC000) { // unix domain socket
       $type = 's';
@@ -1185,23 +1187,23 @@
 ////
 // Output the tax percentage with optional padded decimals
   function tep_display_tax_value($value, $padding = TAX_DECIMAL_PLACES) {
-    if (strpos($value, '.')) {
+    if (strpos((string) $value, '.')) {
       $loop = true;
       while ($loop) {
-        if (substr($value, -1) == '0') {
-          $value = substr($value, 0, -1);
+        if (str_ends_with((string) $value, '0')) {
+          $value = substr((string) $value, 0, -1);
         } else {
           $loop = false;
-          if (substr($value, -1) == '.') {
-            $value = substr($value, 0, -1);
+          if (str_ends_with((string) $value, '.')) {
+            $value = substr((string) $value, 0, -1);
           }
         }
       }
     }
 
     if ($padding > 0) {
-      if ($decimal_pos = strpos($value, '.')) {
-        $decimals = strlen(substr($value, ($decimal_pos+1)));
+      if ($decimal_pos = strpos((string) $value, '.')) {
+        $decimals = strlen(substr((string) $value, ($decimal_pos+1)));
         for ($i=$decimals; $i<$padding; $i++) {
           $value .= '0';
         }
@@ -1219,21 +1221,21 @@
   function tep_get_tax_class_title($tax_class_id) {
     if ($tax_class_id == '0') {
       return OSCOM::getDef('text_none');
-    } else {
-      $Qclass = Registry::get('Db')->get('tax_class', 'tax_class_title', ['tax_class_id' => (int)$tax_class_id]);
-
-      return $Qclass->value('tax_class_title');
     }
+    $Qclass = Registry::get('Db')->get('tax_class', 'tax_class_title', ['tax_class_id' => (int)$tax_class_id]);
+    return $Qclass->value('tax_class_title');
   }
 
-  function tep_banner_image_extension() {
+  function tep_banner_image_extension(): string|false {
     if (function_exists('imagetypes')) {
       if (imagetypes() & IMG_PNG) {
-        return 'png';
-      } elseif (imagetypes() & IMG_JPG) {
-        return 'jpg';
-      } elseif (imagetypes() & IMG_GIF) {
-        return 'gif';
+          return 'png';
+      }
+      if (imagetypes() & IMG_JPG) {
+          return 'jpg';
+      }
+      if (imagetypes() & IMG_GIF) {
+          return 'gif';
       }
     } elseif (function_exists('imagecreatefrompng') && function_exists('imagepng')) {
       return 'png';
@@ -1248,7 +1250,7 @@
 
 ////
 // Wrapper function for round() for php3 compatibility
-  function tep_round($value, $precision) {
+  function tep_round($value, $precision): float {
     return round($value, $precision);
   }
 
@@ -1257,20 +1259,19 @@
   function tep_add_tax($price, $tax, $override = false) {
     if ( ( (DISPLAY_PRICE_WITH_TAX == 'true') || ($override == true) ) && ($tax > 0) ) {
       return $price + tep_calculate_tax($price, $tax);
-    } else {
-      return $price;
     }
+    return $price;
   }
 
 // Calculates Tax rounding the result
-  function tep_calculate_tax($price, $tax) {
+  function tep_calculate_tax($price, $tax): int|float {
     return $price * $tax / 100;
   }
 
 ////
 // Returns the tax rate for a zone / class
 // TABLES: tax_rates, zones_to_geo_zones
-  function tep_get_tax_rate($class_id, $country_id = -1, $zone_id = -1) {
+  function tep_get_tax_rate($class_id, $country_id = -1, $zone_id = -1): int|float {
     global $customer_zone_id, $customer_country_id;
 
     if ( ($country_id == -1) && ($zone_id == -1) ) {
@@ -1292,9 +1293,8 @@
       } while ($Qtax->fetch());
 
       return $tax_multiplier;
-    } else {
-      return 0;
     }
+    return 0;
   }
 
 ////
@@ -1304,29 +1304,26 @@
     return tep_get_tax_rate($class_id, -1, -1);
   }
 
-  function tep_call_function($function, $parameter, $object = '') {
+  function tep_call_function($function, $parameter, $object = ''): mixed {
     if ($object == '') {
       return call_user_func($function, $parameter);
-    } else {
-      return call_user_func(array($object, $function), $parameter);
     }
+    return call_user_func([$object, $function], $parameter);
   }
 
   function tep_get_zone_class_title($zone_class_id) {
     if ($zone_class_id == '0') {
       return OSCOM::getDef('text_none');
-    } else {
-      $Qclass = Registry::get('Db')->get('geo_zones', [
-        'geo_zone_name'
-      ], [
-        'geo_zone_id' => (int)$zone_class_id
-      ]);
-
-      return $Qclass->value('geo_zone_name');
     }
+    $Qclass = Registry::get('Db')->get('geo_zones', [
+      'geo_zone_name'
+    ], [
+      'geo_zone_id' => (int)$zone_class_id
+    ]);
+    return $Qclass->value('geo_zone_name');
   }
 
-  function tep_cfg_pull_down_zone_classes($zone_class_id, $key = '') {
+  function tep_cfg_pull_down_zone_classes($zone_class_id, ?string $key = '') {
     $name = !empty($key) ? 'configuration[' . $key . ']' : 'configuration_value';
 
     $zone_class_array = [
@@ -1351,7 +1348,7 @@
     return HTML::selectField($name, $zone_class_array, $zone_class_id);
   }
 
-  function tep_cfg_pull_down_order_statuses($order_status_id, $key = '') {
+  function tep_cfg_pull_down_order_statuses($order_status_id, ?string $key = '') {
     $OSCOM_Db = Registry::get('Db');
     $OSCOM_Language = Registry::get('Language');
 
@@ -1395,15 +1392,16 @@
   }
 
 ////
-// Parse and secure the cPath parameter values
-  function tep_parse_category_path($cPath) {
+  // Parse and secure the cPath parameter values
+  /**
+   * @return mixed[]
+   */
+  function tep_parse_category_path($cPath): array {
 // make sure the category IDs are integers
-    $cPath_array = array_map(function ($string) {
-      return (int)$string;
-    }, explode('_', $cPath));
+    $cPath_array = array_map(fn($string) => (int)$string, explode('_', (string) $cPath));
 
 // make sure no duplicate category IDs exist which could lock the server in a loop
-    $tmp_array = array();
+    $tmp_array = [];
     $n = sizeof($cPath_array);
     for ($i=0; $i<$n; $i++) {
       if (!in_array($cPath_array[$i], $tmp_array)) {
@@ -1417,7 +1415,7 @@
 ////
 // javascript to dynamically update the states/provinces list when the country is changed
 // TABLES: zones
-  function tep_js_zone_list($country, $form, $field) {
+  function tep_js_zone_list(string $country, string $form, string $field): string {
     $OSCOM_Db = Registry::get('Db');
 
     $num_country = 1;
@@ -1448,10 +1446,7 @@
       }
       $num_country++;
     }
-    $output_string .= '  } else {' . "\n" .
-                      '    ' . $form . '.' . $field . '.options[0] = new Option("' . OSCOM::getDef('type_below') . '", "");' . "\n" .
-                      '  }' . "\n";
 
-    return $output_string;
+    return $output_string . ('  } else {' . "\n" . '    ' . $form . '.' . $field . '.options[0] = new Option("' . OSCOM::getDef('type_below') . '", "");' . "\n" . '  }' . "\n");
   }
 ?>

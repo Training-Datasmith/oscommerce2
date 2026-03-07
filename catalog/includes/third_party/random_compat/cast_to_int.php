@@ -44,7 +44,7 @@ if (!is_callable('RandomCompat_intval')) {
      *
      * @throws TypeError
      */
-    function RandomCompat_intval($number, $fail_open = false)
+    function RandomCompat_intval($number, $fail_open = false): int|float
     {
         if (is_numeric($number)) {
             $number += 0;

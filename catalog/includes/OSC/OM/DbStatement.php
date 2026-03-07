@@ -55,7 +55,7 @@ class DbStatement extends \PDOStatement
         return $this->bindValue($parameter, null, \PDO::PARAM_NULL);
     }
 
-    public function setPageSet($max_results, $page_set_keyword = null, $placeholder_offset = 'page_set_offset', $placeholder_max_results = 'page_set_max_results')
+    public function setPageSet($max_results, $page_set_keyword = null, string $placeholder_offset = 'page_set_offset', string $placeholder_max_results = 'page_set_max_results'): void
     {
         if (!empty($page_set_keyword)) {
             $this->page_set_keyword = $page_set_keyword;
@@ -70,7 +70,7 @@ class DbStatement extends \PDOStatement
         $this->bindInt(':' . $placeholder_max_results, $max_results);
     }
 
-    public function execute($input_parameters = null)
+    public function execute($input_parameters = null): void
     {
         if (isset($this->cache)) {
             if (isset($this->page_set)) {
@@ -100,7 +100,7 @@ class DbStatement extends \PDOStatement
                 trigger_error($this->queryString);
             }
 
-            if (strpos($this->queryString, ' SQL_CALC_FOUND_ROWS ') !== false) {
+            if (str_contains($this->queryString, ' SQL_CALC_FOUND_ROWS ')) {
                 $this->page_set_total_rows = $this->pdo->query('select found_rows()')->fetchColumn();
             } elseif (isset($this->page_set)) {
                 trigger_error('OSC\OM\DbStatement::execute(): Page Set query does not contain SQL_CALC_FOUND_ROWS. Please add it to the query: ' . $this->queryString);
@@ -114,7 +114,8 @@ class DbStatement extends \PDOStatement
         $cursor_offset = 0
     ) {
         if ($this->cache_read === true) {
-            list(, $this->result) = each($this->cache_data);
+            $this->result = current($this->cache_data);
+            next($this->cache_data);
         } else {
             $this->result = parent::fetch($fetch_style, $cursor_orientation, $cursor_offset);
 
@@ -137,7 +138,7 @@ class DbStatement extends \PDOStatement
         } else {
 // fetchAll() fails if second argument is passed in a fetch style that does not
 // use the optional argument
-            if (in_array($fetch_style, array(\PDO::FETCH_COLUMN, \PDO::FETCH_CLASS, \PDO::FETCH_FUNC))) {
+            if (in_array($fetch_style, [\PDO::FETCH_COLUMN, \PDO::FETCH_CLASS, \PDO::FETCH_FUNC])) {
                 $this->result = parent::fetchAll($fetch_style, $fetch_argument, $ctor_args);
             } else {
                 $this->result = parent::fetchAll($fetch_style);
@@ -151,7 +152,7 @@ class DbStatement extends \PDOStatement
         return $this->result;
     }
 
-    public function check()
+    public function check(): bool
     {
         if (!isset($this->result)) {
             $this->fetch();
@@ -169,7 +170,7 @@ class DbStatement extends \PDOStatement
         return $this->result;
     }
 
-    public function setCache($key, $expire = null, $cache_empty_results = false)
+    public function setCache(string $key, $expire = null, $cache_empty_results = false): void
     {
         if (!is_numeric($expire)) {
             $expire = 0;
@@ -194,23 +195,12 @@ class DbStatement extends \PDOStatement
             $this->fetch();
         }
 
-        switch ($type) {
-            case 'protected':
-                return HTML::outputProtected($this->result[$column]);
-                break;
-
-            case 'int':
-                return (int)$this->result[$column];
-                break;
-
-            case 'decimal':
-                return (float)$this->result[$column];
-                break;
-
-            case 'string':
-            default:
-                return $this->result[$column];
-        }
+        return match ($type) {
+            'protected' => HTML::outputProtected($this->result[$column]),
+            'int' => (int)$this->result[$column],
+            'decimal' => (float)$this->result[$column],
+            default => $this->result[$column],
+        };
     }
 
     public function value($column)
@@ -233,7 +223,7 @@ class DbStatement extends \PDOStatement
         return $this->valueMixed($column, 'decimal');
     }
 
-    public function hasValue($column) {
+    public function hasValue($column): bool {
         if (!isset($this->result)) {
             $this->fetch();
         }
@@ -246,12 +236,12 @@ class DbStatement extends \PDOStatement
         return $this->is_error;
     }
 
-    public function getQuery()
+    public function getQuery(): string
     {
         return $this->queryString;
     }
 
-    public function setQueryCall($type)
+    public function setQueryCall($type): void
     {
         $this->query_call = $type;
     }
@@ -275,12 +265,12 @@ class DbStatement extends \PDOStatement
         return $this->page_set_total_rows;
     }
 
-    public function setPDO(\PDO $instance)
+    public function setPDO(\PDO $instance): void
     {
         $this->pdo = $instance;
     }
 
-    public function getPageSetLabel($text)
+    public function getPageSetLabel($text): string
     {
         if ($this->page_set_total_rows < 1) {
             $from = 0;
@@ -301,7 +291,7 @@ class DbStatement extends \PDOStatement
         ]) . '</span>';
     }
 
-    public function getPageSetLinks($parameters = null)
+    public function getPageSetLinks($parameters = null): string
     {
         global $PHP_SELF;
 

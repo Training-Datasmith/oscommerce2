@@ -31,7 +31,7 @@ $OSCOM_Db->save('configuration', ['configuration_value' => $_POST['CFG_STORE_OWN
 $OSCOM_Db->save('configuration', ['configuration_value' => $_POST['CFG_STORE_OWNER_EMAIL_ADDRESS']], ['configuration_key' => 'STORE_OWNER_EMAIL_ADDRESS']);
 
 if (!empty($_POST['CFG_STORE_OWNER_NAME']) && !empty($_POST['CFG_STORE_OWNER_EMAIL_ADDRESS'])) {
-    $OSCOM_Db->save('configuration', ['configuration_value' => '"' . trim($_POST['CFG_STORE_OWNER_NAME']) . '" <' . trim($_POST['CFG_STORE_OWNER_EMAIL_ADDRESS']) . '>'], ['configuration_key' => 'EMAIL_FROM']);
+    $OSCOM_Db->save('configuration', ['configuration_value' => '"' . trim((string) $_POST['CFG_STORE_OWNER_NAME']) . '" <' . trim((string) $_POST['CFG_STORE_OWNER_EMAIL_ADDRESS']) . '>'], ['configuration_key' => 'EMAIL_FROM']);
 } else {
     $OSCOM_Db->save('configuration', ['configuration_value' => $_POST['CFG_STORE_OWNER_EMAIL_ADDRESS']], ['configuration_key' => 'EMAIL_FROM']);
 }
@@ -42,9 +42,9 @@ if (!empty($_POST['CFG_ADMINISTRATOR_USERNAME'])) {
     $Qcheck->execute();
 
     if ($Qcheck->fetch() !== false) {
-        $OSCOM_Db->save('administrators', ['user_password' => Hash::encrypt(trim($_POST['CFG_ADMINISTRATOR_PASSWORD']))], ['user_name' => $_POST['CFG_ADMINISTRATOR_USERNAME']]);
+        $OSCOM_Db->save('administrators', ['user_password' => Hash::encrypt(trim((string) $_POST['CFG_ADMINISTRATOR_PASSWORD']))], ['user_name' => $_POST['CFG_ADMINISTRATOR_USERNAME']]);
     } else {
-        $OSCOM_Db->save('administrators', ['user_name' => $_POST['CFG_ADMINISTRATOR_USERNAME'], 'user_password' => Hash::encrypt(trim($_POST['CFG_ADMINISTRATOR_PASSWORD']))]);
+        $OSCOM_Db->save('administrators', ['user_name' => $_POST['CFG_ADMINISTRATOR_USERNAME'], 'user_password' => Hash::encrypt(trim((string) $_POST['CFG_ADMINISTRATOR_PASSWORD']))]);
     }
 }
 
@@ -64,15 +64,15 @@ foreach (glob(Cache::getPath() . '*.cache') as $c) {
 
 $dir_fs_document_root = $_POST['DIR_FS_DOCUMENT_ROOT'];
 
-if ((substr($dir_fs_document_root, -1) != '\\') && (substr($dir_fs_document_root, -1) != '/')) {
-    if (strrpos($dir_fs_document_root, '\\') !== false) {
+if ((!str_ends_with((string) $dir_fs_document_root, '\\')) && (!str_ends_with((string) $dir_fs_document_root, '/'))) {
+    if (strrpos((string) $dir_fs_document_root, '\\') !== false) {
         $dir_fs_document_root .= '\\';
     } else {
         $dir_fs_document_root .= '/';
     }
 }
 
-$http_url = parse_url($_POST['HTTP_WWW_ADDRESS']);
+$http_url = parse_url((string) $_POST['HTTP_WWW_ADDRESS']);
 $http_server = $http_url['scheme'] . '://' . $http_url['host'];
 $http_catalog = $http_url['path'];
 
@@ -80,14 +80,14 @@ if (isset($http_url['port']) && !empty($http_url['port'])) {
     $http_server .= ':' . $http_url['port'];
 }
 
-if (substr($http_catalog, -1) != '/') {
+if (!str_ends_with($http_catalog, '/')) {
     $http_catalog .= '/';
 }
 
 $admin_folder = 'admin';
 
 if (isset($_POST['CFG_ADMIN_DIRECTORY']) && !empty($_POST['CFG_ADMIN_DIRECTORY']) && FileSystem::isWritable($dir_fs_document_root) && FileSystem::isWritable($dir_fs_document_root . 'admin')) {
-    $admin_folder = preg_replace('/[^a-zA-Z0-9]/', '', trim($_POST['CFG_ADMIN_DIRECTORY']));
+    $admin_folder = preg_replace('/[^a-zA-Z0-9]/', '', trim((string) $_POST['CFG_ADMIN_DIRECTORY']));
 
     if (empty($admin_folder)) {
         $admin_folder = 'admin';
@@ -98,12 +98,12 @@ if ($admin_folder != 'admin') {
     @rename($dir_fs_document_root . 'admin', $dir_fs_document_root . $admin_folder);
 }
 
-$dbServer = trim($_POST['DB_SERVER']);
-$dbUsername = trim($_POST['DB_SERVER_USERNAME']);
-$dbPassword = trim($_POST['DB_SERVER_PASSWORD']);
-$dbDatabase = trim($_POST['DB_DATABASE']);
-$dbTablePrefix = trim($_POST['DB_TABLE_PREFIX']);
-$timezone = trim($_POST['TIME_ZONE']);
+$dbServer = trim((string) $_POST['DB_SERVER']);
+$dbUsername = trim((string) $_POST['DB_SERVER_USERNAME']);
+$dbPassword = trim((string) $_POST['DB_SERVER_PASSWORD']);
+$dbDatabase = trim((string) $_POST['DB_DATABASE']);
+$dbTablePrefix = trim((string) $_POST['DB_TABLE_PREFIX']);
+$timezone = trim((string) $_POST['TIME_ZONE']);
 
 $file_contents = <<<ENDCFG
 <?php
@@ -644,8 +644,8 @@ if (!isset($_POST['DB_SKIP_IMPORT'])) {
 
         foreach ($m['modules'] as $module) {
             $file = $module['file'];
-            $class = isset($module['class']) ? $module['class'] : basename($file, '.php');
-            $code = isset($module['code']) ? $module['code'] : $file;
+            $class = $module['class'] ?? basename($file, '.php');
+            $code = $module['code'] ?? $file;
 
             include($m['dir'] . $file);
 
@@ -705,8 +705,8 @@ if (!isset($_POST['DB_SKIP_IMPORT'])) {
     <br />
 
     <div class="row">
-      <div class="col-sm-6"><?php echo HTML::button('Online Store (Frontend)', 'fa fa-shopping-cart', $http_server . $http_catalog . 'index.php', array('newwindow' => 1), 'btn-success btn-block'); ?></div>
-      <div class="col-sm-6"><?php echo HTML::button('Administration Dashboard (Backend)', 'fa fa-lock', $http_server . $http_catalog . $admin_folder . '/index.php', array('newwindow' => 1), 'btn-info btn-block'); ?></div>
+      <div class="col-sm-6"><?php echo HTML::button('Online Store (Frontend)', 'fa fa-shopping-cart', $http_server . $http_catalog . 'index.php', ['newwindow' => 1], 'btn-success btn-block'); ?></div>
+      <div class="col-sm-6"><?php echo HTML::button('Administration Dashboard (Backend)', 'fa fa-lock', $http_server . $http_catalog . $admin_folder . '/index.php', ['newwindow' => 1], 'btn-info btn-block'); ?></div>
     </div>
   </div>
 

@@ -11,12 +11,18 @@
   use OSC\OM\Registry;
 
   class bm_currencies {
-    var $code = 'bm_currencies';
-    var $group = 'boxes';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    public $code = 'bm_currencies';
+    /**
+     * @var 'boxes_column_left'|'boxes_column_right'
+     */
+    public $group = 'boxes';
+    public $title;
+    public $description;
+    public $sort_order;
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
     function __construct() {
       $this->title = OSCOM::getDef('module_boxes_currencies_title');
@@ -30,15 +36,15 @@
       }
     }
 
-    function execute() {
+    function execute(): void {
       global $PHP_SELF, $currencies, $oscTemplate;
 
-      if (substr(basename($PHP_SELF), 0, 8) != 'checkout') {
+      if (!str_starts_with(basename((string) $PHP_SELF), 'checkout')) {
         if (isset($currencies) && is_object($currencies) && (count($currencies->currencies) > 1)) {
           reset($currencies->currencies);
-          $currencies_array = array();
+          $currencies_array = [];
           foreach($currencies->currencies as $key => $value) {
-            $currencies_array[] = array('id' => $key, 'text' => $value['title']);
+            $currencies_array[] = ['id' => $key, 'text' => $value['title']];
           }
 
           $hidden_get_variables = '';
@@ -63,11 +69,11 @@
       return $this->enabled;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_BOXES_CURRENCIES_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -107,8 +113,8 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_BOXES_CURRENCIES_STATUS', 'MODULE_BOXES_CURRENCIES_CONTENT_PLACEMENT', 'MODULE_BOXES_CURRENCIES_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_BOXES_CURRENCIES_STATUS', 'MODULE_BOXES_CURRENCIES_CONTENT_PLACEMENT', 'MODULE_BOXES_CURRENCIES_SORT_ORDER'];
     }
   }
 

@@ -16,7 +16,7 @@
     $_GET['page'] = 1;
   }
 
-  $action = (isset($_GET['action']) ? $_GET['action'] : '');
+  $action = ($_GET['action'] ?? '');
 
   $banner_extension = tep_banner_image_extension();
 
@@ -57,7 +57,6 @@
         echo json_encode($result);
 
         exit;
-        break;
       case 'setflag':
         if ( ($_GET['flag'] == '0') || ($_GET['flag'] == '1') ) {
           tep_set_banner_status($_GET['bID'], $_GET['flag']);
@@ -107,18 +106,18 @@
 
         if ($banner_error == false) {
           $db_image_location = (tep_not_null($banners_image_local)) ? $banners_image_local : $banners_image_target . $banners_image->filename;
-          $sql_data_array = array('banners_title' => $banners_title,
+          $sql_data_array = ['banners_title' => $banners_title,
                                   'banners_url' => $banners_url,
                                   'banners_image' => $db_image_location,
                                   'banners_group' => $banners_group,
                                   'banners_html_text' => $banners_html_text,
                                   'expires_date' => 'null',
                                   'expires_impressions' => 0,
-                                  'date_scheduled' => 'null');
+                                  'date_scheduled' => 'null'];
 
           if ($action == 'insert') {
-            $insert_sql_data = array('date_added' => 'now()',
-                                     'status' => '1');
+            $insert_sql_data = ['date_added' => 'now()',
+                                     'status' => '1'];
 
             $sql_data_array = array_merge($sql_data_array, $insert_sql_data);
 
@@ -134,7 +133,7 @@
           }
 
           if (tep_not_null($expires_date)) {
-            $expires_date = substr($expires_date, 0, 4) . substr($expires_date, 5, 2) . substr($expires_date, 8, 2);
+            $expires_date = substr((string) $expires_date, 0, 4) . substr((string) $expires_date, 5, 2) . substr((string) $expires_date, 8, 2);
 
             $OSCOM_Db->save('banners', [
               'expires_date' => $expires_date,
@@ -152,7 +151,7 @@
           }
 
           if (tep_not_null($date_scheduled)) {
-            $date_scheduled = substr($date_scheduled, 0, 4) . substr($date_scheduled, 5, 2) . substr($date_scheduled, 8, 2);
+            $date_scheduled = substr((string) $date_scheduled, 0, 4) . substr((string) $date_scheduled, 5, 2) . substr((string) $date_scheduled, 8, 2);
 
             $OSCOM_Db->save('banners', [
               'status' => '0',
@@ -242,14 +241,14 @@
 
       $form_action = 'insert';
 
-      $parameters = array('expires_date' => '',
+      $parameters = ['expires_date' => '',
                           'date_scheduled' => '',
                           'banners_title' => '',
                           'banners_url' => '',
                           'banners_group' => '',
                           'banners_image' => '',
                           'banners_html_text' => '',
-                          'expires_impressions' => '');
+                          'expires_impressions' => ''];
 
       $bInfo = new objectInfo($parameters);
 
@@ -319,7 +318,7 @@
       <label for="banners_image_local"><?= OSCOM::getDef('text_banners_image_local'); ?></label>
       <div class="input-group">
         <div class="input-group-addon"><?= OSCOM::getConfig('dir_root', 'Shop') . 'images/'; ?></div>
-        <?= HTML::inputField('banners_image_local', (isset($bInfo->banners_image) ? $bInfo->banners_image : '')); ?>
+        <?= HTML::inputField('banners_image_local', ($bInfo->banners_image ?? '')); ?>
       </div>
     </div>
 
@@ -371,13 +370,13 @@
           $bInfo = new objectInfo($Qbanner->toArray());
 
           if ($action == 'delete') {
-            $heading[] = array('text' => $bInfo->banners_title);
+            $heading[] = ['text' => $bInfo->banners_title];
 
-            $contents = array('form' => HTML::form('banners', OSCOM::link(FILENAME_BANNER_MANAGER, 'page=' . $_GET['page'] . '&bID=' . $bInfo->banners_id . '&action=deleteconfirm')));
-            $contents[] = array('text' => OSCOM::getDef('text_info_delete_intro'));
-            $contents[] = array('text' => '<strong>' . $bInfo->banners_title . '</strong>');
-            if ($bInfo->banners_image) $contents[] = array('text' => HTML::checkboxField('delete_image', 'on', true) . ' ' . OSCOM::getDef('text_info_delete_image'));
-            $contents[] = array('text' => HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash', null, null, 'btn-danger') . HTML::button(OSCOM::getDef('image_cancel'), null, OSCOM::link(FILENAME_BANNER_MANAGER, 'page=' . $_GET['page'] . '&bID=' . $_GET['bID']), null, 'btn-link'));
+            $contents = ['form' => HTML::form('banners', OSCOM::link(FILENAME_BANNER_MANAGER, 'page=' . $_GET['page'] . '&bID=' . $bInfo->banners_id . '&action=deleteconfirm'))];
+            $contents[] = ['text' => OSCOM::getDef('text_info_delete_intro')];
+            $contents[] = ['text' => '<strong>' . $bInfo->banners_title . '</strong>'];
+            if ($bInfo->banners_image) $contents[] = ['text' => HTML::checkboxField('delete_image', 'on', true) . ' ' . OSCOM::getDef('text_info_delete_image')];
+            $contents[] = ['text' => HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash', null, null, 'btn-danger') . HTML::button(OSCOM::getDef('image_cancel'), null, OSCOM::link(FILENAME_BANNER_MANAGER, 'page=' . $_GET['page'] . '&bID=' . $_GET['bID']), null, 'btn-link')];
           }
         }
       }
@@ -469,7 +468,7 @@
 
 <script>
 $(function() {
-  var fetchStatsUrl = '<?= addslashes(OSCOM::link('banner_manager.php', 'action=fetchStats&banners_id={{id}}')); ?>';
+  var fetchStatsUrl = '<?= addslashes((string) OSCOM::link('banner_manager.php', 'action=fetchStats&banners_id={{id}}')); ?>';
 
   $('#statsModal').on('shown.bs.modal', function (e) {
     var json = $.getJSON(Mustache.render(fetchStatsUrl, {id: $(e.relatedTarget).data('banner-id')}), function(data) {

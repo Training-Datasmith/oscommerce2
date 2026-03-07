@@ -11,12 +11,15 @@
   use OSC\OM\Registry;
 
   class sb_email {
-    var $code = 'sb_email';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $icon = 'email.png';
-    var $enabled = false;
+    public $code = 'sb_email';
+    public $title;
+    public $description;
+    public $sort_order;
+    public $icon = 'email.png';
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
     function __construct() {
       $this->title = OSCOM::getDef('module_social_bookmarks_email_title');
@@ -29,7 +32,7 @@
       }
     }
 
-    function getOutput() {
+    function getOutput(): string {
       return '<a href="' . OSCOM::link('tell_a_friend.php', 'products_id=' . $_GET['products_id']) . '"><img src="' . OSCOM::linkImage('social_bookmarks/' . $this->icon) . '" border="0" title="' . HTML::outputProtected($this->public_title) . '" alt="' . HTML::outputProtected($this->public_title) . '" /></a>';
     }
 
@@ -45,11 +48,11 @@
       return $this->public_title;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_SOCIAL_BOOKMARKS_EMAIL_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -78,8 +81,8 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_SOCIAL_BOOKMARKS_EMAIL_STATUS', 'MODULE_SOCIAL_BOOKMARKS_EMAIL_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_SOCIAL_BOOKMARKS_EMAIL_STATUS', 'MODULE_SOCIAL_BOOKMARKS_EMAIL_SORT_ORDER'];
     }
   }
 ?>

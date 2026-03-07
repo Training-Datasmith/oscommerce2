@@ -18,7 +18,7 @@
 
   $OSCOM_Language->loadDefinitions('address_book_process');
 
-  if (isset($_GET['action']) && ($_GET['action'] == 'deleteconfirm') && isset($_GET['delete']) && is_numeric($_GET['delete']) && isset($_GET['formid']) && ($_GET['formid'] == md5($_SESSION['sessiontoken']))) {
+  if (isset($_GET['action']) && ($_GET['action'] == 'deleteconfirm') && isset($_GET['delete']) && is_numeric($_GET['delete']) && isset($_GET['formid']) && ($_GET['formid'] == md5((string) $_SESSION['sessiontoken']))) {
     if ((int)$_GET['delete'] == $_SESSION['customer_default_address_id']) {
       $messageStack->add_session('addressbook', OSCOM::getDef('warning_primary_address_deletion'), 'warning');
     } else {
@@ -62,13 +62,13 @@
       }
     }
 
-    if (strlen($firstname) < ENTRY_FIRST_NAME_MIN_LENGTH) {
+    if (strlen((string) $firstname) < ENTRY_FIRST_NAME_MIN_LENGTH) {
       $error = true;
 
       $messageStack->add('addressbook', OSCOM::getDef('entry_first_name_error', ['min_length' => ENTRY_FIRST_NAME_MIN_LENGTH]));
     }
 
-    if (strlen($lastname) < ENTRY_LAST_NAME_MIN_LENGTH) {
+    if (strlen((string) $lastname) < ENTRY_LAST_NAME_MIN_LENGTH) {
       $error = true;
 
       $messageStack->add('addressbook', OSCOM::getDef('entry_last_name_error', ['min_length' => ENTRY_LAST_NAME_MIN_LENGTH]));
@@ -80,13 +80,13 @@
       $messageStack->add('addressbook', OSCOM::getDef('entry_street_address_error', ['min_length' => ENTRY_STREET_ADDRESS_MIN_LENGTH]));
     }
 
-    if (strlen($postcode) < ENTRY_POSTCODE_MIN_LENGTH) {
+    if (strlen((string) $postcode) < ENTRY_POSTCODE_MIN_LENGTH) {
       $error = true;
 
       $messageStack->add('addressbook', OSCOM::getDef('entry_post_code_error', ['min_length' => ENTRY_POSTCODE_MIN_LENGTH]));
     }
 
-    if (strlen($city) < ENTRY_CITY_MIN_LENGTH) {
+    if (strlen((string) $city) < ENTRY_CITY_MIN_LENGTH) {
       $error = true;
 
       $messageStack->add('addressbook', OSCOM::getDef('entry_city_error', ['min_length' => ENTRY_CITY_MIN_LENGTH]));
@@ -122,7 +122,7 @@
           $messageStack->add('addressbook', OSCOM::getDef('entry_state_error_select'));
         }
       } else {
-        if (strlen($state) < ENTRY_STATE_MIN_LENGTH) {
+        if (strlen((string) $state) < ENTRY_STATE_MIN_LENGTH) {
           $error = true;
 
           $messageStack->add('addressbook', OSCOM::getDef('entry_state_error', ['min_length' => ENTRY_STATE_MIN_LENGTH]));
@@ -131,12 +131,12 @@
     }
 
     if ($error == false) {
-      $sql_data_array = array('entry_firstname' => $firstname,
+      $sql_data_array = ['entry_firstname' => $firstname,
                               'entry_lastname' => $lastname,
                               'entry_street_address' => $street_address,
                               'entry_postcode' => $postcode,
                               'entry_city' => $city,
-                              'entry_country_id' => (int)$country);
+                              'entry_country_id' => (int)$country];
 
       if (ACCOUNT_GENDER == 'true') $sql_data_array['entry_gender'] = $gender;
       if (ACCOUNT_COMPANY == 'true') $sql_data_array['entry_company'] = $company;
@@ -167,9 +167,9 @@
             $_SESSION['customer_zone_id'] = (($zone_id > 0) ? (int)$zone_id : '0');
             $_SESSION['customer_default_address_id'] = (int)$_GET['edit'];
 
-            $sql_data_array = array('customers_firstname' => $firstname,
+            $sql_data_array = ['customers_firstname' => $firstname,
                                     'customers_lastname' => $lastname,
-                                    'customers_default_address_id' => (int)$_GET['edit']);
+                                    'customers_default_address_id' => (int)$_GET['edit']];
 
             if (ACCOUNT_GENDER == 'true') $sql_data_array['customers_gender'] = $gender;
 
@@ -193,8 +193,8 @@
             $_SESSION['customer_zone_id'] = (($zone_id > 0) ? (int)$zone_id : '0');
             if (isset($_POST['primary']) && ($_POST['primary'] == 'on')) $_SESSION['customer_default_address_id'] = $new_address_book_id;
 
-            $sql_data_array = array('customers_firstname' => $firstname,
-                                    'customers_lastname' => $lastname);
+            $sql_data_array = ['customers_firstname' => $firstname,
+                                    'customers_lastname' => $lastname];
 
             if (ACCOUNT_GENDER == 'true') $sql_data_array['customers_gender'] = $gender;
             if (isset($_POST['primary']) && ($_POST['primary'] == 'on')) $sql_data_array['customers_default_address_id'] = $new_address_book_id;
@@ -241,7 +241,7 @@
       }
     }
   } else {
-    $entry = array();
+    $entry = [];
   }
 
   if (!isset($_GET['delete']) && !isset($_GET['edit'])) {
@@ -298,7 +298,7 @@
   </div>
 
   <div class="buttonSet">
-    <span class="buttonAction"><?php echo HTML::button(OSCOM::getDef('image_button_delete'), 'fa fa-trash', OSCOM::link('address_book_process.php', 'delete=' . $_GET['delete'] . '&action=deleteconfirm&formid=' . md5($_SESSION['sessiontoken'])), null, 'btn-danger'); ?></span>
+    <span class="buttonAction"><?php echo HTML::button(OSCOM::getDef('image_button_delete'), 'fa fa-trash', OSCOM::link('address_book_process.php', 'delete=' . $_GET['delete'] . '&action=deleteconfirm&formid=' . md5((string) $_SESSION['sessiontoken'])), null, 'btn-danger'); ?></span>
 
     <?php echo HTML::button(OSCOM::getDef('image_button_back'), 'fa fa-angle-left', OSCOM::link('address_book.php')); ?>
   </div>
@@ -327,7 +327,7 @@
 <?php
     } else {
       if (sizeof($_SESSION['navigation']->snapshot) > 0) {
-        $back_link = OSCOM::link($_SESSION['navigation']->snapshot['page'], tep_array_to_string($_SESSION['navigation']->snapshot['get'], array(session_name())));
+        $back_link = OSCOM::link($_SESSION['navigation']->snapshot['page'], tep_array_to_string($_SESSION['navigation']->snapshot['get'], [session_name()]));
       } else {
         $back_link = OSCOM::link('address_book.php');
       }

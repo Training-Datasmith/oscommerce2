@@ -11,12 +11,15 @@
   use OSC\OM\Registry;
 
   class ht_pages_seo {
-    var $code = 'ht_pages_seo';
-    var $group = 'header_tags';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    public $code = 'ht_pages_seo';
+    public $group = 'header_tags';
+    public $title;
+    public $description;
+    public $sort_order;
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
     function __construct() {
       $this->title = OSCOM::getDef('module_header_tags_pages_seo_title');
@@ -29,16 +32,16 @@
       }
     }
 
-    function execute() {
+    function execute(): void {
       global $oscTemplate;
 
-      if ( (defined('META_SEO_TITLE')) && (strlen(META_SEO_TITLE) > 0) ) {
+      if ( (defined('META_SEO_TITLE')) && (strlen((string) META_SEO_TITLE) > 0) ) {
         $oscTemplate->setTitle(HTML::output(META_SEO_TITLE)  . OSCOM::getDef('module_header_tags_pages_seo_separator') . $oscTemplate->getTitle());
       }
-      if ( (defined('META_SEO_DESCRIPTION')) && (strlen(META_SEO_DESCRIPTION) > 0) ) {
+      if ( (defined('META_SEO_DESCRIPTION')) && (strlen((string) META_SEO_DESCRIPTION) > 0) ) {
         $oscTemplate->addBlock('<meta name="description" content="' . HTML::output(META_SEO_DESCRIPTION) . '" />' . "\n", $this->group);
       }
-      if ( (defined('META_SEO_KEYWORDS')) && (strlen(META_SEO_KEYWORDS) > 0) ) {
+      if ( (defined('META_SEO_KEYWORDS')) && (strlen((string) META_SEO_KEYWORDS) > 0) ) {
         $oscTemplate->addBlock('<meta name="keywords" content="' . HTML::output(META_SEO_KEYWORDS) . '" />' . "\n", $this->group);
       }
 
@@ -48,11 +51,11 @@
       return $this->enabled;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_HEADER_TAGS_PAGES_SEO_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -81,8 +84,8 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_HEADER_TAGS_PAGES_SEO_STATUS', 'MODULE_HEADER_TAGS_PAGES_SEO_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_HEADER_TAGS_PAGES_SEO_STATUS', 'MODULE_HEADER_TAGS_PAGES_SEO_SORT_ORDER'];
     }
   }
 

@@ -12,7 +12,10 @@ use OSC\OM\Apps;
 
 class Hooks extends \OSC\OM\ModulesAbstract
 {
-    public function getInfo($app, $key, $data)
+    /**
+     * @return class-string[]
+     */
+    public function getInfo($app, $key, $data): array
     {
         $result = [];
 
@@ -29,11 +32,11 @@ class Hooks extends \OSC\OM\ModulesAbstract
 
     public function getClass($module)
     {
-        if (strpos($module, '/') === false) { // TODO core hook compatibility; to remove
+        if (!str_contains((string) $module, '/')) { // TODO core hook compatibility; to remove
             return $module;
         }
 
-        list($vendor, $app, $group, $code) = explode('\\', $module, 4);
+        [$vendor, $app, $group, $code] = explode('\\', (string) $module, 4);
 
         $info = Apps::getInfo($vendor . '\\' . $app);
 
@@ -42,7 +45,10 @@ class Hooks extends \OSC\OM\ModulesAbstract
         }
     }
 
-    public function filter($modules, $filter)
+    /**
+     * @return mixed[]
+     */
+    public function filter($modules, $filter): array
     {
         $result = [];
 

@@ -11,12 +11,15 @@
   use OSC\OM\Registry;
 
   class ht_product_colorbox {
-    var $code = 'ht_product_colorbox';
-    var $group = 'footer_scripts';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    public $code = 'ht_product_colorbox';
+    public $group = 'footer_scripts';
+    public $title;
+    public $description;
+    public $sort_order;
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
     function __construct() {
       $this->title = OSCOM::getDef('module_header_tags_product_colorbox_title');
@@ -28,11 +31,11 @@
       }
     }
 
-    function execute() {
+    function execute(): void {
       global $PHP_SELF, $oscTemplate;
 
       if (tep_not_null(MODULE_HEADER_TAGS_PRODUCT_COLORBOX_PAGES)) {
-        $pages_array = array();
+        $pages_array = [];
 
         foreach (explode(';', MODULE_HEADER_TAGS_PRODUCT_COLORBOX_PAGES) as $page) {
           $page = trim($page);
@@ -42,7 +45,7 @@
           }
         }
 
-        if (in_array(basename($PHP_SELF), $pages_array)) {
+        if (in_array(basename((string) $PHP_SELF), $pages_array)) {
           $oscTemplate->addBlock('<script src="ext/photoset-grid/jquery.photoset-grid.min.js"></script>' . "\n", $this->group);
           $oscTemplate->addBlock('<link rel="stylesheet" href="ext/colorbox/colorbox.css" />' . "\n", 'header_tags');
           $oscTemplate->addBlock('<script src="ext/colorbox/jquery.colorbox-min.js"></script>' . "\n", $this->group);
@@ -55,11 +58,11 @@
       return $this->enabled;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_HEADER_TAGS_PRODUCT_COLORBOX_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -111,28 +114,28 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_HEADER_TAGS_PRODUCT_COLORBOX_STATUS', 'MODULE_HEADER_TAGS_PRODUCT_COLORBOX_PAGES', 'MODULE_HEADER_TAGS_PRODUCT_COLORBOX_LAYOUT', 'MODULE_HEADER_TAGS_PRODUCT_COLORBOX_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_HEADER_TAGS_PRODUCT_COLORBOX_STATUS', 'MODULE_HEADER_TAGS_PRODUCT_COLORBOX_PAGES', 'MODULE_HEADER_TAGS_PRODUCT_COLORBOX_LAYOUT', 'MODULE_HEADER_TAGS_PRODUCT_COLORBOX_SORT_ORDER'];
     }
 
-    function get_default_pages() {
-      return array('product_info.php');
+    function get_default_pages(): array {
+      return ['product_info.php'];
     }
   }
 
-  function ht_product_colorbox_show_pages($text) {
-    return nl2br(implode("\n", explode(';', $text)));
+  function ht_product_colorbox_show_pages($text): string {
+    return nl2br(implode("\n", explode(';', (string) $text)));
   }
 
-  function ht_product_colorbox_thumbnail_number() {
+  function ht_product_colorbox_thumbnail_number(): mixed {
     return OSCOM::getDef('module_header_tags_product_colorbox_thumbnail_layout', ['product_colorbox_layout' => MODULE_HEADER_TAGS_PRODUCT_COLORBOX_LAYOUT, 'sum_product_colorbox_layout' => array_sum(str_split(MODULE_HEADER_TAGS_PRODUCT_COLORBOX_LAYOUT))]);
   }
 
-  function ht_product_colorbox_edit_pages($values, $key) { 
+  function ht_product_colorbox_edit_pages($values, string $key): string { 
     global $PHP_SELF;
 
-    $file_extension = substr($PHP_SELF, strrpos($PHP_SELF, '.'));
-    $files_array = array();
+    $file_extension = substr((string) $PHP_SELF, strrpos((string) $PHP_SELF, '.'));
+    $files_array = [];
 	  if ($dir = @dir(OSCOM::getConfig('dir_root', 'Shop'))) {
 	    while ($file = $dir->read()) {
 	      if (!is_dir(OSCOM::getConfig('dir_root', 'Shop') . $file)) {
@@ -158,7 +161,7 @@
 
     $output .= HTML::hiddenField('configuration[' . $key . ']', '', 'id="htrn_files"');
 
-    $output .= '<script>
+    return $output . '<script>
                 function htrn_update_cfg_value() {
                   var htrn_selected_files = \'\';
 
@@ -185,7 +188,5 @@
                   }
                 });
                 </script>';
-
-    return $output;
   }
 ?>

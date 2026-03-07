@@ -10,16 +10,16 @@
   use OSC\OM\Registry;
 
   class cfg_modules {
-    var $_modules = array();
+    public $_modules = [];
 
     protected $lang;
 
-    function cfg_modules() {
+    function __construct() {
       global $PHP_SELF;
 
       $this->lang = Registry::get('Language');
 
-      $file_extension = substr($PHP_SELF, strrpos($PHP_SELF, '.'));
+      $file_extension = substr((string) $PHP_SELF, strrpos((string) $PHP_SELF, '.'));
       $directory = OSCOM::getConfig('dir_root') . 'includes/modules/cfg_modules';
 
       if ($dir = @dir($directory)) {
@@ -34,13 +34,13 @@
 
               $m = new $class();
 
-              $this->_modules[] = array('code' => $m->code,
+              $this->_modules[] = ['code' => $m->code,
                                         'directory' => $m->directory,
                                         'language_directory' => $m->language_directory,
                                         'key' => $m->key,
                                         'title' => $m->title,
                                         'template_integration' => $m->template_integration,
-                                        'site' => $m->site);
+                                        'site' => $m->site];
             }
           }
         }
@@ -59,7 +59,7 @@
       }
     }
 
-    function exists($code) {
+    function exists($code): bool {
       foreach ($this->_modules as $m) {
         if ($m['code'] == $code) {
           return true;

@@ -17,7 +17,7 @@
     $_GET['page'] = 1;
   }
 
-  $action = (isset($_GET['action']) ? $_GET['action'] : '');
+  $action = ($_GET['action'] ?? '');
 
   $error = false;
   $processed = false;
@@ -56,14 +56,14 @@
           }
         }
 
-        if (strlen($customers_firstname) < ENTRY_FIRST_NAME_MIN_LENGTH) {
+        if (strlen((string) $customers_firstname) < ENTRY_FIRST_NAME_MIN_LENGTH) {
           $error = true;
           $entry_firstname_error = true;
         } else {
           $entry_firstname_error = false;
         }
 
-        if (strlen($customers_lastname) < ENTRY_LAST_NAME_MIN_LENGTH) {
+        if (strlen((string) $customers_lastname) < ENTRY_LAST_NAME_MIN_LENGTH) {
           $error = true;
           $entry_lastname_error = true;
         } else {
@@ -73,7 +73,7 @@
         if (ACCOUNT_DOB == 'true') {
           $dobDateTime = new DateTime($customers_dob);
 
-          if ((strlen($customers_dob) >= ENTRY_DOB_MIN_LENGTH) && $dobDateTime->isValid()) {
+          if ((strlen((string) $customers_dob) >= ENTRY_DOB_MIN_LENGTH) && $dobDateTime->isValid()) {
             $entry_date_of_birth_error = false;
           } else {
             $error = true;
@@ -97,14 +97,14 @@
           $entry_street_address_error = false;
         }
 
-        if (strlen($entry_postcode) < ENTRY_POSTCODE_MIN_LENGTH) {
+        if (strlen((string) $entry_postcode) < ENTRY_POSTCODE_MIN_LENGTH) {
           $error = true;
           $entry_post_code_error = true;
         } else {
           $entry_post_code_error = false;
         }
 
-        if (strlen($entry_city) < ENTRY_CITY_MIN_LENGTH) {
+        if (strlen((string) $entry_city) < ENTRY_CITY_MIN_LENGTH) {
           $error = true;
           $entry_city_error = true;
         } else {
@@ -139,7 +139,7 @@
                 $entry_state_error = true;
               }
             } else {
-              if (strlen($entry_state) < ENTRY_STATE_MIN_LENGTH) {
+              if (strlen((string) $entry_state) < ENTRY_STATE_MIN_LENGTH) {
                 $error = true;
                 $entry_state_error = true;
               }
@@ -147,7 +147,7 @@
           }
         }
 
-        if (strlen($customers_telephone) < ENTRY_TELEPHONE_MIN_LENGTH) {
+        if (strlen((string) $customers_telephone) < ENTRY_TELEPHONE_MIN_LENGTH) {
           $error = true;
           $entry_telephone_error = true;
         } else {
@@ -170,12 +170,12 @@
         }
 
         if ($error == false) {
-          $sql_data_array = array('customers_firstname' => $customers_firstname,
+          $sql_data_array = ['customers_firstname' => $customers_firstname,
                                   'customers_lastname' => $customers_lastname,
                                   'customers_email_address' => $customers_email_address,
                                   'customers_telephone' => $customers_telephone,
                                   'customers_fax' => $customers_fax,
-                                  'customers_newsletter' => $customers_newsletter);
+                                  'customers_newsletter' => $customers_newsletter];
 
           if (ACCOUNT_GENDER == 'true') $sql_data_array['customers_gender'] = $customers_gender;
           if (ACCOUNT_DOB == 'true') $sql_data_array['customers_dob'] = $dobDateTime->getRaw(false);
@@ -186,12 +186,12 @@
 
           if (isset($entry_zone_id) && $entry_zone_id > 0) $entry_state = '';
 
-          $sql_data_array = array('entry_firstname' => $customers_firstname,
+          $sql_data_array = ['entry_firstname' => $customers_firstname,
                                   'entry_lastname' => $customers_lastname,
                                   'entry_street_address' => $entry_street_address,
                                   'entry_postcode' => $entry_postcode,
                                   'entry_city' => $entry_city,
-                                  'entry_country_id' => $entry_country_id);
+                                  'entry_country_id' => $entry_country_id];
 
           if (ACCOUNT_COMPANY == 'true') $sql_data_array['entry_company'] = $entry_company;
           if (ACCOUNT_SUBURB == 'true') $sql_data_array['entry_suburb'] = $entry_suburb;
@@ -211,10 +211,10 @@
             'address_book_id' => (int)$customers_default_address_id
           ]);
 
-          OSCOM::redirect(FILENAME_CUSTOMERS, tep_get_all_get_params(array('cID', 'action')) . 'cID=' . $customers_id);
-        } else if ($error == true) {
-          $cInfo = new objectInfo($_POST);
-          $processed = true;
+          OSCOM::redirect(FILENAME_CUSTOMERS, tep_get_all_get_params(['cID', 'action']) . 'cID=' . $customers_id);
+        } else {
+            $cInfo = new objectInfo($_POST);
+            $processed = true;
         }
 
         break;
@@ -240,7 +240,7 @@
         $OSCOM_Db->delete('customers_basket_attributes', ['customers_id' => (int)$customers_id]);
         $OSCOM_Db->delete('whos_online', ['customer_id' => (int)$customers_id]);
 
-        OSCOM::redirect(FILENAME_CUSTOMERS, tep_get_all_get_params(array('cID', 'action')));
+        OSCOM::redirect(FILENAME_CUSTOMERS, tep_get_all_get_params(['cID', 'action']));
         break;
       default:
         if ($action != 'confirm') {
@@ -353,8 +353,8 @@ function check_form() {
     <table border="0" width="100%" cellspacing="0" cellpadding="2">
 <?php
   if ($action == 'edit' || $action == 'update') {
-    $newsletter_array = array(array('id' => '1', 'text' => OSCOM::getDef('entry_newsletter_yes')),
-                              array('id' => '0', 'text' => OSCOM::getDef('entry_newsletter_no')));
+    $newsletter_array = [['id' => '1', 'text' => OSCOM::getDef('entry_newsletter_yes')],
+                              ['id' => '0', 'text' => OSCOM::getDef('entry_newsletter_no')]];
 ?>
       <tr>
         <td><table border="0" width="100%" cellspacing="0" cellpadding="0">
@@ -363,7 +363,7 @@ function check_form() {
           </tr>
         </table></td>
       </tr>
-      <tr><?php echo HTML::form('customers', OSCOM::link(FILENAME_CUSTOMERS, tep_get_all_get_params(array('action')) . 'action=update'), 'post', 'onsubmit="return check_form();"') . HTML::hiddenField('customers_default_address_id', $cInfo->customers_default_address_id); ?>
+      <tr><?php echo HTML::form('customers', OSCOM::link(FILENAME_CUSTOMERS, tep_get_all_get_params(['action']) . 'action=update'), 'post', 'onsubmit="return check_form();"') . HTML::hiddenField('customers_default_address_id', $cInfo->customers_default_address_id); ?>
         <td class="formAreaTitle"><?php echo OSCOM::getDef('category_personal'); ?></td>
       </tr>
       <tr>
@@ -565,7 +565,7 @@ function check_form() {
     if ($error == true) {
       if ($entry_state_error == true) {
         if ($entry_state_has_zones == true) {
-          $zones_array = array();
+          $zones_array = [];
           $Qzones = $OSCOM_Db->get('zones', 'zone_name', ['zone_country_id' => $cInfo->entry_country_id], 'zone_name');
           while ($Qzones->fetch()) {
             $zones_array[] = [
@@ -663,7 +663,7 @@ function check_form() {
         </table></td>
       </tr>
       <tr>
-        <td align="right" class="smallText"><?php echo HTML::button(OSCOM::getDef('image_save'), 'fa fa-save') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_CUSTOMERS, tep_get_all_get_params(array('action')))); ?></td>
+        <td align="right" class="smallText"><?php echo HTML::button(OSCOM::getDef('image_save'), 'fa fa-save') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_CUSTOMERS, tep_get_all_get_params(['action']))); ?></td>
       </tr></form>
 <?php
   } else {
@@ -728,15 +728,15 @@ function check_form() {
       }
 
       if (isset($cInfo) && is_object($cInfo) && ($Qcustomers->valueInt('customers_id') === (int)$cInfo->customers_id)) {
-        echo '          <tr id="defaultSelected" class="dataTableRowSelected" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" onclick="document.location.href=\'' . OSCOM::link(FILENAME_CUSTOMERS, tep_get_all_get_params(array('cID', 'action')) . 'cID=' . $cInfo->customers_id . '&action=edit') . '\'">' . "\n";
+        echo '          <tr id="defaultSelected" class="dataTableRowSelected" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" onclick="document.location.href=\'' . OSCOM::link(FILENAME_CUSTOMERS, tep_get_all_get_params(['cID', 'action']) . 'cID=' . $cInfo->customers_id . '&action=edit') . '\'">' . "\n";
       } else {
-        echo '          <tr class="dataTableRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" onclick="document.location.href=\'' . OSCOM::link(FILENAME_CUSTOMERS, tep_get_all_get_params(array('cID')) . 'cID=' . $Qcustomers->valueInt('customers_id')) . '\'">' . "\n";
+        echo '          <tr class="dataTableRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" onclick="document.location.href=\'' . OSCOM::link(FILENAME_CUSTOMERS, tep_get_all_get_params(['cID']) . 'cID=' . $Qcustomers->valueInt('customers_id')) . '\'">' . "\n";
       }
 ?>
                 <td class="dataTableContent"><?php echo $Qcustomers->value('customers_lastname'); ?></td>
                 <td class="dataTableContent"><?php echo $Qcustomers->value('customers_firstname'); ?></td>
                 <td class="dataTableContent" align="right"><?php echo DateTime::toShort($Qinfo->value('date_account_created')); ?></td>
-                <td class="dataTableContent" align="right"><?php if (isset($cInfo) && is_object($cInfo) && ($Qcustomers->valueInt('customers_id') === (int)$cInfo->customers_id)) { echo HTML::image(OSCOM::linkImage('icon_arrow_right.gif'), ''); } else { echo '<a href="' . OSCOM::link(FILENAME_CUSTOMERS, tep_get_all_get_params(array('cID')) . 'cID=' . $Qcustomers->valueInt('customers_id')) . '">' . HTML::image(OSCOM::linkImage('icon_info.gif'), OSCOM::getDef('image_icon_info')) . '</a>'; } ?>&nbsp;</td>
+                <td class="dataTableContent" align="right"><?php if (isset($cInfo) && is_object($cInfo) && ($Qcustomers->valueInt('customers_id') === (int)$cInfo->customers_id)) { echo HTML::image(OSCOM::linkImage('icon_arrow_right.gif'), ''); } else { echo '<a href="' . OSCOM::link(FILENAME_CUSTOMERS, tep_get_all_get_params(['cID']) . 'cID=' . $Qcustomers->valueInt('customers_id')) . '">' . HTML::image(OSCOM::linkImage('icon_info.gif'), OSCOM::getDef('image_icon_info')) . '</a>'; } ?>&nbsp;</td>
               </tr>
 <?php
     }
@@ -760,33 +760,33 @@ function check_form() {
               </tr>
             </table></td>
 <?php
-  $heading = array();
-  $contents = array();
+  $heading = [];
+  $contents = [];
 
   switch ($action) {
     case 'confirm':
-      $heading[] = array('text' => '<strong>' . OSCOM::getDef('text_info_heading_delete_customer') . '</strong>');
+      $heading[] = ['text' => '<strong>' . OSCOM::getDef('text_info_heading_delete_customer') . '</strong>'];
 
-      $contents = array('form' => HTML::form('customers', OSCOM::link(FILENAME_CUSTOMERS, tep_get_all_get_params(array('cID', 'action')) . 'cID=' . $cInfo->customers_id . '&action=deleteconfirm')));
-      $contents[] = array('text' => OSCOM::getDef('text_delete_intro') . '<br /><br /><strong>' . $cInfo->customers_firstname . ' ' . $cInfo->customers_lastname . '</strong>');
-      if (isset($cInfo->number_of_reviews) && ($cInfo->number_of_reviews) > 0) $contents[] = array('text' => '<br />' . HTML::checkboxField('delete_reviews', 'on', true) . ' ' . OSCOM::getDef('text_delete_reviews', ['number_of_reviews' => $cInfo->number_of_reviews]));
-      $contents[] = array('align' => 'center', 'text' => '<br />' . HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_CUSTOMERS, tep_get_all_get_params(array('cID', 'action')) . 'cID=' . $cInfo->customers_id)));
+      $contents = ['form' => HTML::form('customers', OSCOM::link(FILENAME_CUSTOMERS, tep_get_all_get_params(['cID', 'action']) . 'cID=' . $cInfo->customers_id . '&action=deleteconfirm'))];
+      $contents[] = ['text' => OSCOM::getDef('text_delete_intro') . '<br /><br /><strong>' . $cInfo->customers_firstname . ' ' . $cInfo->customers_lastname . '</strong>'];
+      if (isset($cInfo->number_of_reviews) && ($cInfo->number_of_reviews) > 0) $contents[] = ['text' => '<br />' . HTML::checkboxField('delete_reviews', 'on', true) . ' ' . OSCOM::getDef('text_delete_reviews', ['number_of_reviews' => $cInfo->number_of_reviews])];
+      $contents[] = ['align' => 'center', 'text' => '<br />' . HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_CUSTOMERS, tep_get_all_get_params(['cID', 'action']) . 'cID=' . $cInfo->customers_id))];
       break;
     default:
       if (isset($cInfo) && is_object($cInfo)) {
-        $heading[] = array('text' => '<strong>' . $cInfo->customers_firstname . ' ' . $cInfo->customers_lastname . '</strong>');
+        $heading[] = ['text' => '<strong>' . $cInfo->customers_firstname . ' ' . $cInfo->customers_lastname . '</strong>'];
 
-        $contents[] = array('align' => 'center', 'text' => HTML::button(OSCOM::getDef('image_edit'), 'fa fa-edit', OSCOM::link(FILENAME_CUSTOMERS, tep_get_all_get_params(array('cID', 'action')) . 'cID=' . $cInfo->customers_id . '&action=edit')) . HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash', OSCOM::link(FILENAME_CUSTOMERS, tep_get_all_get_params(array('cID', 'action')) . 'cID=' . $cInfo->customers_id . '&action=confirm')) . HTML::button(OSCOM::getDef('image_orders'), 'fa fa-shopping-cart', OSCOM::link(FILENAME_ORDERS, 'cID=' . $cInfo->customers_id)) . HTML::button(OSCOM::getDef('image_email'), 'fa fa-envelope', OSCOM::link(FILENAME_MAIL, 'customer=' . $cInfo->customers_email_address)));
-        $contents[] = array('text' => '<br />' . OSCOM::getDef('text_date_account_created') . ' ' . DateTime::toShort($cInfo->date_account_created));
+        $contents[] = ['align' => 'center', 'text' => HTML::button(OSCOM::getDef('image_edit'), 'fa fa-edit', OSCOM::link(FILENAME_CUSTOMERS, tep_get_all_get_params(['cID', 'action']) . 'cID=' . $cInfo->customers_id . '&action=edit')) . HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash', OSCOM::link(FILENAME_CUSTOMERS, tep_get_all_get_params(['cID', 'action']) . 'cID=' . $cInfo->customers_id . '&action=confirm')) . HTML::button(OSCOM::getDef('image_orders'), 'fa fa-shopping-cart', OSCOM::link(FILENAME_ORDERS, 'cID=' . $cInfo->customers_id)) . HTML::button(OSCOM::getDef('image_email'), 'fa fa-envelope', OSCOM::link(FILENAME_MAIL, 'customer=' . $cInfo->customers_email_address))];
+        $contents[] = ['text' => '<br />' . OSCOM::getDef('text_date_account_created') . ' ' . DateTime::toShort($cInfo->date_account_created)];
         if (isset($cInfo->date_account_last_modified)) {
-          $contents[] = array('text' => '<br />' . OSCOM::getDef('text_date_account_last_modified') . ' ' . DateTime::toShort($cInfo->date_account_last_modified));
+          $contents[] = ['text' => '<br />' . OSCOM::getDef('text_date_account_last_modified') . ' ' . DateTime::toShort($cInfo->date_account_last_modified)];
         }
         if (isset($cInfo->date_last_logon)) {
-          $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_date_last_logon') . ' '  . DateTime::toShort($cInfo->date_last_logon));
+          $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_date_last_logon') . ' '  . DateTime::toShort($cInfo->date_last_logon)];
         }
-        $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_number_of_logons') . ' ' . $cInfo->number_of_logons);
-        $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_country') . ' ' . $cInfo->countries_name);
-        $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_number_of_reviews') . ' ' . $cInfo->number_of_reviews);
+        $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_number_of_logons') . ' ' . $cInfo->number_of_logons];
+        $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_country') . ' ' . $cInfo->countries_name];
+        $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_number_of_reviews') . ' ' . $cInfo->number_of_reviews];
       }
       break;
   }

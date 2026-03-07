@@ -7,21 +7,21 @@
   */
 
   class breadcrumb {
-    var $_trail;
+    public $_trail;
 
     function __construct() {
       $this->reset();
     }
 
-    function reset() {
-      $this->_trail = array();
+    function reset(): void {
+      $this->_trail = [];
     }
 
-    function add($title, $link = '') {
-      $this->_trail[] = array('title' => $title, 'link' => $link);
+    function add($title, $link = ''): void {
+      $this->_trail[] = ['title' => $title, 'link' => $link];
     }
 
-    function trail($separator = NULL) {
+    function trail($separator = NULL): string {
       $breadcrumb_count = 1;
 
       $trail_string = '<ol itemscope itemtype="http://schema.org/BreadcrumbList" class="breadcrumb">';
@@ -36,9 +36,7 @@
         $breadcrumb_count++;
       }
 
-      $trail_string .= '</ol>';
-
-      return $trail_string;
+      return $trail_string . '</ol>';
     }
   }
 ?>

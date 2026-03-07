@@ -11,12 +11,15 @@
   use OSC\OM\Registry;
 
   class ht_robot_noindex {
-    var $code = 'ht_robot_noindex';
-    var $group = 'header_tags';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    public $code = 'ht_robot_noindex';
+    public $group = 'header_tags';
+    public $title;
+    public $description;
+    public $sort_order;
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
     function __construct() {
       $this->title = OSCOM::getDef('module_header_tags_robot_noindex_title');
@@ -28,11 +31,11 @@
       }
     }
 
-    function execute() {
+    function execute(): void {
       global $PHP_SELF, $oscTemplate;
 
       if (tep_not_null(MODULE_HEADER_TAGS_ROBOT_NOINDEX_PAGES)) {
-        $pages_array = array();
+        $pages_array = [];
 
         foreach (explode(';', MODULE_HEADER_TAGS_ROBOT_NOINDEX_PAGES) as $page) {
           $page = trim($page);
@@ -42,7 +45,7 @@
           }
         }
 
-        if (in_array(basename($PHP_SELF), $pages_array)) {
+        if (in_array(basename((string) $PHP_SELF), $pages_array)) {
           $oscTemplate->addBlock('<meta name="robots" content="noindex,follow" />' . "\n", $this->group);
         }
       }
@@ -52,11 +55,11 @@
       return $this->enabled;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_HEADER_TAGS_ROBOT_NOINDEX_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -97,12 +100,12 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_HEADER_TAGS_ROBOT_NOINDEX_STATUS', 'MODULE_HEADER_TAGS_ROBOT_NOINDEX_PAGES', 'MODULE_HEADER_TAGS_ROBOT_NOINDEX_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_HEADER_TAGS_ROBOT_NOINDEX_STATUS', 'MODULE_HEADER_TAGS_ROBOT_NOINDEX_PAGES', 'MODULE_HEADER_TAGS_ROBOT_NOINDEX_SORT_ORDER'];
     }
 
-    function get_default_pages() {
-      return array('account.php',
+    function get_default_pages(): array {
+      return ['account.php',
                    'account_edit.php',
                    'account_history.php',
                    'account_history_info.php',
@@ -128,19 +131,19 @@
                    'product_reviews_write.php',
                    'shopping_cart.php',
                    'ssl_check.php',
-                   'tell_a_friend.php');
+                   'tell_a_friend.php'];
     }
   }
 
-  function ht_robot_noindex_show_pages($text) {
-    return nl2br(implode("\n", explode(';', $text)));
+  function ht_robot_noindex_show_pages($text): string {
+    return nl2br(implode("\n", explode(';', (string) $text)));
   }
 
-  function ht_robot_noindex_edit_pages($values, $key) {
+  function ht_robot_noindex_edit_pages($values, string $key): string {
     global $PHP_SELF;
 
-    $file_extension = substr($PHP_SELF, strrpos($PHP_SELF, '.'));
-    $files_array = array();
+    $file_extension = substr((string) $PHP_SELF, strrpos((string) $PHP_SELF, '.'));
+    $files_array = [];
 	  if ($dir = @dir(OSCOM::getConfig('dir_root', 'Shop'))) {
 	    while ($file = $dir->read()) {
 	      if (!is_dir(OSCOM::getConfig('dir_root', 'Shop') . $file)) {
@@ -166,7 +169,7 @@
 
     $output .= HTML::hiddenField('configuration[' . $key . ']', '', 'id="htrn_files"');
 
-    $output .= '<script>
+    return $output . '<script>
                 function htrn_update_cfg_value() {
                   var htrn_selected_files = \'\';
 
@@ -193,7 +196,5 @@
                   }
                 });
                 </script>';
-
-    return $output;
   }
 ?>

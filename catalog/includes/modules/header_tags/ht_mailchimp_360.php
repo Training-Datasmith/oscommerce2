@@ -10,12 +10,15 @@
   use OSC\OM\Registry;
 
   class ht_mailchimp_360 {
-    var $code = 'ht_mailchimp_360';
-    var $group = 'header_tags';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    public $code = 'ht_mailchimp_360';
+    public $group = 'header_tags';
+    public $title;
+    public $description;
+    public $sort_order;
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
     function __construct() {
       $this->title = OSCOM::getDef('module_header_tags_mailchimp_360_title');
@@ -27,7 +30,7 @@
       }
     }
 
-    function execute() {
+    function execute(): void {
       global $PHP_SELF;
 
       include('includes/modules/header_tags/ht_mailchimp_360/MCAPI.class.php');
@@ -36,7 +39,7 @@
       $mc360 = new mc360();
       $mc360->set_cookies();
 
-      if (basename($PHP_SELF) == 'checkout_success.php') {
+      if (basename((string) $PHP_SELF) == 'checkout_success.php') {
         $mc360->process();
       }
     }
@@ -45,11 +48,11 @@
       return $this->enabled;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_HEADER_TAGS_MAILCHIMP_360_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -116,15 +119,15 @@
       ]);
     }
 
-    function remove() {
+    function remove(): void {
       Registry::get('Db')->query('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
 
 // Internal parameters
       Registry::get('Db')->query('delete from :table_configuration where configuration_key in ("MODULE_HEADER_TAGS_MAILCHIMP_360_STORE_ID", "MODULE_HEADER_TAGS_MAILCHIMP_360_KEY_VALID")');
     }
 
-    function keys() {
-      return array('MODULE_HEADER_TAGS_MAILCHIMP_360_STATUS', 'MODULE_HEADER_TAGS_MAILCHIMP_360_API_KEY', 'MODULE_HEADER_TAGS_MAILCHIMP_360_DEBUG_EMAIL', 'MODULE_HEADER_TAGS_MAILCHIMP_360_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_HEADER_TAGS_MAILCHIMP_360_STATUS', 'MODULE_HEADER_TAGS_MAILCHIMP_360_API_KEY', 'MODULE_HEADER_TAGS_MAILCHIMP_360_DEBUG_EMAIL', 'MODULE_HEADER_TAGS_MAILCHIMP_360_SORT_ORDER'];
     }
   }
 ?>

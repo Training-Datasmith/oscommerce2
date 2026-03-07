@@ -12,7 +12,7 @@ use OSC\OM\OSCOM;
 
 class Hash
 {
-    public static function encrypt($plain, $algo = null)
+    public static function encrypt(string $plain, $algo = null)
     {
         if (!isset($algo) || ($algo == 'default') || ($algo == 'bcrypt')) {
             if (!isset($algo) || ($algo == 'default')) {
@@ -43,9 +43,7 @@ class Hash
 
             $salt = substr(md5($password), 0, 2);
 
-            $password = md5($salt . $plain) . ':' . $salt;
-
-            return $password;
+            return md5($salt . $plain) . ':' . $salt;
         }
 
         trigger_error('OSC\\OM\\Hash::encrypt() Algorithm "' . $algo . '" unknown.');
@@ -53,11 +51,11 @@ class Hash
         return false;
     }
 
-    public static function verify($plain, $hash)
+    public static function verify(string $plain, $hash)
     {
         $result = false;
 
-        if ((strlen($plain) > 0) && (strlen($hash) > 0)) {
+        if ((strlen($plain) > 0) && (strlen((string) $hash) > 0)) {
             switch (static::getType($hash)) {
                 case 'phpass':
                     if (!class_exists('PasswordHash', false)) {
@@ -72,7 +70,7 @@ class Hash
 
                 case 'salt':
                     // split apart the hash / salt
-                    $stack = explode(':', $hash, 2);
+                    $stack = explode(':', (string) $hash, 2);
 
                     if (count($stack) === 2) {
                         $result = (md5($stack[1] . $plain) == $stack[0]);
@@ -83,7 +81,7 @@ class Hash
                     break;
 
                 default:
-                    $result = password_verify($plain, $hash);
+                    $result = password_verify($plain, (string) $hash);
 
                     break;
             }
@@ -92,7 +90,7 @@ class Hash
         return $result;
     }
 
-    public static function needsRehash($hash, $algo = null)
+    public static function needsRehash($hash, $algo = null): bool
     {
         if (!isset($algo) || ($algo == 'default')) {
             $algo = PASSWORD_DEFAULT;
@@ -115,20 +113,20 @@ class Hash
             return $info['algoName'];
         }
 
-        if (substr($hash, 0, 3) == '$P$') {
+        if (str_starts_with((string) $hash, '$P$')) {
             return 'phpass';
         }
 
-        if (preg_match('/^[A-Z0-9]{32}\:[A-Z0-9]{2}$/i', $hash) === 1) {
+        if (preg_match('/^[A-Z0-9]{32}\:[A-Z0-9]{2}$/i', (string) $hash) === 1) {
             return 'salt';
         }
 
-        trigger_error('OSC\OM\Hash::getType() hash type not found for "' . substr($hash, 0, 5) . '"');
+        trigger_error('OSC\OM\Hash::getType() hash type not found for "' . substr((string) $hash, 0, 5) . '"');
 
         return '';
     }
 
-    public static function getRandomInt($min = null, $max = null, $secure = true)
+    public static function getRandomInt($min = null, $max = null, $secure = true): int
     {
         if (!isset($min)) {
             $min = 0;
@@ -151,7 +149,7 @@ class Hash
         return $result;
     }
 
-    public static function getRandomString($length, $type = 'mixed')
+    public static function getRandomString($length, string $type = 'mixed'): false|string
     {
         if (!in_array($type, [
             'mixed',
@@ -179,25 +177,25 @@ class Hash
         $rand_value = '';
 
         do {
-            $random = base64_encode(static::getRandomBytes($length));
+            $random = base64_encode((string) static::getRandomBytes($length));
 
             for ($i=0, $n=strlen($random); $i<$n; $i++) {
                 $char = substr($random, $i, 1);
 
-                if (strpos($base, $char) !== false) {
+                if (str_contains($base, $char)) {
                     $rand_value .= $char;
                 }
             }
         } while (strlen($rand_value) < $length);
 
         if (strlen($rand_value) > $length) {
-            $rand_value = substr($rand_value, 0, $length);
+            return substr($rand_value, 0, $length);
         }
 
         return $rand_value;
     }
 
-    public static function getRandomBytes($length, $secure = true)
+    public static function getRandomBytes($length, $secure = true): string
     {
         try {
             $result = random_bytes($length);

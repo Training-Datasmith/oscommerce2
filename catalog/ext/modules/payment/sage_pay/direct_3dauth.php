@@ -13,7 +13,7 @@
 
 // if the customer is not logged on, redirect them to the login page
   if (!isset($_SESSION['customer_id'])) {
-    $_SESSION['navigation']->set_snapshot(array('page' => 'checkout_payment.php'));
+    $_SESSION['navigation']->set_snapshot(['page' => 'checkout_payment.php']);
     OSCOM::redirect('login.php');
   }
 

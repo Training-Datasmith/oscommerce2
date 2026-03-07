@@ -16,7 +16,7 @@
     $_GET['page'] = 1;
   }
 
-  $action = (isset($_GET['action']) ? $_GET['action'] : '');
+  $action = ($_GET['action'] ?? '');
 
   if (tep_not_null($action)) {
     switch ($action) {
@@ -34,7 +34,7 @@
         if (isset($_POST['newsletter_id'])) $newsletter_id = HTML::sanitize($_POST['newsletter_id']);
         $newsletter_module = HTML::sanitize($_POST['module']);
 
-        $allowed = array_map(function($v) {return basename($v, '.php');}, glob('includes/modules/newsletters/*.php'));
+        $allowed = array_map(fn($v) => basename((string) $v, '.php'), glob('includes/modules/newsletters/*.php'));
         if (!in_array($newsletter_module, $allowed)) {
           $OSCOM_MessageStack->add(OSCOM::getDef('error_newsletter_module_not_exists'), 'error');
           $newsletter_error = true;
@@ -56,10 +56,10 @@
         }
 
         if ($newsletter_error == false) {
-          $sql_data_array = array('title' => $title,
+          $sql_data_array = ['title' => $title,
                                   'content' => $content,
                                   'content_html' => $content_html,
-                                  'module' => $newsletter_module);
+                                  'module' => $newsletter_module];
 
           if ($action == 'insert') {
             $sql_data_array['date_added'] = 'now()';
@@ -97,7 +97,7 @@
             switch ($action) {
               case 'delete': $error = OSCOM::getDef('error_remove_unlocked_newsletter'); break;
               case 'new': $error = OSCOM::getDef('error_edit_unlocked_newsletter'); break;
-              case 'send': $error = OSCOM::getDef('error_send_unlocked_newsletter'); break;
+              case 'send':
               case 'confirm_send': $error = OSCOM::getDef('error_send_unlocked_newsletter'); break;
             }
 
@@ -125,10 +125,10 @@
   if ($action == 'new') {
     $form_action = 'insert';
 
-    $parameters = array('title' => '',
+    $parameters = ['title' => '',
                         'content' => '',
                         'content_html' => '',
-                        'module' => '');
+                        'module' => ''];
 
     $nInfo = new objectInfo($parameters);
 
@@ -151,8 +151,8 @@
       $nInfo->objectInfo($_POST);
     }
 
-    $file_extension = substr($PHP_SELF, strrpos($PHP_SELF, '.'));
-    $directory_array = array();
+    $file_extension = substr((string) $PHP_SELF, strrpos((string) $PHP_SELF, '.'));
+    $directory_array = [];
     if ($dir = dir('includes/modules/newsletters/')) {
       while ($file = $dir->read()) {
         if (!is_dir('includes/modules/newsletters/' . $file)) {
@@ -166,7 +166,7 @@
     }
 
     for ($i=0, $n=sizeof($directory_array); $i<$n; $i++) {
-      $modules_array[] = array('id' => substr($directory_array[$i], 0, strrpos($directory_array[$i], '.')), 'text' => substr($directory_array[$i], 0, strrpos($directory_array[$i], '.')));
+      $modules_array[] = ['id' => substr($directory_array[$i], 0, strrpos($directory_array[$i], '.')), 'text' => substr($directory_array[$i], 0, strrpos($directory_array[$i], '.'))];
     }
 ?>
       <tr><?php echo HTML::form('newsletter', OSCOM::link(FILENAME_NEWSLETTERS, 'page=' . $_GET['page'] . '&action=' . $form_action)); if ($form_action == 'update') echo HTML::hiddenField('newsletter_id', $nID); ?>
@@ -255,7 +255,7 @@
             </div>
 
             <div role="tabpanel" class="tab-pane" id="plain_preview">
-              <?= nl2br(HTML::outputProtected($nInfo->content)); ?>
+              <?= nl2br((string) HTML::outputProtected($nInfo->content)); ?>
             </div>
           </div>
         </td>
@@ -279,7 +279,7 @@
     $nInfo = new objectInfo($Qnewsletter->toArray());
 
     $OSCOM_Language->loadDefinitions('modules/newsletters/' . $nInfo->module);
-    include('includes/modules/newsletters/' . $nInfo->module . substr($PHP_SELF, strrpos($PHP_SELF, '.')));
+    include('includes/modules/newsletters/' . $nInfo->module . substr((string) $PHP_SELF, strrpos((string) $PHP_SELF, '.')));
     $module_name = $nInfo->module;
     $module = new $module_name($nInfo->title, $nInfo->content, $nInfo->content_html);
 ?>
@@ -302,7 +302,7 @@
     $nInfo = new objectInfo($Qnewsletter->toArray());
 
     $OSCOM_Language->loadDefinitions('modules/newsletters/' . $nInfo->module);
-    include('includes/modules/newsletters/' . $nInfo->module . substr($PHP_SELF, strrpos($PHP_SELF, '.')));
+    include('includes/modules/newsletters/' . $nInfo->module . substr((string) $PHP_SELF, strrpos((string) $PHP_SELF, '.')));
     $module_name = $nInfo->module;
     $module = new $module_name($nInfo->title, $nInfo->content, $nInfo->content_html);
 ?>
@@ -326,7 +326,7 @@
     $nInfo = new objectInfo($Qnewsletter->toArray());
 
     $OSCOM_Language->loadDefinitions('modules/newsletters/' . $nInfo->module);
-    include('includes/modules/newsletters/' . $nInfo->module . substr($PHP_SELF, strrpos($PHP_SELF, '.')));
+    include('includes/modules/newsletters/' . $nInfo->module . substr((string) $PHP_SELF, strrpos((string) $PHP_SELF, '.')));
     $module_name = $nInfo->module;
     $module = new $module_name($nInfo->title, $nInfo->content, $nInfo->content_html);
 ?>
@@ -370,7 +370,7 @@
     $Qnewsletters->execute();
 
     while ($Qnewsletters->fetch()) {
-    if ((!isset($_GET['nID']) || (isset($_GET['nID']) && ((int)$_GET['nID'] === $Qnewsletters->valueInt('newsletters_id')))) && !isset($nInfo) && (substr($action, 0, 3) != 'new')) {
+    if ((!isset($_GET['nID']) || (isset($_GET['nID']) && ((int)$_GET['nID'] === $Qnewsletters->valueInt('newsletters_id')))) && !isset($nInfo) && (!str_starts_with($action, 'new'))) {
         $nInfo = new objectInfo($Qnewsletters->toArray());
       }
 
@@ -403,29 +403,29 @@
               </tr>
             </table></td>
 <?php
-  $heading = array();
-  $contents = array();
+  $heading = [];
+  $contents = [];
 
   switch ($action) {
     case 'delete':
-      $heading[] = array('text' => '<strong>' . $nInfo->title . '</strong>');
+      $heading[] = ['text' => '<strong>' . $nInfo->title . '</strong>'];
 
-      $contents = array('form' => HTML::form('newsletters', OSCOM::link(FILENAME_NEWSLETTERS, 'page=' . $_GET['page'] . '&nID=' . $nInfo->newsletters_id . '&action=deleteconfirm')));
-      $contents[] = array('text' => OSCOM::getDef('text_info_delete_intro'));
-      $contents[] = array('text' => '<br /><strong>' . $nInfo->title . '</strong>');
-      $contents[] = array('align' => 'center', 'text' => '<br />' . HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_NEWSLETTERS, 'page=' . $_GET['page'] . '&nID=' . $_GET['nID'])));
+      $contents = ['form' => HTML::form('newsletters', OSCOM::link(FILENAME_NEWSLETTERS, 'page=' . $_GET['page'] . '&nID=' . $nInfo->newsletters_id . '&action=deleteconfirm'))];
+      $contents[] = ['text' => OSCOM::getDef('text_info_delete_intro')];
+      $contents[] = ['text' => '<br /><strong>' . $nInfo->title . '</strong>'];
+      $contents[] = ['align' => 'center', 'text' => '<br />' . HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_NEWSLETTERS, 'page=' . $_GET['page'] . '&nID=' . $_GET['nID']))];
       break;
     default:
       if (isset($nInfo) && is_object($nInfo)) {
-        $heading[] = array('text' => '<strong>' . $nInfo->title . '</strong>');
+        $heading[] = ['text' => '<strong>' . $nInfo->title . '</strong>'];
 
         if ($nInfo->locked > 0) {
-          $contents[] = array('align' => 'center', 'text' => HTML::button(OSCOM::getDef('image_edit'), 'fa fa-edit', OSCOM::link(FILENAME_NEWSLETTERS, 'page=' . $_GET['page'] . '&nID=' . $nInfo->newsletters_id . '&action=new')) . HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash', OSCOM::link(FILENAME_NEWSLETTERS, 'page=' . $_GET['page'] . '&nID=' . $nInfo->newsletters_id . '&action=delete')) . HTML::button(OSCOM::getDef('image_preview'), 'fa fa-file-o', OSCOM::link(FILENAME_NEWSLETTERS, 'page=' . $_GET['page'] . '&nID=' . $nInfo->newsletters_id . '&action=preview')) . HTML::button(OSCOM::getDef('image_send'), 'fa fa-envelope', OSCOM::link(FILENAME_NEWSLETTERS, 'page=' . $_GET['page'] . '&nID=' . $nInfo->newsletters_id . '&action=send')) . HTML::button(OSCOM::getDef('image_unlock'), 'fa fa-unlock', OSCOM::link(FILENAME_NEWSLETTERS, 'page=' . $_GET['page'] . '&nID=' . $nInfo->newsletters_id . '&action=unlock')));
+          $contents[] = ['align' => 'center', 'text' => HTML::button(OSCOM::getDef('image_edit'), 'fa fa-edit', OSCOM::link(FILENAME_NEWSLETTERS, 'page=' . $_GET['page'] . '&nID=' . $nInfo->newsletters_id . '&action=new')) . HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash', OSCOM::link(FILENAME_NEWSLETTERS, 'page=' . $_GET['page'] . '&nID=' . $nInfo->newsletters_id . '&action=delete')) . HTML::button(OSCOM::getDef('image_preview'), 'fa fa-file-o', OSCOM::link(FILENAME_NEWSLETTERS, 'page=' . $_GET['page'] . '&nID=' . $nInfo->newsletters_id . '&action=preview')) . HTML::button(OSCOM::getDef('image_send'), 'fa fa-envelope', OSCOM::link(FILENAME_NEWSLETTERS, 'page=' . $_GET['page'] . '&nID=' . $nInfo->newsletters_id . '&action=send')) . HTML::button(OSCOM::getDef('image_unlock'), 'fa fa-unlock', OSCOM::link(FILENAME_NEWSLETTERS, 'page=' . $_GET['page'] . '&nID=' . $nInfo->newsletters_id . '&action=unlock'))];
         } else {
-          $contents[] = array('align' => 'center', 'text' => HTML::button(OSCOM::getDef('image_preview'), 'fa fa-file-o', OSCOM::link(FILENAME_NEWSLETTERS, 'page=' . $_GET['page'] . '&nID=' . $nInfo->newsletters_id . '&action=preview')) . HTML::button(OSCOM::getDef('image_lock'), 'fa fa-lock', OSCOM::link(FILENAME_NEWSLETTERS, 'page=' . $_GET['page'] . '&nID=' . $nInfo->newsletters_id . '&action=lock')));
+          $contents[] = ['align' => 'center', 'text' => HTML::button(OSCOM::getDef('image_preview'), 'fa fa-file-o', OSCOM::link(FILENAME_NEWSLETTERS, 'page=' . $_GET['page'] . '&nID=' . $nInfo->newsletters_id . '&action=preview')) . HTML::button(OSCOM::getDef('image_lock'), 'fa fa-lock', OSCOM::link(FILENAME_NEWSLETTERS, 'page=' . $_GET['page'] . '&nID=' . $nInfo->newsletters_id . '&action=lock'))];
         }
-        $contents[] = array('text' => '<br />' . OSCOM::getDef('text_newsletter_date_added') . ' ' . DateTime::toShort($nInfo->date_added));
-        if ($nInfo->status == '1') $contents[] = array('text' => OSCOM::getDef('text_newsletter_date_sent') . ' ' . DateTime::toShort($nInfo->date_sent));
+        $contents[] = ['text' => '<br />' . OSCOM::getDef('text_newsletter_date_added') . ' ' . DateTime::toShort($nInfo->date_added)];
+        if ($nInfo->status == '1') $contents[] = ['text' => OSCOM::getDef('text_newsletter_date_sent') . ' ' . DateTime::toShort($nInfo->date_sent)];
       }
       break;
   }

@@ -17,7 +17,7 @@ class DateTime
     protected $raw_pattern_date = 'Y-m-d';
     protected $raw_pattern_time = 'H:i:s';
 
-    public function __construct($datetime, $use_raw_pattern = false, $strict = false)
+    public function __construct(string $datetime, $use_raw_pattern = false, $strict = false)
     {
         if ($use_raw_pattern === false) {
             $pattern = OSCOM::getDef('date_time_format');
@@ -53,7 +53,7 @@ class DateTime
         }
     }
 
-    public function isValid()
+    public function isValid(): bool
     {
         return $this->datetime instanceof \DateTime;
     }
@@ -67,19 +67,19 @@ class DateTime
         return $this->datetime;
     }
 
-    public function getShort($with_time = false)
+    public function getShort($with_time = false): string|false
     {
         $pattern = ($with_time === false) ? OSCOM::getDef('date_format_short') : OSCOM::getDef('date_time_format');
 
         return strftime($pattern, $this->getTimestamp());
     }
 
-    public function getLong()
+    public function getLong(): string|false
     {
         return strftime(OSCOM::getDef('date_format_long'), $this->getTimestamp());
     }
 
-    public static function toShort($raw_datetime, $with_time = false, $strict = true)
+    public static function toShort($raw_datetime, $with_time = false, $strict = true): string|false
     {
         $result = '';
 
@@ -94,14 +94,14 @@ class DateTime
         return $result;
     }
 
-    public static function toLong($raw_datetime, $strict = true)
+    public static function toLong($raw_datetime, $strict = true): string|false
     {
         $result = '';
 
         $date = new DateTime($raw_datetime, true, $strict);
 
         if ($date->isValid()) {
-            $result = strftime(OSCOM::getDef('date_format_long'), $date->getTimestamp());
+            return strftime(OSCOM::getDef('date_format_long'), $date->getTimestamp());
         }
 
         return $result;
@@ -123,7 +123,10 @@ class DateTime
         return $this->datetime->getTimestamp();
     }
 
-    public static function getTimeZones()
+    /**
+     * @return array{id: (int | string), text: string, group: string}[]
+     */
+    public static function getTimeZones(): array
     {
         $time_zones_array = [];
 
@@ -132,7 +135,7 @@ class DateTime
 
             $id_array = explode('/', $tz_string, 2);
 
-            $time_zones_array[$id_array[0]][$id] = isset($id_array[1]) ? $id_array[1] : $id_array[0];
+            $time_zones_array[$id_array[0]][$id] = $id_array[1] ?? $id_array[0];
         }
 
         $result = [];
@@ -150,7 +153,7 @@ class DateTime
         return $result;
     }
 
-    public static function setTimeZone($time_zone = null)
+    public static function setTimeZone($time_zone = null): bool
     {
         if (!isset($time_zone)) {
             $time_zone = OSCOM::configExists('time_zone') ? OSCOM::getConfig('time_zone') : date_default_timezone_get();

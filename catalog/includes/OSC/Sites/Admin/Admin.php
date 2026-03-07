@@ -58,8 +58,8 @@ class Admin extends \OSC\OM\SitesAbstract
         define('LOCAL_EXE_UNZIP', 'unzip');
 
 // set php_self in the global scope
-        $req = parse_url($_SERVER['SCRIPT_NAME']);
-        $PHP_SELF = substr($req['path'], strlen(OSCOM::getConfig('http_path')));
+        $req = parse_url((string) $_SERVER['SCRIPT_NAME']);
+        $PHP_SELF = substr($req['path'], strlen((string) OSCOM::getConfig('http_path')));
 
         $OSCOM_Session = Session::load();
         Registry::set('Session', $OSCOM_Session);
@@ -123,7 +123,7 @@ class Admin extends \OSC\OM\SitesAbstract
 
 // Prevent LC_ALL from setting LC_NUMERIC to a locale with 1,0 float/decimal values instead of 1.0 (see bug #634)
         $system_locale_numeric = setlocale(LC_NUMERIC, 0);
-        setlocale(LC_ALL, explode(';', OSCOM::getDef('system_locale')));
+        setlocale(LC_ALL, explode(';', (string) OSCOM::getDef('system_locale')));
         setlocale(LC_NUMERIC, $system_locale_numeric);
 
         $current_page = basename($PHP_SELF);
@@ -141,16 +141,16 @@ class Admin extends \OSC\OM\SitesAbstract
         }
     }
 
-    public function setPage()
+    public function setPage(): void
     {
         if (!empty($_GET)) {
-            $req = basename(array_keys($_GET)[0]);
+            $req = basename((string) array_keys($_GET)[0]);
 
             if (($req == 'A') && (count($_GET) > 1)) {
                 $app = array_keys($_GET)[1];
 
-                if (strpos($app, '\\') !== false) {
-                    list($vendor, $app) = explode('\\', $app);
+                if (str_contains((string) $app, '\\')) {
+                    [$vendor, $app] = explode('\\', (string) $app);
 
                     if (Apps::exists($vendor . '\\' . $app) && ($page = Apps::getRouteDestination(null, $vendor . '\\' . $app)) !== null) {
 // get controller class name from namespace
@@ -176,7 +176,7 @@ class Admin extends \OSC\OM\SitesAbstract
         }
 
         if (isset($class)) {
-            if (is_subclass_of($class, 'OSC\OM\PagesInterface')) {
+            if (is_subclass_of($class, \OSC\OM\PagesInterface::class)) {
                 $this->page = new $class($this);
 
                 $this->page->runActions();

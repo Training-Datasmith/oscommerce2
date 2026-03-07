@@ -48,8 +48,8 @@ class Shop extends \OSC\OM\SitesAbstract
         }
 
 // set php_self in the global scope
-        $req = parse_url($_SERVER['SCRIPT_NAME']);
-        $PHP_SELF = substr($req['path'], strlen(OSCOM::getConfig('http_path', 'Shop')));
+        $req = parse_url((string) $_SERVER['SCRIPT_NAME']);
+        $PHP_SELF = substr($req['path'], strlen((string) OSCOM::getConfig('http_path', 'Shop')));
 
         $OSCOM_Session = Session::load();
         Registry::set('Session', $OSCOM_Session);
@@ -64,7 +64,7 @@ class Shop extends \OSC\OM\SitesAbstract
         Registry::set('Language', $OSCOM_Language);
 
 // create the shopping cart
-        if (!isset($_SESSION['cart']) || !is_object($_SESSION['cart']) || (get_class($_SESSION['cart']) != 'shoppingCart')) {
+        if (!isset($_SESSION['cart']) || !is_object($_SESSION['cart']) || ($_SESSION['cart']::class != 'shoppingCart')) {
             $_SESSION['cart'] = new \shoppingCart();
         }
 
@@ -85,7 +85,7 @@ class Shop extends \OSC\OM\SitesAbstract
 
 // Prevent LC_ALL from setting LC_NUMERIC to a locale with 1,0 float/decimal values instead of 1.0 (see bug #634)
         $system_locale_numeric = setlocale(LC_NUMERIC, 0);
-        setlocale(LC_ALL, explode(';', OSCOM::getDef('system_locale')));
+        setlocale(LC_ALL, explode(';', (string) OSCOM::getDef('system_locale')));
         setlocale(LC_NUMERIC, $system_locale_numeric);
 
 // currency
@@ -98,7 +98,7 @@ class Shop extends \OSC\OM\SitesAbstract
         }
 
 // navigation history
-        if (!isset($_SESSION['navigation']) || !is_object($_SESSION['navigation']) || (get_class($_SESSION['navigation']) != 'navigationHistory')) {
+        if (!isset($_SESSION['navigation']) || !is_object($_SESSION['navigation']) || ($_SESSION['navigation']::class != 'navigationHistory')) {
             $_SESSION['navigation'] = new \navigationHistory();
         }
 
@@ -121,13 +121,13 @@ class Shop extends \OSC\OM\SitesAbstract
         $breadcrumb->add(OSCOM::getDef('header_title_catalog'), OSCOM::link('index.php'));
     }
 
-    public function setPage()
+    public function setPage(): void
     {
         if (!empty($_GET)) {
             if (($route = Apps::getRouteDestination()) !== null) {
                 $this->route = $route;
 
-                list($vendor_app, $page) = explode('/', $route['destination'], 2);
+                [$vendor_app, $page] = explode('/', (string) $route['destination'], 2);
 
 // get controller class name from namespace
                 $page_namespace = explode('\\', $page);
@@ -137,7 +137,7 @@ class Shop extends \OSC\OM\SitesAbstract
                     $class = 'OSC\Apps\\' . $vendor_app . '\\' . $page . '\\' . $page_code;
                 }
             } else {
-                $req = basename(array_keys($_GET)[0]);
+                $req = basename((string) array_keys($_GET)[0]);
 
                 if (class_exists('OSC\Sites\\' . $this->code . '\Pages\\' . $req . '\\' . $req)) {
                     $page_code = $req;
@@ -148,7 +148,7 @@ class Shop extends \OSC\OM\SitesAbstract
         }
 
         if (isset($class)) {
-            if (is_subclass_of($class, 'OSC\OM\PagesInterface')) {
+            if (is_subclass_of($class, \OSC\OM\PagesInterface::class)) {
                 $this->page = new $class($this);
 
                 $this->page->runActions();
@@ -164,7 +164,7 @@ class Shop extends \OSC\OM\SitesAbstract
 
         foreach ($routes as $vendor_app => $paths) {
             foreach ($paths as $path => $page) {
-                $path_array = explode('&', $path);
+                $path_array = explode('&', (string) $path);
 
                 if (count($path_array) <= count($route)) {
                     if ($path_array == array_slice($route, 0, count($path_array))) {
@@ -179,12 +179,9 @@ class Shop extends \OSC\OM\SitesAbstract
         }
 
         if (!empty($result)) {
-            usort($result, function ($a, $b) {
-                if ($a['score'] == $b['score']) {
-                    return 0;
-                }
-
-                return ($a['score'] < $b['score']) ? 1 : -1; // sort highest to lowest
+            usort($result, function (array $a, array $b): int {
+                return $b['score'] <=> $a['score'];
+                // sort highest to lowest
             });
 
             return $result[0];

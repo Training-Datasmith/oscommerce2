@@ -9,7 +9,7 @@
   use OSC\OM\HTTP;
   use OSC\OM\Registry;
 
-  function tep_update_whos_online() {
+  function tep_update_whos_online(): void {
     $OSCOM_Db = Registry::get('Db');
 
     $wo_customer_id = 0;
@@ -57,7 +57,7 @@
     }
   }
 
-  function tep_whos_online_update_session_id($old_id, $new_id) {
+  function tep_whos_online_update_session_id($old_id, $new_id): void {
     $OSCOM_Db = Registry::get('Db');
 
     $OSCOM_Db->save('whos_online', ['session_id' => $new_id], ['session_id' => $old_id]);

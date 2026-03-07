@@ -13,7 +13,7 @@ use OSC\OM\OSCOM;
 
 class Hooks
 {
-    protected $site;
+    protected string $site;
     protected $hooks = [];
     protected $watches = [];
 
@@ -23,10 +23,13 @@ class Hooks
             $site = OSCOM::getSite();
         }
 
-        $this->site = basename($site);
+        $this->site = basename((string) $site);
     }
 
-    public function call($group, $hook, $parameters = null, $action = null)
+    /**
+     * @return mixed[]
+     */
+    public function call($group, $hook, $parameters = null, $action = null): array
     {
         if (!isset($action)) {
             $action = 'execute';
@@ -73,19 +76,19 @@ class Hooks
         return $result;
     }
 
-    public function output()
+    public function output(): string
     {
-        return implode('', call_user_func_array([$this, 'call'], func_get_args()));
+        return implode('', call_user_func_array($this->call(...), func_get_args()));
     }
 
-    public function watch($group, $hook, $action, $code)
+    public function watch($group, $hook, $action, $code): void
     {
         $this->watches[$this->site][$group][$hook][$action][] = $code;
     }
 
-    protected function register($group, $hook, $action)
+    protected function register($group, string $hook, $action)
     {
-        $group = basename($group);
+        $group = basename((string) $group);
 
         $this->hooks[$this->site][$group][$hook][$action] = [];
 

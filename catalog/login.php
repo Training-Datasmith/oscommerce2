@@ -49,7 +49,7 @@
     $_SESSION['cart']->restore_contents();
 
     if (sizeof($_SESSION['navigation']->snapshot) > 0) {
-      $origin_href = OSCOM::link($_SESSION['navigation']->snapshot['page'], tep_array_to_string($_SESSION['navigation']->snapshot['get'], array(session_name())));
+      $origin_href = OSCOM::link($_SESSION['navigation']->snapshot['page'], tep_array_to_string($_SESSION['navigation']->snapshot['get'], [session_name()]));
       $_SESSION['navigation']->clear_snapshot();
       HTTP::redirect($origin_href);
     }

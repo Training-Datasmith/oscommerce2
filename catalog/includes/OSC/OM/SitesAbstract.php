@@ -10,7 +10,7 @@ namespace OSC\OM;
 
 abstract class SitesAbstract implements \OSC\OM\SitesInterface
 {
-    protected $code;
+    protected string $code;
     protected $page;
     protected $app;
     protected $route;

@@ -19,13 +19,9 @@
   error_reporting(E_ALL & ~E_DEPRECATED);
 
   require(OSCOM_BASE_DIR . 'OM/OSCOM.php');
-  spl_autoload_register('OSC\OM\OSCOM::autoload');
+  spl_autoload_register(OSC\OM\OSCOM::autoload(...));
 
   OSCOM::initialize();
-
-  if (PHP_VERSION_ID < 70000) {
-    include(OSCOM::getConfig('dir_root', 'Shop') . 'includes/third_party/random_compat/random.php');
-  }
 
   require('includes/filenames.php');
   require('includes/functions/general.php');
@@ -42,7 +38,7 @@
 
   OSCOM::loadSite('Admin');
 
-  if ((HTTP::getRequestType() === 'NONSSL') && ($_SERVER['REQUEST_METHOD'] === 'GET') && (parse_url(OSCOM::getConfig('http_server'), PHP_URL_SCHEME) == 'https')) {
+  if ((HTTP::getRequestType() === 'NONSSL') && ($_SERVER['REQUEST_METHOD'] === 'GET') && (parse_url((string) OSCOM::getConfig('http_server'), PHP_URL_SCHEME) == 'https')) {
     $url_req = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 
     HTTP::redirect($url_req, 301);
@@ -70,12 +66,12 @@
   }
 
   $admin_menu = [];
-  $cl_box_groups = array();
-  $cl_apps_groups = array();
+  $cl_box_groups = [];
+  $cl_apps_groups = [];
 
   if (isset($_SESSION['admin'])) {
     if ($dir = @dir(OSCOM::getConfig('dir_root') . 'includes/boxes')) {
-      $files = array();
+      $files = [];
 
       while ($file = $dir->read()) {
         if (!is_dir($dir->path . '/' . $file)) {
@@ -107,14 +103,10 @@
     }
   }
 
-  usort($cl_box_groups, function ($a, $b) {
-    return strcasecmp($a['heading'], $b['heading']);
-  });
+  usort($cl_box_groups, fn(array $a, array $b) => strcasecmp((string) $a['heading'], (string) $b['heading']));
 
   foreach ( $cl_box_groups as &$group ) {
-    usort($group['apps'], function ($a, $b) {
-      return strcasecmp($a['title'], $b['title']);
-    });
+    usort($group['apps'], fn(array $a, array $b) => strcasecmp((string) $a['title'], (string) $b['title']));
   }
 
   unset($group); // unset reference variable

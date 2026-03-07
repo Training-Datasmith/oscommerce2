@@ -12,7 +12,7 @@
 
   require('includes/application_top.php');
 
-  $action = (isset($_GET['action']) ? $_GET['action'] : '');
+  $action = ($_GET['action'] ?? '');
 
   if ( ($action == 'send_email_to_user') && isset($_POST['customers_email_address']) && !isset($_POST['back_x']) ) {
     switch ($_POST['customers_email_address']) {
@@ -71,7 +71,7 @@
       $customerEmail->send();
     }
 
-    OSCOM::redirect(FILENAME_MAIL, 'mail_sent_to=' . urlencode($mail_sent_to));
+    OSCOM::redirect(FILENAME_MAIL, 'mail_sent_to=' . urlencode((string) $mail_sent_to));
   }
 
   if ( ($action == 'preview') && !isset($_POST['customers_email_address']) ) {
@@ -97,17 +97,11 @@
         <td><table border="0" width="100%" cellspacing="0" cellpadding="2">
 <?php
   if ( ($action == 'preview') && isset($_POST['customers_email_address']) ) {
-    switch ($_POST['customers_email_address']) {
-      case '***':
-        $mail_sent_to = OSCOM::getDef('text_all_customers');
-        break;
-      case '**D':
-        $mail_sent_to = OSCOM::getDef('text_newsletter_customers');
-        break;
-      default:
-        $mail_sent_to = $_POST['customers_email_address'];
-        break;
-    }
+    $mail_sent_to = match ($_POST['customers_email_address']) {
+        '***' => OSCOM::getDef('text_all_customers'),
+        '**D' => OSCOM::getDef('text_newsletter_customers'),
+        default => $_POST['customers_email_address'],
+    };
 ?>
           <tr><?php echo HTML::form('mail', OSCOM::link(FILENAME_MAIL, 'action=send_email_to_user')); ?>
             <td><table border="0" width="100%" cellpadding="0" cellspacing="2">
@@ -153,7 +147,7 @@
                     </div>
 
                     <div role="tabpanel" class="tab-pane" id="plain_preview">
-                      <?= nl2br(HTML::outputProtected($_POST['message'])); ?>
+                      <?= nl2br((string) HTML::outputProtected($_POST['message'])); ?>
                     </div>
                   </div>
                 </td>
@@ -213,7 +207,7 @@
 ?>
               <tr>
                 <td class="main"><?php echo OSCOM::getDef('text_customer'); ?></td>
-                <td><?php echo HTML::selectField('customers_email_address', $customers, (isset($_GET['customer']) ? $_GET['customer'] : ''));?></td>
+                <td><?php echo HTML::selectField('customers_email_address', $customers, ($_GET['customer'] ?? ''));?></td>
               </tr>
               <tr>
                 <td colspan="2">&nbsp;</td>

@@ -11,12 +11,15 @@
   use OSC\OM\Registry;
 
   class ht_datepicker_jquery {
-    var $code = 'ht_datepicker_jquery';
-    var $group = 'footer_scripts';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    public $code = 'ht_datepicker_jquery';
+    public $group = 'footer_scripts';
+    public $title;
+    public $description;
+    public $sort_order;
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
     function __construct() {
       $this->title = OSCOM::getDef('module_header_tags_datepicker_jquery_title');
@@ -28,11 +31,11 @@
       }
     }
 
-    function execute() {
+    function execute(): void {
       global $PHP_SELF, $oscTemplate;
 
       if (tep_not_null(MODULE_HEADER_TAGS_DATEPICKER_JQUERY_PAGES)) {
-        $pages_array = array();
+        $pages_array = [];
 
         foreach (explode(';', MODULE_HEADER_TAGS_DATEPICKER_JQUERY_PAGES) as $page) {
           $page = trim($page);
@@ -42,7 +45,7 @@
           }
         }
 
-        if (in_array(basename($PHP_SELF), $pages_array)) {
+        if (in_array(basename((string) $PHP_SELF), $pages_array)) {
           $oscTemplate->addBlock('<script src="ext/datepicker/js/bootstrap-datepicker.js"></script>' . "\n", $this->group);
           $oscTemplate->addBlock('<link rel="stylesheet" href="ext/datepicker/css/datepicker.css" />' . "\n", 'header_tags');
           $oscTemplate->addBlock('<script>$(\'input[data-provide="datepicker"]\').datepicker({format: \'' . OSCOM::getDef('js_date_format') . '\',viewMode: 2});</script>', $this->group);
@@ -57,11 +60,11 @@
       return $this->enabled;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_HEADER_TAGS_DATEPICKER_JQUERY_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -102,26 +105,26 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_HEADER_TAGS_DATEPICKER_JQUERY_STATUS', 'MODULE_HEADER_TAGS_DATEPICKER_JQUERY_PAGES', 'MODULE_HEADER_TAGS_DATEPICKER_JQUERY_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_HEADER_TAGS_DATEPICKER_JQUERY_STATUS', 'MODULE_HEADER_TAGS_DATEPICKER_JQUERY_PAGES', 'MODULE_HEADER_TAGS_DATEPICKER_JQUERY_SORT_ORDER'];
     }
 
-    function get_default_pages() {
-      return array('advanced_search.php',
+    function get_default_pages(): array {
+      return ['advanced_search.php',
                    'account_edit.php',
-                   'create_account.php');
+                   'create_account.php'];
     }
   }
 
-  function ht_datepicker_jquery_show_pages($text) {
-    return nl2br(implode("\n", explode(';', $text)));
+  function ht_datepicker_jquery_show_pages($text): string {
+    return nl2br(implode("\n", explode(';', (string) $text)));
   }
 
-  function ht_datepicker_jquery_edit_pages($values, $key) {
+  function ht_datepicker_jquery_edit_pages($values, string $key): string {
     global $PHP_SELF;
 
-    $file_extension = substr($PHP_SELF, strrpos($PHP_SELF, '.'));
-    $files_array = array();
+    $file_extension = substr((string) $PHP_SELF, strrpos((string) $PHP_SELF, '.'));
+    $files_array = [];
 	  if ($dir = @dir(OSCOM::getConfig('dir_root', 'Shop'))) {
 	    while ($file = $dir->read()) {
 	      if (!is_dir(OSCOM::getConfig('dir_root', 'Shop') . $file)) {
@@ -147,7 +150,7 @@
 
     $output .= HTML::hiddenField('configuration[' . $key . ']', '', 'id="htrn_files"');
 
-    $output .= '<script>
+    return $output . '<script>
                 function htrn_update_cfg_value() {
                   var htrn_selected_files = \'\';
 
@@ -174,7 +177,5 @@
                   }
                 });
                 </script>';
-
-    return $output;
   }
 ?>

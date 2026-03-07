@@ -11,12 +11,15 @@
   use OSC\OM\Registry;
 
   class ht_google_analytics {
-    var $code = 'ht_google_analytics';
-    var $group = 'header_tags';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    public $code = 'ht_google_analytics';
+    public $group = 'header_tags';
+    public $title;
+    public $description;
+    public $sort_order;
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
     function __construct() {
       $this->title = OSCOM::getDef('module_header_tags_google_analytics_title');
@@ -28,7 +31,7 @@
       }
     }
 
-    function execute() {
+    function execute(): void {
       global $PHP_SELF, $oscTemplate;
 
       $OSCOM_Db = Registry::get('Db');
@@ -43,11 +46,11 @@
   _gaq.push([\'_setAccount\', \'' . HTML::output(MODULE_HEADER_TAGS_GOOGLE_ANALYTICS_ID) . '\']);
   _gaq.push([\'_trackPageview\']);' . "\n";
 
-        if ( (MODULE_HEADER_TAGS_GOOGLE_ANALYTICS_EC_TRACKING == 'True') && (basename($PHP_SELF) == 'checkout_success.php') && isset($_SESSION['customer_id']) ) {
+        if ( (MODULE_HEADER_TAGS_GOOGLE_ANALYTICS_EC_TRACKING == 'True') && (basename((string) $PHP_SELF) == 'checkout_success.php') && isset($_SESSION['customer_id']) ) {
           $Qorder = $OSCOM_Db->get('orders', ['orders_id', 'billing_city', 'billing_state', 'billing_country'], ['customers_id' => $_SESSION['customer_id']], 'date_purchased desc', 1);
 
           if ($Qorder->fetch() !== false) {
-            $totals = array();
+            $totals = [];
 
             $Qtotals = $OSCOM_Db->get('orders_total', ['value', 'class'], ['orders_id' => $Qorder->valueInt('orders_id')]);
 
@@ -102,7 +105,7 @@
       }
     }
 
-    function format_raw($number, $currency_code = '', $currency_value = '') {
+    function format_raw($number, $currency_code = '', $currency_value = ''): string {
       global $currencies;
 
       if (empty($currency_code) || !$currencies->is_set($currency_code)) {
@@ -120,11 +123,11 @@
       return $this->enabled;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_HEADER_TAGS_GOOGLE_ANALYTICS_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -185,8 +188,8 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_HEADER_TAGS_GOOGLE_ANALYTICS_STATUS', 'MODULE_HEADER_TAGS_GOOGLE_ANALYTICS_ID', 'MODULE_HEADER_TAGS_GOOGLE_ANALYTICS_EC_TRACKING', 'MODULE_HEADER_TAGS_GOOGLE_ANALYTICS_JS_PLACEMENT', 'MODULE_HEADER_TAGS_GOOGLE_ANALYTICS_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_HEADER_TAGS_GOOGLE_ANALYTICS_STATUS', 'MODULE_HEADER_TAGS_GOOGLE_ANALYTICS_ID', 'MODULE_HEADER_TAGS_GOOGLE_ANALYTICS_EC_TRACKING', 'MODULE_HEADER_TAGS_GOOGLE_ANALYTICS_JS_PLACEMENT', 'MODULE_HEADER_TAGS_GOOGLE_ANALYTICS_SORT_ORDER'];
     }
   }
 ?>

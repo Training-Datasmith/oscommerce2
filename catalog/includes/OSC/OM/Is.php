@@ -10,7 +10,7 @@ namespace OSC\OM;
 
 class Is
 {
-    public static function __callStatic($name, $arguments)
+    public static function __callStatic(string $name, array $arguments)
     {
         if (class_exists(__NAMESPACE__ . '\\Is\\' . $name)) {
             return (bool)call_user_func_array([

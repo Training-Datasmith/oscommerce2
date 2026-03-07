@@ -9,7 +9,7 @@ if ($_SESSION['cart']->count_contents() > 0) {
 <li><?php echo '<a href="' . OSCOM::link('shopping_cart.php') . '">' . OSCOM::getDef('module_navbar_shopping_cart_has_contents', ['count_contents' => $_SESSION['cart']->count_contents(), 'show_total'=> $currencies->format($_SESSION['cart']->show_total())]) . '</a>'; ?></li>
       <li role="separator" class="divider"></li>
       <?php
-      foreach ($_SESSION['cart']->get_products() as $k => $v) {
+      foreach ($_SESSION['cart']->get_products() as $v) {
         echo '<li>' .
              OSCOM::getDef('module_navbar_shopping_cart_product', [
                'product_url' => OSCOM::link('product_info.php', 'products_id=' . $v['id']),

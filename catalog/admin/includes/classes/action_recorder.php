@@ -21,20 +21,20 @@
       $module = HTML::sanitize(str_replace(' ', '', $module));
 
       if (defined('MODULE_ACTION_RECORDER_INSTALLED') && tep_not_null(MODULE_ACTION_RECORDER_INSTALLED)) {
-        if (tep_not_null($module) && in_array($module . '.' . substr($PHP_SELF, (strrpos($PHP_SELF, '.')+1)), explode(';', MODULE_ACTION_RECORDER_INSTALLED))) {
+        if (tep_not_null($module) && in_array($module . '.' . substr((string) $PHP_SELF, (strrpos((string) $PHP_SELF, '.')+1)), explode(';', (string) MODULE_ACTION_RECORDER_INSTALLED))) {
           if (!class_exists($module)) {
-            if (is_file(OSCOM::getConfig('dir_root', 'Shop') . 'includes/modules/action_recorder/' . $module . '.' . substr($PHP_SELF, (strrpos($PHP_SELF, '.')+1)))) {
+            if (is_file(OSCOM::getConfig('dir_root', 'Shop') . 'includes/modules/action_recorder/' . $module . '.' . substr((string) $PHP_SELF, (strrpos((string) $PHP_SELF, '.')+1)))) {
               $this->lang->loadDefinitions('Shop/modules/action_recorder/' . $module);
-              include(OSCOM::getConfig('dir_root', 'Shop') . 'includes/modules/action_recorder/' . $module . '.' . substr($PHP_SELF, (strrpos($PHP_SELF, '.')+1)));
+              include(OSCOM::getConfig('dir_root', 'Shop') . 'includes/modules/action_recorder/' . $module . '.' . substr((string) $PHP_SELF, (strrpos((string) $PHP_SELF, '.')+1)));
             } else {
-              return false;
+              return;
             }
           }
         } else {
-          return false;
+          return;
         }
       } else {
-        return false;
+        return;
       }
 
       $this->_module = $module;

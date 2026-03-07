@@ -10,12 +10,15 @@
   use OSC\OM\Registry;
 
   class ht_category_title {
-    var $code = 'ht_category_title';
-    var $group = 'header_tags';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    public $code = 'ht_category_title';
+    public $group = 'header_tags';
+    public $title;
+    public $description;
+    public $sort_order;
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
     function __construct() {
       $this->title = OSCOM::getDef('module_header_tags_category_title_title');
@@ -27,13 +30,13 @@
       }
     }
 
-    function execute() {
+    function execute(): void {
       global $PHP_SELF, $oscTemplate, $current_category_id;
 
       $OSCOM_Db = Registry::get('Db');
       $OSCOM_Language = Registry::get('Language');
 
-      if (basename($PHP_SELF) == 'index.php') {
+      if (basename((string) $PHP_SELF) == 'index.php') {
         if ($current_category_id > 0) {
           $Qcategory = $OSCOM_Db->get('categories_description', ['categories_name', 'categories_seo_title'], ['categories_id' => $current_category_id, 'language_id' => $OSCOM_Language->getId()]);
 
@@ -53,11 +56,11 @@
       return $this->enabled;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_HEADER_TAGS_CATEGORY_TITLE_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -108,7 +111,7 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_HEADER_TAGS_CATEGORY_TITLE_STATUS', 'MODULE_HEADER_TAGS_CATEGORY_TITLE_SORT_ORDER', 'MODULE_HEADER_TAGS_CATEGORY_TITLE_SEO_TITLE_OVERRIDE', 'MODULE_HEADER_TAGS_CATEGORY_TITLE_SEO_BREADCRUMB_OVERRIDE');
+    function keys(): array {
+      return ['MODULE_HEADER_TAGS_CATEGORY_TITLE_STATUS', 'MODULE_HEADER_TAGS_CATEGORY_TITLE_SORT_ORDER', 'MODULE_HEADER_TAGS_CATEGORY_TITLE_SEO_TITLE_OVERRIDE', 'MODULE_HEADER_TAGS_CATEGORY_TITLE_SEO_BREADCRUMB_OVERRIDE'];
     }
   }

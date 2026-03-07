@@ -12,7 +12,7 @@
   use OSC\OM\Registry;
 
   class newsletter {
-    var $show_choose_audience, $title, $content, $content_html;
+    public $show_choose_audience, $title, $content, $content_html;
 
     function __construct($title, $content, $content_html = null) {
       $this->show_choose_audience = false;
@@ -21,16 +21,16 @@
       $this->content_html = $content_html;
     }
 
-    function choose_audience() {
+    function choose_audience(): bool {
       return false;
     }
 
-    function confirm() {
+    function confirm(): string {
       $OSCOM_Db = Registry::get('Db');
 
       $Qmail = $OSCOM_Db->get('customers', 'count(*) as count', ['customers_newsletter' => '1']);
 
-      $confirm_string = '<table border="0" cellspacing="0" cellpadding="2">' . "\n" .
+      return '<table border="0" cellspacing="0" cellpadding="2">' . "\n" .
                         '  <tr>' . "\n" .
                         '    <td class="main"><font color="#ff0000"><strong>' . OSCOM::getDef('text_count_customers', ['count' => $Qmail->valueInt('count')]) . '</strong></font></td>' . "\n" .
                         '  </tr>' . "\n" .
@@ -63,7 +63,7 @@
                         '          </script>' . "\n" .
                         '        </div>' . "\n" .
                         '        <div role="tabpanel" class="tab-pane" id="plain_preview">' . "\n" .
-                        '          ' . nl2br(HTML::outputProtected($this->content)) . "\n" .
+                        '          ' . nl2br((string) HTML::outputProtected($this->content)) . "\n" .
                         '        </div>' . "\n" .
                         '      </div>' . "\n" .
                         '    </td>' . "\n" .
@@ -75,11 +75,9 @@
                         '    <td class="smallText" align="right">' . HTML::button(OSCOM::getDef('image_send'), 'fa fa-envelope', OSCOM::link(FILENAME_NEWSLETTERS, 'page=' . $_GET['page'] . '&nID=' . $_GET['nID'] . '&action=confirm_send')) . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_NEWSLETTERS, 'page=' . $_GET['page'] . '&nID=' . $_GET['nID'])) . '</td>' . "\n" .
                         '  </tr>' . "\n" .
                         '</table>';
-
-      return $confirm_string;
     }
 
-    function send($newsletter_id) {
+    function send($newsletter_id): void {
       $OSCOM_Db = Registry::get('Db');
 
       $newsletterEmail = new Mail();

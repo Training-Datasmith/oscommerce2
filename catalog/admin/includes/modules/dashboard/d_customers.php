@@ -12,13 +12,16 @@
   use OSC\OM\Registry;
 
   class d_customers {
-    var $code = 'd_customers';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    public $code = 'd_customers';
+    public $title;
+    public $description;
+    public $sort_order;
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
-    function d_customers() {
+    function __construct() {
       $this->title = OSCOM::getDef('module_admin_dashboard_customers_title');
       $this->description = OSCOM::getDef('module_admin_dashboard_customers_description');
 
@@ -28,7 +31,7 @@
       }
     }
 
-    function getOutput() {
+    function getOutput(): string {
       $OSCOM_Db = Registry::get('Db');
 
       $output = '<table class="table table-hover">
@@ -61,21 +64,19 @@
                         </tr>';
       }
 
-      $output .= '  </tbody>
+      return $output . '  </tbody>
                   </table>';
-
-      return $output;
     }
 
     function isEnabled() {
       return $this->enabled;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_ADMIN_DASHBOARD_CUSTOMERS_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -104,8 +105,8 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_ADMIN_DASHBOARD_CUSTOMERS_STATUS', 'MODULE_ADMIN_DASHBOARD_CUSTOMERS_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_ADMIN_DASHBOARD_CUSTOMERS_STATUS', 'MODULE_ADMIN_DASHBOARD_CUSTOMERS_SORT_ORDER'];
     }
   }
 ?>

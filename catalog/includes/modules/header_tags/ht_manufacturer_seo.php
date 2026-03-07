@@ -11,12 +11,15 @@
   use OSC\OM\Registry;
 
   class ht_manufacturer_seo {
-    var $code = 'ht_manufacturer_seo';
-    var $group = 'header_tags';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    public $code = 'ht_manufacturer_seo';
+    public $group = 'header_tags';
+    public $title;
+    public $description;
+    public $sort_order;
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
     function __construct() {
       $this->title = OSCOM::getDef('module_header_tags_manufacturers_seo_title');
@@ -28,13 +31,13 @@
       }
     }
 
-    function execute() {
+    function execute(): void {
       global $PHP_SELF, $oscTemplate;
 
       $OSCOM_Db = Registry::get('Db');
       $OSCOM_Language = Registry::get('Language');
 
-      if (basename($PHP_SELF) == 'index.php') {
+      if (basename((string) $PHP_SELF) == 'index.php') {
         if (isset($_GET['manufacturers_id']) && is_numeric($_GET['manufacturers_id'])) {
           $Qmeta = $OSCOM_Db->get('manufacturers_info', ['manufacturers_seo_description', 'manufacturers_seo_keywords'], ['manufacturers_id' => (int)$_GET['manufacturers_id'], 'languages_id' => $OSCOM_Language->getId()]);
 
@@ -54,11 +57,11 @@
       return $this->enabled;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_HEADER_TAGS_MANUFACTURERS_SEO_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -109,7 +112,7 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_HEADER_TAGS_MANUFACTURERS_SEO_STATUS', 'MODULE_HEADER_TAGS_MANUFACTURERS_SEO_DESCRIPTION_STATUS', 'MODULE_HEADER_TAGS_MANUFACTURERS_SEO_KEYWORDS_STATUS', 'MODULE_HEADER_TAGS_MANUFACTURERS_SEO_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_HEADER_TAGS_MANUFACTURERS_SEO_STATUS', 'MODULE_HEADER_TAGS_MANUFACTURERS_SEO_DESCRIPTION_STATUS', 'MODULE_HEADER_TAGS_MANUFACTURERS_SEO_KEYWORDS_STATUS', 'MODULE_HEADER_TAGS_MANUFACTURERS_SEO_SORT_ORDER'];
     }
   }

@@ -8,14 +8,14 @@
 
   use OSC\OM\OSCOM;
 
-  $cl_box_groups[] = array(
+  $cl_box_groups[] = [
     'heading' => OSCOM::getDef('box_heading_modules'),
-    'apps' => array()
-  );
+    'apps' => []
+  ];
 
   foreach ($cfgModules->getAll() as $m) {
-    $cl_box_groups[sizeof($cl_box_groups)-1]['apps'][] = array('code' => FILENAME_MODULES,
+    $cl_box_groups[sizeof($cl_box_groups)-1]['apps'][] = ['code' => FILENAME_MODULES,
                                                                'title' => $m['title'],
-                                                               'link' => OSCOM::link(FILENAME_MODULES, 'set=' . $m['code']));
+                                                               'link' => OSCOM::link(FILENAME_MODULES, 'set=' . $m['code'])];
   }
 ?>

@@ -11,14 +11,14 @@
   use OSC\OM\Registry;
 
   class oscTemplate {
-    var $_title;
-    var $_code = 'Sail';
-    var $_blocks = array();
-    var $_content = array();
-    var $_grid_container_width = 12;
-    var $_grid_content_width = BOOTSTRAP_CONTENT;
-    var $_grid_column_width = 0; // deprecated
-    var $_data = array();
+    public $_title;
+    public $_code = 'Sail';
+    public $_blocks = [];
+    public $_content = [];
+    public $_grid_container_width = 12;
+    public $_grid_content_width = BOOTSTRAP_CONTENT;
+    public $_grid_column_width = 0; // deprecated
+    public $_data = [];
 
     protected $lang;
 
@@ -30,7 +30,7 @@
       $this->addBlock('<meta name="generator" content="osCommerce Online Merchant" />', 'header_tags');
     }
 
-    function setGridContainerWidth($width) {
+    function setGridContainerWidth($width): void {
       $this->_grid_container_width = $width;
     }
 
@@ -38,7 +38,7 @@
       return $this->_grid_container_width;
     }
 
-    function setGridContentWidth($width) {
+    function setGridContentWidth($width): void {
       $this->_grid_content_width = $width;
     }
 
@@ -46,15 +46,15 @@
       return $this->_grid_content_width;
     }
 
-    function setGridColumnWidth($width) {
+    function setGridColumnWidth($width): void {
       $this->_grid_column_width = $width;
     }
 
-    function getGridColumnWidth() {
+    function getGridColumnWidth(): int|float {
       return (12 - BOOTSTRAP_CONTENT) / 2;
     }
 
-    function setTitle($title) {
+    function setTitle($title): void {
       $this->_title = $title;
     }
 
@@ -62,7 +62,7 @@
       return $this->_title;
     }
 
-    function setCode($code) {
+    function setCode($code): void {
       $this->_code = $code;
     }
 
@@ -70,11 +70,11 @@
       return $this->_code;
     }
 
-    function addBlock($block, $group) {
+    function addBlock($block, $group): void {
       $this->_blocks[$group][] = $block;
     }
 
-    function hasBlocks($group) {
+    function hasBlocks($group): bool {
       return (isset($this->_blocks[$group]) && !empty($this->_blocks[$group]));
     }
 
@@ -84,15 +84,15 @@
       }
     }
 
-    function buildBlocks() {
+    function buildBlocks(): void {
       if ( defined('TEMPLATE_BLOCK_GROUPS') && tep_not_null(TEMPLATE_BLOCK_GROUPS) ) {
-        $tbgroups_array = explode(';', TEMPLATE_BLOCK_GROUPS);
+        $tbgroups_array = explode(';', (string) TEMPLATE_BLOCK_GROUPS);
 
         foreach ($tbgroups_array as $group) {
           $module_key = 'MODULE_' . strtoupper($group) . '_INSTALLED';
 
           if ( defined($module_key) && tep_not_null(constant($module_key)) ) {
-            $modules_array = explode(';', constant($module_key));
+            $modules_array = explode(';', (string) constant($module_key));
 
             foreach ( $modules_array as $module ) {
               $class = basename($module, '.php');
@@ -120,15 +120,15 @@
       }
     }
 
-    function addContent($content, $group) {
+    function addContent($content, $group): void {
       $this->_content[$group][] = $content;
     }
 
-    function hasContent($group) {
+    function hasContent($group): bool {
       return (isset($this->_content[$group]) && !empty($this->_content[$group]));
     }
 
-    function getContent($group) {
+    function getContent(string $group) {
       if ( !class_exists('tp_' . $group) && is_file('includes/modules/pages/tp_' . $group . '.php') ) {
         include('includes/modules/pages/tp_' . $group . '.php');
       }
@@ -140,7 +140,7 @@
       }
 
       foreach ( $this->getContentModules($group) as $module ) {
-        if (strpos($module, '\\') !== false) {
+        if (str_contains((string) $module, '\\')) {
           $class = Apps::getModuleClass($group . '/' . $module, 'Content');
 
           $mb = new $class();
@@ -178,8 +178,11 @@
       }
     }
 
-    function getContentModules($group) {
-      $result = array();
+    /**
+     * @return string[]
+     */
+    function getContentModules($group): array {
+      $result = [];
 
       foreach ( explode(';', MODULE_CONTENT_INSTALLED) as $m ) {
         $module = explode('/', $m, 2);
@@ -192,7 +195,7 @@
       return $result;
     }
 
-    function getFile($file, $template = null) {
+    function getFile(string $file, $template = null): string {
       if (!isset($template)) {
         $template = $this->getCode();
       }
@@ -200,7 +203,7 @@
       return OSCOM::BASE_DIR . 'Sites/' . OSCOM::getSite() . '/Templates/' . $template . '/' . $file;
     }
 
-    function getPublicFile($file, $template = null) {
+    function getPublicFile(string $file, $template = null) {
       if (!isset($template)) {
         $template = $this->getCode();
       }

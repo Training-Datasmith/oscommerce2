@@ -113,7 +113,7 @@ class Language
         $this->set($code);
     }
 
-    public function set($code)
+    public function set(string $code): void
     {
         if ($this->exists($code)) {
             $this->language = $code;
@@ -135,7 +135,7 @@ class Language
         return $this->languages[$language_code][$data];
     }
 
-    public function getId($language_code = null)
+    public function getId($language_code = null): int
     {
         return (int)$this->get('id', $language_code);
     }
@@ -145,7 +145,7 @@ class Language
         return $this->languages;
     }
 
-    public function exists($code)
+    public function exists($code): bool
     {
         return isset($this->languages[$code]);
     }
@@ -166,7 +166,7 @@ class Language
     public function getClientPreference()
     {
         if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) && !empty($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
-            $client = explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
+            $client = explode(',', (string) $_SERVER['HTTP_ACCEPT_LANGUAGE']);
 
             foreach ($client as $c) {
                 foreach ($this->detectors as $code => $value) {
@@ -186,7 +186,7 @@ class Language
             $def = $this->definitions[$scope][$key];
 
             if (is_array($values) && !empty($values)) {
-                $def = $this->parseDefinition($def, $values);
+                return static::parseDefinition($def, $values);
             }
 
             return $def;
@@ -198,9 +198,7 @@ class Language
     public static function parseDefinition($string, $values)
     {
         if (is_array($values) && !empty($values)) {
-            $string = preg_replace_callback('/\{\{([A-Za-z0-9-_]+)\}\}/', function($matches) use ($values) {
-                return isset($values[$matches[1]]) ? $values[$matches[1]] : $matches[1];
-            }, $string);
+            return preg_replace_callback('/\{\{([A-Za-z0-9-_]+)\}\}/', fn($matches) => $values[$matches[1]] ?? $matches[1], (string) $string);
         }
 
         return $string;
@@ -212,7 +210,7 @@ class Language
 
         $site = OSCOM::getSite();
 
-        if ((strpos($group, '/') !== false) && (preg_match('/^([A-Z][A-Za-z0-9-_]*)\/(.*)$/', $group, $matches) === 1) && OSCOM::siteExists($matches[1])) {
+        if ((str_contains((string) $group, '/')) && (preg_match('/^([A-Z][A-Za-z0-9-_]*)\/(.*)$/', (string) $group, $matches) === 1) && OSCOM::siteExists($matches[1])) {
             $site = $matches[1];
             $group = $matches[2];
         }
@@ -247,7 +245,7 @@ class Language
 
         $site = OSCOM::getSite();
 
-        if ((strpos($group, '/') !== false) && (preg_match('/^([A-Z][A-Za-z0-9-_]*)\/(.*)$/', $group, $matches) === 1) && OSCOM::siteExists($matches[1])) {
+        if ((str_contains((string) $group, '/')) && (preg_match('/^([A-Z][A-Za-z0-9-_]*)\/(.*)$/', (string) $group, $matches) === 1) && OSCOM::siteExists($matches[1])) {
             $site = $matches[1];
             $group = $matches[2];
         }
@@ -317,7 +315,10 @@ class Language
         return $defs;
     }
 
-    public function getDefinitionsFromFile($filename)
+    /**
+     * @return string[]
+     */
+    public function getDefinitionsFromFile($filename): array
     {
         $defs = [];
 
@@ -325,7 +326,7 @@ class Language
             foreach (file($filename) as $line) {
                 $line = trim($line);
 
-                if (!empty($line) && (substr($line, 0, 1) != '#')) {
+                if (!empty($line) && (!str_starts_with($line, '#'))) {
                     $delimiter = strpos($line, '=');
 
                     if (($delimiter !== false) && (preg_match('/^[A-Za-z0-9_-]/', substr($line, 0, $delimiter)) === 1) && (substr_count(substr($line, 0, $delimiter), ' ') === 1)) {
@@ -343,7 +344,7 @@ class Language
         return $defs;
     }
 
-    public function injectDefinitions($defs, $scope)
+    public function injectDefinitions($defs, $scope): void
     {
         if (isset($this->definitions[$scope])) {
             $this->definitions[$scope] = array_merge($this->definitions[$scope], $defs);
@@ -352,7 +353,7 @@ class Language
         }
     }
 
-    public function setUseCache($flag)
+    public function setUseCache($flag): void
     {
         $this->use_cache = ($flag === true);
     }

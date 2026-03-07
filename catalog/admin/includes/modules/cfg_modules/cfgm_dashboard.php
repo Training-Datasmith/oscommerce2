@@ -9,13 +9,19 @@
   use OSC\OM\OSCOM;
 
   class cfgm_dashboard {
-    var $code = 'dashboard';
-    var $directory;
-    var $language_directory;
-    var $site = 'Admin';
-    var $key = 'MODULE_ADMIN_DASHBOARD_INSTALLED';
-    var $title;
-    var $template_integration = false;
+    public $code = 'dashboard';
+    /**
+     * @var string
+     */
+    public $directory;
+    /**
+     * @var string
+     */
+    public $language_directory;
+    public $site = 'Admin';
+    public $key = 'MODULE_ADMIN_DASHBOARD_INSTALLED';
+    public $title;
+    public $template_integration = false;
 
     function __construct() {
       $this->directory = OSCOM::getConfig('dir_root', $this->site) . 'includes/modules/dashboard/';

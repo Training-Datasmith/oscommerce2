@@ -36,7 +36,7 @@
 
       $OSCOM_Db->save('customers_info', ['global_product_notifications' => $product_global], ['customers_info_id' => $_SESSION['customer_id']]);
     } elseif (sizeof($products) > 0) {
-      $products_parsed = array();
+      $products_parsed = [];
       foreach ($products as $value) {
         if (is_numeric($value) && !in_array($value, $products_parsed)) {
           $products_parsed[] = $value;
@@ -44,9 +44,7 @@
       }
 
       if (sizeof($products_parsed) > 0) {
-        $products_id_in = array_map(function($k) {
-          return ':products_id_' . $k;
-        }, array_keys($products_parsed));
+        $products_id_in = array_map(fn($k) => ':products_id_' . $k, array_keys($products_parsed));
 
         $Qcheck = $OSCOM_Db->prepare('select products_id from :table_products_notifications where customers_id = :customers_id and products_id not in (' . implode(', ', $products_id_in) . ') limit 1');
         $Qcheck->bindInt(':customers_id', $_SESSION['customer_id']);

@@ -10,13 +10,16 @@
   use OSC\OM\Registry;
 
   class d_security_checks {
-    var $code = 'd_security_checks';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    public $code = 'd_security_checks';
+    public $title;
+    public $description;
+    public $sort_order;
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
-    function d_security_checks() {
+    function __construct() {
       $this->title = OSCOM::getDef('module_admin_dashboard_security_checks_title');
       $this->description = OSCOM::getDef('module_admin_dashboard_security_checks_description');
 
@@ -31,10 +34,10 @@
 
       $OSCOM_MessageStack = Registry::get('MessageStack');
 
-      $secCheck_types = array('info', 'warning', 'error');
+      $secCheck_types = ['info', 'warning', 'error'];
 
-      $file_extension = substr($PHP_SELF, strrpos($PHP_SELF, '.'));
-      $secmodules_array = array();
+      $file_extension = substr((string) $PHP_SELF, strrpos((string) $PHP_SELF, '.'));
+      $secmodules_array = [];
       if ($secdir = @dir(OSCOM::getConfig('dir_root') . 'includes/modules/security_check/')) {
         while ($file = $secdir->read()) {
           if (!is_dir(OSCOM::getConfig('dir_root') . 'includes/modules/security_check/' . $file)) {
@@ -68,20 +71,18 @@
         $OSCOM_MessageStack->add(OSCOM::getDef('module_admin_dashboard_security_checks_success'), 'success', 'securityCheckModule');
       }
 
-      $output = $OSCOM_MessageStack->get('securityCheckModule');
-
-      return $output;
+      return $OSCOM_MessageStack->get('securityCheckModule');
     }
 
     function isEnabled() {
       return $this->enabled;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_ADMIN_DASHBOARD_SECURITY_CHECKS_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -110,8 +111,8 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_ADMIN_DASHBOARD_SECURITY_CHECKS_STATUS', 'MODULE_ADMIN_DASHBOARD_SECURITY_CHECKS_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_ADMIN_DASHBOARD_SECURITY_CHECKS_STATUS', 'MODULE_ADMIN_DASHBOARD_SECURITY_CHECKS_SORT_ORDER'];
     }
   }
 ?>

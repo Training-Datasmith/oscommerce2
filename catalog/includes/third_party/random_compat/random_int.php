@@ -25,18 +25,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 /**
  * Fetch a random integer between $min and $max inclusive
- * 
+ *
  * @param int $min
  * @param int $max
- * 
+ *
  * @throws Exception
- * 
- * @return int
  */
-function random_int($min, $max)
+function random_int($min, $max): int
 {
     /**
      * Type and input logic checks
@@ -50,7 +47,7 @@ function random_int($min, $max)
     
     try {
         $min = RandomCompat_intval($min);
-    } catch (TypeError $ex) {
+    } catch (TypeError) {
         throw new TypeError(
             'random_int(): $min must be an integer'
         );
@@ -58,7 +55,7 @@ function random_int($min, $max)
 
     try {
         $max = RandomCompat_intval($max);
-    } catch (TypeError $ex) {
+    } catch (TypeError) {
         throw new TypeError(
             'random_int(): $max must be an integer'
         );
@@ -187,5 +184,5 @@ function random_int($min, $max)
          */
     } while (!is_int($val) || $val > $max || $val < $min);
 
-    return (int) $val;
+    return $val;
 }

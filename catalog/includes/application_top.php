@@ -18,19 +18,15 @@
   error_reporting(E_ALL & ~E_DEPRECATED);
 
   require(OSCOM_BASE_DIR . 'OM/OSCOM.php');
-  spl_autoload_register('OSC\OM\OSCOM::autoload');
+  spl_autoload_register(OSC\OM\OSCOM::autoload(...));
 
   OSCOM::initialize();
 
-  if (!OSCOM::configExists('db_server') || (strlen(OSCOM::getConfig('db_server')) < 1)) {
+  if (!OSCOM::configExists('db_server') || (strlen((string) OSCOM::getConfig('db_server')) < 1)) {
     if (is_dir('install')) {
       header('Location: install/index.php');
       exit;
     }
-  }
-
-  if (PHP_VERSION_ID < 70000) {
-    include('includes/third_party/random_compat/random.php');
   }
 
   require('includes/functions/general.php');
@@ -49,7 +45,7 @@
 
   OSCOM::loadSite('Shop');
 
-  if ((HTTP::getRequestType() === 'NONSSL') && ($_SERVER['REQUEST_METHOD'] === 'GET') && (parse_url(OSCOM::getConfig('http_server'), PHP_URL_SCHEME) == 'https')) {
+  if ((HTTP::getRequestType() === 'NONSSL') && ($_SERVER['REQUEST_METHOD'] === 'GET') && (parse_url((string) OSCOM::getConfig('http_server'), PHP_URL_SCHEME) == 'https')) {
     $url_req = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 
     HTTP::redirect($url_req, 301);
@@ -58,7 +54,7 @@
   $OSCOM_Db = Registry::get('Db');
   $OSCOM_Language = Registry::get('Language');
 
-  Registry::get('Hooks')->watch('Session', 'Recreated', 'execute', function($parameters) {
+  Registry::get('Hooks')->watch('Session', 'Recreated', 'execute', function(array $parameters): void {
     tep_whos_online_update_session_id($parameters['old_id'], session_id());
   });
 
@@ -81,21 +77,21 @@
 
     if ( DISPLAY_CART == 'true' ) {
       $goto =  'shopping_cart.php';
-      $parameters = array('action', 'cPath', 'products_id', 'pid');
+      $parameters = ['action', 'cPath', 'products_id', 'pid'];
     } else {
       $goto = $PHP_SELF;
 
       if ( ($_GET['action'] == 'buy_now') || ($_GET['action'] == 'remove_product') ) {
-        $parameters = array('action', 'pid', 'products_id');
+        $parameters = ['action', 'pid', 'products_id'];
       } else {
-        $parameters = array('action', 'pid');
+        $parameters = ['action', 'pid'];
       }
     }
 
     switch ( $_GET['action'] ) {
       // customer wants to update the product quantity in their shopping cart
       case 'update_product' : for ($i=0, $n=sizeof($_POST['products_id']); $i<$n; $i++) {
-                                $attributes = isset($_POST['id'][$_POST['products_id'][$i]]) ? $_POST['id'][$_POST['products_id'][$i]] : '';
+                                $attributes = $_POST['id'][$_POST['products_id'][$i]] ?? '';
 
                                 $product_id = tep_get_uprid($_POST['products_id'][$i], $attributes);
 
@@ -113,7 +109,7 @@
                               break;
       // customer adds a product from the products page
       case 'add_product' :    if (isset($_POST['products_id']) && is_numeric($_POST['products_id'])) {
-                                $attributes = isset($_POST['id']) ? $_POST['id'] : '';
+                                $attributes = $_POST['id'] ?? '';
                                 $_SESSION['cart']->add_cart($_POST['products_id'], $_SESSION['cart']->get_quantity(tep_get_uprid($_POST['products_id'], $attributes))+1, $attributes);
                                 $messageStack->add_session('product_action', OSCOM::getDef('product_added', ['products_name' =>  tep_get_products_name((int)$_POST['products_id'])]), 'success');
                               }
@@ -145,9 +141,9 @@
                                 } elseif (isset($_POST['notify'])) {
                                   $notify = $_POST['notify'];
                                 } else {
-                                  OSCOM::redirect($PHP_SELF, tep_get_all_get_params(array('action', 'notify')));
+                                  OSCOM::redirect($PHP_SELF, tep_get_all_get_params(['action', 'notify']));
                                 }
-                                if (!is_array($notify)) $notify = array($notify);
+                                if (!is_array($notify)) $notify = [$notify];
                                 for ($i=0, $n=sizeof($notify); $i<$n; $i++) {
                                   $Qcheck = $OSCOM_Db->get('products_notifications', 'products_id', ['customers_id' => $_SESSION['customer_id'], 'products_id' => (int)$notify[$i]]);
 
@@ -156,7 +152,7 @@
                                     $messageStack->add_session('product_action', OSCOM::getDef('product_subscribed', ['products_name' =>  tep_get_products_name((int)$notify[$i])]), 'success');
                                   }
                                 }
-                                OSCOM::redirect($PHP_SELF, tep_get_all_get_params(array('action', 'notify')));
+                                OSCOM::redirect($PHP_SELF, tep_get_all_get_params(['action', 'notify']));
                               } else {
                                 $_SESSION['navigation']->set_snapshot();
                                 OSCOM::redirect('login.php');
@@ -169,7 +165,7 @@
                                   $OSCOM_Db->delete('products_notifications', ['customers_id' => $_SESSION['customer_id'], 'products_id' => (int)$_GET['products_id']]);
                                   $messageStack->add_session('product_action', OSCOM::getDef('product_unsubscribed', ['products_name' =>  tep_get_products_name((int)$_GET['products_id'])]), 'warning');
                                 }
-                                OSCOM::redirect($PHP_SELF, tep_get_all_get_params(array('action')));
+                                OSCOM::redirect($PHP_SELF, tep_get_all_get_params(['action']));
                               } else {
                                 $_SESSION['navigation']->set_snapshot();
                                 OSCOM::redirect('login.php');

@@ -14,7 +14,7 @@ use OSC\OM\Registry;
 
 class HTML
 {
-    public static function output($string, $translate = null)
+    public static function output($string, $translate = null): string
     {
         if (!isset($translate)) {
             $translate = [
@@ -22,15 +22,15 @@ class HTML
             ];
         }
 
-        return strtr(trim($string), $translate);
+        return strtr(trim((string) $string), $translate);
     }
 
-    public static function outputProtected($string)
+    public static function outputProtected($string): string
     {
-        return htmlspecialchars(trim($string));
+        return htmlspecialchars(trim((string) $string));
     }
 
-    public static function sanitize($string)
+    public static function sanitize($string): ?string
     {
         $patterns = [
             '/ +/',
@@ -42,10 +42,10 @@ class HTML
             '_'
         ];
 
-        return preg_replace($patterns, $replace, trim($string));
+        return preg_replace($patterns, $replace, trim((string) $string));
     }
 
-    public static function image($src, $alt = null, $width = null, $height = null, $parameters = '', $responsive = false, $bootstrap_css = '')
+    public static function image($src, $alt = null, $width = null, $height = null, ?string $parameters = '', $responsive = false, $bootstrap_css = ''): false|string
     {
         if ((empty($src) || ($src == OSCOM::linkImage(''))) && (IMAGE_REQUIRED == 'false')) {
             return false;
@@ -85,12 +85,10 @@ class HTML
             $image .= ' ' . $parameters;
         }
 
-        $image .= ' />';
-
-        return $image;
+        return $image . ' />';
     }
 
-    public static function form($name, $action, $method = 'post', $parameters = '', array $flags = [])
+    public static function form($name, $action, $method = 'post', ?string $parameters = '', array $flags = []): string
     {
         if (!isset($flags['tokenize']) || !is_bool($flags['tokenize'])) {
             $flags['tokenize'] = false;
@@ -123,7 +121,7 @@ class HTML
         return $form;
     }
 
-    public static function inputField($name, $value = '', $parameters = '', $type = 'text', $reinsert_value = true, $class = 'form-control')
+    public static function inputField($name, $value = '', ?string $parameters = '', $type = 'text', $reinsert_value = true, ?string $class = 'form-control'): string
     {
         $field = '<input type="' . static::output($type) . '" name="' . static::output($name) . '"';
 
@@ -135,7 +133,7 @@ class HTML
             }
         }
 
-        if (strlen($value) > 0) {
+        if (strlen((string) $value) > 0) {
             $field .= ' value="' . static::output($value) . '"';
         }
 
@@ -147,9 +145,7 @@ class HTML
             $field .= ' class="' . $class . '"';
         }
 
-        $field .= ' />';
-
-        return $field;
+        return $field . ' />';
     }
 
     public static function passwordField($name, $value = '', $parameters = 'maxlength="40"')
@@ -162,11 +158,11 @@ class HTML
         return static::inputField($name, null, $parameters, 'file', false);
     }
 
-    protected static function selectionField($name, $type, $value = '', $checked = false, $parameters = '')
+    protected static function selectionField($name, $type, $value = '', $checked = false, ?string $parameters = ''): string
     {
         $selection = '<input type="' . static::output($type) . '" name="' . static::output($name) . '"';
 
-        if (strlen($value) > 0) {
+        if (strlen((string) $value) > 0) {
             $selection .= ' value="' . static::output($value) . '"';
         }
 
@@ -178,9 +174,7 @@ class HTML
             $selection .= ' ' . $parameters;
         }
 
-        $selection .= ' />';
-
-        return $selection;
+        return $selection . ' />';
     }
 
     public static function checkboxField($name, $value = '', $checked = false, $parameters = '')
@@ -193,7 +187,7 @@ class HTML
         return static::selectionField($name, 'radio', $value, $checked, $parameters);
     }
 
-    public static function textareaField($name, $width, $height, $text = '', $parameters = '', $reinsert_value = true, $class = 'form-control')
+    public static function textareaField($name, $width, $height, $text = '', ?string $parameters = '', $reinsert_value = true, ?string $class = 'form-control'): string
     {
         $field = '<textarea name="' . static::output($name) . '" cols="' . static::output($width) . '" rows="' . static::output($height) . '"';
 
@@ -213,16 +207,14 @@ class HTML
             } elseif (isset($_POST[$name]) && is_string($_POST[$name])) {
                 $field .= static::outputProtected($_POST[$name]);
             }
-        } elseif (strlen($text) > 0) {
+        } elseif (strlen((string) $text) > 0) {
             $field .= static::outputProtected($text);
         }
 
-        $field .= '</textarea>';
-
-        return $field;
+        return $field . '</textarea>';
     }
 
-    public static function selectField($name, array $values, $default = null, $parameters = '', $required = false, $class = 'form-control')
+    public static function selectField($name, array $values, $default = null, ?string $parameters = '', $required = false, ?string $class = 'form-control'): string
     {
         $group = false;
 
@@ -289,16 +281,14 @@ class HTML
             }
         }
 
-        $field .= '</select>';
-
-        return $field;
+        return $field . '</select>';
     }
 
-    public static function hiddenField($name, $value = '', $parameters = '')
+    public static function hiddenField($name, $value = '', ?string $parameters = ''): string
     {
         $field = '<input type="hidden" name="' . static::output($name) . '"';
 
-        if (strlen($value) > 0) {
+        if (strlen((string) $value) > 0) {
             $field .= ' value="' . static::output($value) . '"';
         } elseif ((isset($_GET[$name]) && is_string($_GET[$name])) || (isset($_POST[$name]) && is_string($_POST[$name]))) {
             if (isset($_GET[$name]) && is_string($_GET[$name])) {
@@ -312,12 +302,10 @@ class HTML
             $field .= ' ' . $parameters;
         }
 
-        $field .= ' />';
-
-        return $field;
+        return $field . ' />';
     }
 
-    public static function button($title = null, $icon = null, $link = null, $params = null, $class = null)
+    public static function button($title = null, $icon = null, $link = null, $params = null, $class = null): string
     {
         $types = ['submit', 'button', 'reset'];
 
@@ -349,7 +337,7 @@ class HTML
             $button .= ' ' . $params['params'];
         }
 
-        $button .= ' class="btn ' . (isset($class) ? $class : 'btn-default') . '">';
+        $button .= ' class="btn ' . ($class ?? 'btn-default') . '">';
 
         if (isset($icon) && !empty($icon)) {
             $button .= '<i class="' . $icon . '"></i> ';
@@ -366,7 +354,7 @@ class HTML
         return $button;
     }
 
-    public static function stars($rating = 0, $meta = false)
+    public static function stars($rating = 0, $meta = false): string
     {
         $stars = str_repeat('<span class="glyphicon glyphicon-star"></span>', (int)$rating) .
                  str_repeat('<span class="glyphicon glyphicon-star-empty"></span>', 5-(int)$rating);

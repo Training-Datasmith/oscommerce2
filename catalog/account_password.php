@@ -26,7 +26,7 @@
 
     $error = false;
 
-    if (strlen($password_new) < ENTRY_PASSWORD_MIN_LENGTH) {
+    if (strlen((string) $password_new) < ENTRY_PASSWORD_MIN_LENGTH) {
       $error = true;
 
       $messageStack->add('account_password', OSCOM::getDef('entry_password_new_error', ['min_length' => ENTRY_PASSWORD_MIN_LENGTH]));
@@ -86,21 +86,21 @@
     <div class="form-group has-feedback">
       <label for="inputCurrent" class="control-label col-sm-3"><?php echo OSCOM::getDef('entry_password_current'); ?></label>
       <div class="col-sm-9">
-        <?php echo HTML::passwordField('password_current', NULL, 'required aria-required="true" autofocus="autofocus" id="inputCurrent" autocomplete="current-password" placeholder="' . OSCOM::getDef('entry_password_current_text') . '"', 'password'); ?>
+        <?php echo HTML::passwordField('password_current', NULL, 'required aria-required="true" autofocus="autofocus" id="inputCurrent" autocomplete="current-password" placeholder="' . OSCOM::getDef('entry_password_current_text') . '"'); ?>
         <?php echo OSCOM::getDef('form_required_input'); ?>
       </div>
     </div>
     <div class="form-group has-feedback">
       <label for="inputPassword" class="control-label col-sm-3"><?php echo OSCOM::getDef('entry_password_new'); ?></label>
       <div class="col-sm-9">
-        <?php echo HTML::passwordField('password_new', NULL, 'required aria-required="true" id="inputPassword" autocomplete="new-password" placeholder="' . OSCOM::getDef('entry_password_new_text') . '"', 'password'); ?>
+        <?php echo HTML::passwordField('password_new', NULL, 'required aria-required="true" id="inputPassword" autocomplete="new-password" placeholder="' . OSCOM::getDef('entry_password_new_text') . '"'); ?>
         <?php echo OSCOM::getDef('form_required_input'); ?>
       </div>
     </div>
     <div class="form-group has-feedback">
       <label for="inputConfirmation" class="control-label col-sm-3"><?php echo OSCOM::getDef('entry_password_confirmation'); ?></label>
       <div class="col-sm-9">
-        <?php echo HTML::passwordField('password_confirmation', NULL, 'required aria-required="true" id="inputConfirmation" autocomplete="new-password" placeholder="' . OSCOM::getDef('entry_password_confirmation_text') . '"', 'password'); ?>
+        <?php echo HTML::passwordField('password_confirmation', NULL, 'required aria-required="true" id="inputConfirmation" autocomplete="new-password" placeholder="' . OSCOM::getDef('entry_password_confirmation_text') . '"'); ?>
         <?php echo OSCOM::getDef('form_required_input'); ?>
       </div>
     </div>

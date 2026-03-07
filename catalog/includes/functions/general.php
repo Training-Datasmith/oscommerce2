@@ -40,7 +40,7 @@
     $Qproduct->execute();
 
     if ($Qproduct->fetch() !== false) {
-      $result = $Qproduct->valueDecimal('specials_new_products_price');
+      return $Qproduct->valueDecimal('specials_new_products_price');
     }
 
     return $result;
@@ -62,24 +62,23 @@
 ////
 // Check if the required stock is available
 // If insufficent stock is available return an out of stock message
-  function tep_check_stock($products_id, $products_quantity) {
+  function tep_check_stock($products_id, $products_quantity): string {
     $stock_left = tep_get_products_stock($products_id) - $products_quantity;
-    $out_of_stock = '';
 
     if ($stock_left < 0) {
-      $out_of_stock = '<span class="text-danger"><b>' . STOCK_MARK_PRODUCT_OUT_OF_STOCK . '</b></span>';
+      return '<span class="text-danger"><b>' . STOCK_MARK_PRODUCT_OUT_OF_STOCK . '</b></span>';
     }
 
-    return $out_of_stock;
+    return '';
   }
 
 ////
 // Break a word in a string if it is longer than a specified length ($len)
-  function tep_break_string($string, $len, $break_char = '-') {
+  function tep_break_string($string, $len, string $break_char = '-'): string {
     $l = 0;
     $output = '';
-    for ($i=0, $n=strlen($string); $i<$n; $i++) {
-      $char = substr($string, $i, 1);
+    for ($i=0, $n=strlen((string) $string); $i<$n; $i++) {
+      $char = substr((string) $string, $i, 1);
       if ($char != ' ') {
         $l++;
       } else {
@@ -97,8 +96,8 @@
 
 ////
 // Return all $_GET variables, except those passed as a parameter
-  function tep_get_all_get_params($exclude_array = '') {
-    if (!is_array($exclude_array)) $exclude_array = array();
+  function tep_get_all_get_params($exclude_array = ''): string {
+    if (!is_array($exclude_array)) $exclude_array = [];
 
     $exclude_array[] = session_name();
     $exclude_array[] = 'error';
@@ -107,10 +106,10 @@
 
     $get_url = '';
 
-    if (is_array($_GET) && (!empty($_GET))) {
+    if (!empty($_GET)) {
       foreach ($_GET as $key => $value) {
         if ( !in_array($key, $exclude_array) ) {
-          $get_url .= $key . '=' . rawurlencode($value) . '&';
+          $get_url .= $key . '=' . rawurlencode((string) $value) . '&';
         }
      }
   }
@@ -123,7 +122,7 @@
   function tep_get_countries($countries_id = '', $with_iso_codes = false) {
     $OSCOM_Db = Registry::get('Db');
 
-    $countries_array = array();
+    $countries_array = [];
 
     if (tep_not_null($countries_id)) {
       if ($with_iso_codes == true) {
@@ -154,7 +153,7 @@
 
 ////
 // Generate a path to categories
-  function tep_get_path($current_category_id = '') {
+  function tep_get_path(string $current_category_id = ''): string {
     global $cPath_array;
 
     $OSCOM_Db = Registry::get('Db');
@@ -185,7 +184,7 @@
         }
         $cPath_new .= '_' . $current_category_id;
 
-        if (substr($cPath_new, 0, 1) == '_') {
+        if (str_starts_with($cPath_new, '_')) {
           $cPath_new = substr($cPath_new, 1);
         }
       }
@@ -217,9 +216,8 @@
 
     if ($Qzone->fetch() !== false) {
       return $Qzone->value('zone_name');
-    } else {
-      return $default_zone;
     }
+    return $default_zone;
   }
 
 ////
@@ -235,16 +233,15 @@
 
     if ($Qzone->fetch() !== false) {
       return $Qzone->value('zone_code');
-    } else {
-      return $default_zone;
     }
+    return $default_zone;
   }
 
 ////
 // Wrapper function for round()
   function tep_round($number, $precision) {
-    if (strpos($number, '.') && (strlen(substr($number, strpos($number, '.')+1)) > $precision)) {
-      $number = substr($number, 0, strpos($number, '.') + 1 + $precision + 1);
+    if (strpos((string) $number, '.') && (strlen(substr((string) $number, strpos((string) $number, '.')+1)) > $precision)) {
+      $number = substr((string) $number, 0, strpos((string) $number, '.') + 1 + $precision + 1);
 
       if (substr($number, -1) >= 5) {
         if ($precision > 1) {
@@ -266,7 +263,7 @@
 // Returns the tax rate for a zone / class
 // TABLES: tax_rates, zones_to_geo_zones
   function tep_get_tax_rate($class_id, $country_id = -1, $zone_id = -1) {
-    static $tax_rates = array();
+    static $tax_rates = [];
 
     $OSCOM_Db = Registry::get('Db');
 
@@ -307,7 +304,7 @@
 // Return the tax description for a zone / class
 // TABLES: tax_rates;
   function tep_get_tax_description($class_id, $country_id, $zone_id) {
-    static $tax_rates = array();
+    static $tax_rates = [];
 
     $OSCOM_Db = Registry::get('Db');
 
@@ -341,20 +338,19 @@
   function tep_add_tax($price, $tax) {
     if ( (DISPLAY_PRICE_WITH_TAX == 'true') && ($tax > 0) ) {
       return $price + tep_calculate_tax($price, $tax);
-    } else {
-      return $price;
     }
+    return $price;
   }
 
 // Calculates Tax rounding the result
-  function tep_calculate_tax($price, $tax) {
+  function tep_calculate_tax($price, $tax): int|float {
     return $price * $tax / 100;
   }
 
 ////
 // Return the number of products in a category
 // TABLES: products, products_to_categories, categories
-  function tep_count_products_in_category($category_id, $include_inactive = false) {
+  function tep_count_products_in_category($category_id, $include_inactive = false): float|int {
     $OSCOM_Db = Registry::get('Db');
 
     $products_count = 0;
@@ -389,7 +385,7 @@
 ////
 // Return true if the category has subcategories
 // TABLES: categories
-  function tep_has_category_subcategories($category_id) {
+  function tep_has_category_subcategories($category_id): bool {
     $OSCOM_Db = Registry::get('Db');
 
     $Qcheck = $OSCOM_Db->prepare('select categories_id from :table_categories where parent_id = :parent_id limit 1');
@@ -412,7 +408,7 @@
     $Qformat->execute();
 
     if ($Qformat->fetch() !== false) {
-      $format_id = $Qformat->valueInt('address_format_id');
+      return $Qformat->valueInt('address_format_id');
     }
 
     return $format_id;
@@ -421,7 +417,7 @@
 ////
 // Return a formatted address
 // TABLES: address_format
-  function tep_address_format($address_format_id, $address, $html, $boln, $eoln) {
+  function tep_address_format($address_format_id, array $address, $html, string $boln, $eoln): string {
     $OSCOM_Db = Registry::get('Db');
 
     $Qformat = $OSCOM_Db->prepare('select address_format from :table_address_format where address_format_id = :address_format_id');
@@ -492,7 +488,7 @@
     $address = strtr($Qformat->value('address_format'), $replace);
 
     if ( (ACCOUNT_COMPANY == 'true') && tep_not_null($replace['$company']) ) {
-      $address = $replace['$company'] . $replace['$cr'] . $address;
+      return $replace['$company'] . $replace['$cr'] . $address;
     }
 
     return $address;
@@ -519,16 +515,16 @@
   }
 
   function tep_row_number_format($number) {
-    if ( ($number < 10) && (substr($number, 0, 1) != '0') ) $number = '0' . $number;
+    if ( ($number < 10) && (!str_starts_with((string) $number, '0')) ) return '0' . $number;
 
     return $number;
   }
 
-  function tep_get_categories($categories_array = '', $parent_id = '0', $indent = '') {
+  function tep_get_categories($categories_array = '', $parent_id = '0', string $indent = '') {
     $OSCOM_Db = Registry::get('Db');
     $OSCOM_Language = Registry::get('Language');
 
-    if (!is_array($categories_array)) $categories_array = array();
+    if (!is_array($categories_array)) $categories_array = [];
 
     $Qcategories = $OSCOM_Db->prepare('select c.categories_id, cd.categories_name from :table_categories c, :table_categories_description cd where c.parent_id = :parent_id and c.categories_id = cd.categories_id and cd.language_id = :language_id order by c.sort_order, cd.categories_name');
     $Qcategories->bindInt(':parent_id', $parent_id);
@@ -536,8 +532,8 @@
     $Qcategories->execute();
 
     while ($Qcategories->fetch()) {
-      $categories_array[] = array('id' => $Qcategories->valueInt('categories_id'),
-                                  'text' => $indent . $Qcategories->value('categories_name'));
+      $categories_array[] = ['id' => $Qcategories->valueInt('categories_id'),
+                                  'text' => $indent . $Qcategories->value('categories_name')];
 
       if ($Qcategories->valueInt('categories_id') != $parent_id) {
         $categories_array = tep_get_categories($categories_array, $Qcategories->valueInt('categories_id'), $indent . '&nbsp;&nbsp;');
@@ -550,12 +546,12 @@
   function tep_get_manufacturers($manufacturers_array = '') {
     $OSCOM_Db = Registry::get('Db');
 
-    if (!is_array($manufacturers_array)) $manufacturers_array = array();
+    if (!is_array($manufacturers_array)) $manufacturers_array = [];
 
     $Qmanufacturers = $OSCOM_Db->query('select manufacturers_id, manufacturers_name from :table_manufacturers order by manufacturers_name');
 
     while ($Qmanufacturers->fetch()) {
-      $manufacturers_array[] = array('id' => $Qmanufacturers->valueInt('manufacturers_id'), 'text' => $Qmanufacturers->value('manufacturers_name'));
+      $manufacturers_array[] = ['id' => $Qmanufacturers->valueInt('manufacturers_id'), 'text' => $Qmanufacturers->value('manufacturers_name')];
     }
 
     return $manufacturers_array;
@@ -564,7 +560,7 @@
 ////
 // Return all subcategory IDs
 // TABLES: categories
-  function tep_get_subcategories(&$subcategories_array, $parent_id = 0) {
+  function tep_get_subcategories(&$subcategories_array, $parent_id = 0): void {
     $OSCOM_Db = Registry::get('Db');
 
     $Qsub = $OSCOM_Db->prepare('select categories_id from :table_categories where parent_id = :parent_id');
@@ -582,17 +578,17 @@
 
 ////
 // Parse search string into indivual objects
-  function tep_parse_search_string($search_str = '', &$objects) {
-    $search_str = trim(strtolower($search_str));
+  function tep_parse_search_string($search_str = '', &$objects = null): bool {
+    $search_str = trim(strtolower((string) $search_str));
 
 // Break up $search_str on whitespace; quoted string will be reconstructed later
     $pieces = preg_split('/[[:space:]]+/', $search_str);
-    $objects = array();
+    $objects = [];
     $tmpstring = '';
     $flag = '';
 
     for ($k=0; $k<count($pieces); $k++) {
-      while (substr($pieces[$k], 0, 1) == '(') {
+      while (str_starts_with($pieces[$k], '(')) {
         $objects[] = '(';
         if (strlen($pieces[$k]) > 1) {
           $pieces[$k] = substr($pieces[$k], 1);
@@ -601,9 +597,9 @@
         }
       }
 
-      $post_objects = array();
+      $post_objects = [];
 
-      while (substr($pieces[$k], -1) == ')')  {
+      while (str_ends_with($pieces[$k], ')'))  {
         $post_objects[] = ')';
         if (strlen($pieces[$k]) > 1) {
           $pieces[$k] = substr($pieces[$k], 0, -1);
@@ -614,7 +610,7 @@
 
 // Check individual words
 
-      if ( (substr($pieces[$k], -1) != '"') && (substr($pieces[$k], 0, 1) != '"') ) {
+      if ( (!str_ends_with($pieces[$k], '"')) && (!str_starts_with($pieces[$k], '"')) ) {
         $objects[] = trim($pieces[$k]);
 
         for ($j=0; $j<count($post_objects); $j++) {
@@ -627,14 +623,14 @@
 */
 
 // Add this word to the $tmpstring, starting the $tmpstring
-        $tmpstring = trim(preg_replace('/"/', ' ', $pieces[$k]));
+        $tmpstring = trim((string) preg_replace('/"/', ' ', $pieces[$k]));
 
 // Check for one possible exception to the rule. That there is a single quoted word.
-        if (substr($pieces[$k], -1 ) == '"') {
+        if (str_ends_with($pieces[$k], '"')) {
 // Turn the flag off for future iterations
           $flag = 'off';
 
-          $objects[] = trim(preg_replace('/"/', ' ', $pieces[$k]));
+          $objects[] = trim((string) preg_replace('/"/', ' ', $pieces[$k]));
 
           for ($j=0; $j<count($post_objects); $j++) {
             $objects[] = $post_objects[$j];
@@ -655,7 +651,7 @@
 // Keep reading until the end of the string as long as the $flag is on
 
         while ( ($flag == 'on') && ($k < count($pieces)) ) {
-          while (substr($pieces[$k], -1) == ')') {
+          while (str_ends_with($pieces[$k], ')')) {
             $post_objects[] = ')';
             if (strlen($pieces[$k]) > 1) {
               $pieces[$k] = substr($pieces[$k], 0, -1);
@@ -665,38 +661,33 @@
           }
 
 // If the word doesn't end in double quotes, append it to the $tmpstring.
-          if (substr($pieces[$k], -1) != '"') {
+          if (!str_ends_with($pieces[$k], '"')) {
 // Tack this word onto the current string entity
             $tmpstring .= ' ' . $pieces[$k];
 
 // Move on to the next word
             $k++;
             continue;
-          } else {
-/* If the $piece ends in double quotes, strip the double quotes, tack the
-   $piece onto the tail of the string, push the $tmpstring onto the $haves,
-   kill the $tmpstring, turn the $flag "off", and return.
-*/
-            $tmpstring .= ' ' . trim(preg_replace('/"/', ' ', $pieces[$k]));
-
-// Push the $tmpstring onto the array of stuff to search for
-            $objects[] = trim($tmpstring);
-
-            for ($j=0; $j<count($post_objects); $j++) {
-              $objects[] = $post_objects[$j];
-            }
-
-            unset($tmpstring);
-
-// Turn off the flag to exit the loop
-            $flag = 'off';
           }
+          /* If the $piece ends in double quotes, strip the double quotes, tack the
+             $piece onto the tail of the string, push the $tmpstring onto the $haves,
+             kill the $tmpstring, turn the $flag "off", and return.
+          */
+          $tmpstring .= ' ' . trim((string) preg_replace('/"/', ' ', $pieces[$k]));
+          // Push the $tmpstring onto the array of stuff to search for
+          $objects[] = trim($tmpstring);
+          for ($j=0; $j<count($post_objects); $j++) {
+            $objects[] = $post_objects[$j];
+          }
+          unset($tmpstring);
+          // Turn off the flag to exit the loop
+          $flag = 'off';
         }
       }
     }
 
 // add default logical operators if needed
-    $temp = array();
+    $temp = [];
     for($i=0; $i<(count($objects)-1); $i++) {
       $temp[] = $objects[$i];
       if ( ($objects[$i] != 'and') &&
@@ -726,29 +717,26 @@
 
     if ( ($operator_count < $keyword_count) && ($balance == 0) ) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
 ////
 // Check date
-  function tep_checkdate($date_to_check, $format_string, &$date_array) {
-    $separator_idx = -1;
+  function tep_checkdate($date_to_check, $format_string, &$date_array): bool {
+    $separators = ['-', ' ', '/', '.'];
+    $month_abbr = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+    $no_of_days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
-    $separators = array('-', ' ', '/', '.');
-    $month_abbr = array('jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec');
-    $no_of_days = array(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31);
+    $format_string = strtolower((string) $format_string);
 
-    $format_string = strtolower($format_string);
-
-    if (strlen($date_to_check) != strlen($format_string)) {
+    if (strlen((string) $date_to_check) != strlen($format_string)) {
       return false;
     }
 
     $size = sizeof($separators);
     for ($i=0; $i<$size; $i++) {
-      $pos_separator = strpos($date_to_check, $separators[$i]);
+      $pos_separator = strpos((string) $date_to_check, $separators[$i]);
       if ($pos_separator != false) {
         $date_separator_idx = $i;
         break;
@@ -773,7 +761,7 @@
         return false;
       }
 
-      $date_to_check_array = explode( $separators[$date_separator_idx], $date_to_check );
+      $date_to_check_array = explode( $separators[$date_separator_idx], (string) $date_to_check );
       if (sizeof($date_to_check_array) != 3) {
         return false;
       }
@@ -788,7 +776,7 @@
       if (strlen($format_string) == 8 || strlen($format_string) == 9) {
         $pos_month = strpos($format_string, 'mmm');
         if ($pos_month != false) {
-          $month = substr( $date_to_check, $pos_month, 3 );
+          $month = substr( (string) $date_to_check, $pos_month, 3 );
           $size = sizeof($month_abbr);
           for ($i=0; $i<$size; $i++) {
             if ($month == $month_abbr[$i]) {
@@ -797,14 +785,14 @@
             }
           }
         } else {
-          $month = substr($date_to_check, strpos($format_string, 'mm'), 2);
+          $month = substr((string) $date_to_check, strpos($format_string, 'mm'), 2);
         }
       } else {
         return false;
       }
 
-      $day = substr($date_to_check, strpos($format_string, 'dd'), 2);
-      $year = substr($date_to_check, strpos($format_string, 'yyyy'), 4);
+      $day = substr((string) $date_to_check, strpos($format_string, 'dd'), 2);
+      $year = substr((string) $date_to_check, strpos($format_string, 'yyyy'), 4);
     }
 
     if (strlen($year) != 4) {
@@ -831,14 +819,14 @@
       return false;
     }
 
-    $date_array = array($year, $month, $day);
+    $date_array = [$year, $month, $day];
 
     return true;
   }
 
 ////
 // Check if year is a leap year
-  function tep_is_leap_year($year) {
+  function tep_is_leap_year($year): bool {
     if ($year % 100 == 0) {
       if ($year % 400 == 0) return true;
     } else {
@@ -850,15 +838,15 @@
 
 ////
 // Return table heading with sorting capabilities
-  function tep_create_sort_heading($sortby, $colnum, $heading) {
+  function tep_create_sort_heading($sortby, string $colnum, string $heading): string {
     global $PHP_SELF;
 
     $sort_prefix = '';
     $sort_suffix = '';
 
     if ($sortby) {
-      $sort_prefix = '<a href="' . OSCOM::link($PHP_SELF, tep_get_all_get_params(array('page', 'info', 'sort')) . 'page=1&sort=' . $colnum . ($sortby == $colnum . 'a' ? 'd' : 'a')) . '" title="' . HTML::output(OSCOM::getDef('text_sort_products') . ($sortby == $colnum . 'd' || substr($sortby, 0, 1) != $colnum ? OSCOM::getDef('text_ascendingly') : OSCOM::getDef('text_descendingly')) . OSCOM::getDef('text_by') . $heading) . '" class="productListing-heading">' ;
-      $sort_suffix = (substr($sortby, 0, 1) == $colnum ? (substr($sortby, 1, 1) == 'a' ? '+' : '-') : '') . '</a>';
+      $sort_prefix = '<a href="' . OSCOM::link($PHP_SELF, tep_get_all_get_params(['page', 'info', 'sort']) . 'page=1&sort=' . $colnum . ($sortby == $colnum . 'a' ? 'd' : 'a')) . '" title="' . HTML::output(OSCOM::getDef('text_sort_products') . ($sortby == $colnum . 'd' || substr((string) $sortby, 0, 1) != $colnum ? OSCOM::getDef('text_ascendingly') : OSCOM::getDef('text_descendingly')) . OSCOM::getDef('text_by') . $heading) . '" class="productListing-heading">' ;
+      $sort_suffix = (substr((string) $sortby, 0, 1) == $colnum ? (substr((string) $sortby, 1, 1) == 'a' ? '+' : '-') : '') . '</a>';
     }
 
     return $sort_prefix . $heading . $sort_suffix;
@@ -888,7 +876,7 @@
 ////
 // Construct a category path to the product
 // TABLES: products_to_categories
-  function tep_get_product_path($products_id) {
+  function tep_get_product_path($products_id): string {
     $OSCOM_Db = Registry::get('Db');
 
     $cPath = '';
@@ -898,7 +886,7 @@
     $Qcategory->execute();
 
     if ($Qcategory->fetch() !== false) {
-      $categories = array();
+      $categories = [];
       tep_get_parent_categories($categories, $Qcategory->valueInt('categories_id'));
 
       $categories = array_reverse($categories);
@@ -939,12 +927,12 @@
       $uprid = tep_get_prid($prid);
 
       if (is_numeric($uprid)) {
-        if (strpos($prid, '{') !== false) {
+        if (str_contains((string) $prid, '{')) {
           $attributes_check = true;
           $attributes_ids = '';
 
 // strpos()+1 to remove up to and including the first { which would create an empty array element in explode()
-          $attributes = explode('{', substr($prid, strpos($prid, '{')+1));
+          $attributes = explode('{', substr((string) $prid, strpos((string) $prid, '{')+1));
 
           for ($i=0, $n=sizeof($attributes); $i<$n; $i++) {
             $pair = explode('}', $attributes[$i]);
@@ -971,19 +959,18 @@
 
 ////
 // Return a product ID from a product ID with attributes
-  function tep_get_prid($uprid) {
-    $pieces = explode('{', $uprid);
+  function tep_get_prid($uprid): int|false {
+    $pieces = explode('{', (string) $uprid);
 
     if (is_numeric($pieces[0])) {
       return (int)$pieces[0];
-    } else {
-      return false;
     }
+    return false;
   }
 
 ////
 // Check if product has attributes
-  function tep_has_product_attributes($products_id) {
+  function tep_has_product_attributes($products_id): bool {
     $OSCOM_Db = Registry::get('Db');
 
     $Qattributes = $OSCOM_Db->prepare('select products_id from :table_products_attributes where products_id = :products_id limit 1');
@@ -993,7 +980,7 @@
     return $Qattributes->fetch() !== false;
   }
 
-  function tep_count_modules($modules = '') {
+  function tep_count_modules($modules = ''): int {
     $count = 0;
 
     if (empty($modules)) return $count;
@@ -1013,7 +1000,7 @@
     return $count;
   }
 
-  function tep_count_payment_modules() {
+  function tep_count_payment_modules(): int {
     $count = 0;
 
     $modules_array = explode(';', MODULE_PAYMENT_INSTALLED);
@@ -1023,8 +1010,8 @@
 
       $OSCOM_PM = null;
 
-      if (strpos($m, '\\') !== false) {
-        list($vendor, $app, $module) = explode('\\', $m);
+      if (str_contains($m, '\\')) {
+        [$vendor, $app, $module] = explode('\\', $m);
 
         $module = $vendor . '\\' . $app . '\\' . $module;
 
@@ -1049,7 +1036,7 @@
     return $count;
   }
 
-  function tep_count_shipping_modules() {
+  function tep_count_shipping_modules(): int {
     $count = 0;
 
     $modules_array = explode(';', MODULE_SHIPPING_INSTALLED);
@@ -1059,8 +1046,8 @@
 
       $OSCOM_SM = null;
 
-      if (strpos($m, '\\') !== false) {
-        list($vendor, $app, $module) = explode('\\', $m);
+      if (str_contains($m, '\\')) {
+        [$vendor, $app, $module] = explode('\\', $m);
 
         $module = $vendor . '\\' . $app . '\\' . $module;
 
@@ -1085,8 +1072,8 @@
     return $count;
   }
 
-  function tep_array_to_string($array, $exclude = '', $equals = '=', $separator = '&') {
-    if (!is_array($exclude)) $exclude = array();
+  function tep_array_to_string($array, $exclude = '', string $equals = '=', string $separator = '&'): string {
+    if (!is_array($exclude)) $exclude = [];
 
     $get_string = '';
     if (!empty($array)) {
@@ -1102,48 +1089,45 @@
     return $get_string;
   }
 
-  function tep_not_null($value) {
+  function tep_not_null($value): bool {
     if (is_array($value)) {
-      if (!empty($value)) {
-        return true;
-      } else {
+        if (!empty($value)) {
+          return true;
+        }
         return false;
-      }
-    } elseif(is_object($value)) {
-      if (count(get_object_vars($value)) === 0) {
-        return false;
-      } else {
-        return true;
-      }
-    } else {
-      if (($value != '') && (strtolower($value) != 'null') && (strlen(trim($value)) > 0)) {
-        return true;
-      } else {
-        return false;
-      }
     }
+    if (is_object($value)) {
+        if (count(get_object_vars($value)) === 0) {
+          return false;
+        }
+        return true;
+    }
+    if (($value != '') && (strtolower((string) $value) != 'null') && (strlen(trim((string) $value)) > 0)) {
+      return true;
+    }
+    return false;
   }
 
 ////
 // Output the tax percentage with optional padded decimals
   function tep_display_tax_value($value, $padding = TAX_DECIMAL_PLACES) {
-    if (strpos($value, '.')) {
+    if (strpos((string) $value, '.')) {
       $loop = true;
       while ($loop) {
-        if (substr($value, -1) == '0') {
-          $value = substr($value, 0, -1);
+        if (str_ends_with((string) $value, '0')) {
+          $value = substr((string) $value, 0, -1);
         } else {
           $loop = false;
-          if (substr($value, -1) == '.') {
-            $value = substr($value, 0, -1);
+          if (str_ends_with((string) $value, '.')) {
+            $value = substr((string) $value, 0, -1);
           }
         }
       }
     }
 
     if ($padding > 0) {
-      if ($decimal_pos = strpos($value, '.')) {
-        $decimals = strlen(substr($value, ($decimal_pos+1)));
+      if ($decimal_pos = strpos((string) $value, '.')) {
+        $decimals = strlen(substr((string) $value, ($decimal_pos+1)));
         for ($i=$decimals; $i<$padding; $i++) {
           $value .= '0';
         }
@@ -1176,15 +1160,16 @@
   }
 
 ////
-// Parse and secure the cPath parameter values
-  function tep_parse_category_path($cPath) {
+  // Parse and secure the cPath parameter values
+  /**
+   * @return mixed[]
+   */
+  function tep_parse_category_path($cPath): array {
 // make sure the category IDs are integers
-    $cPath_array = array_map(function ($string) {
-      return (int)$string;
-    }, explode('_', $cPath));
+    $cPath_array = array_map(fn($string) => (int)$string, explode('_', (string) $cPath));
 
 // make sure no duplicate category IDs exist which could lock the server in a loop
-    $tmp_array = array();
+    $tmp_array = [];
     $n = sizeof($cPath_array);
     for ($i=0; $i<$n; $i++) {
       if (!in_array($cPath_array[$i], $tmp_array)) {
@@ -1255,12 +1240,12 @@
 
 ////
 // Creates a pull-down list of countries
-  function tep_get_country_list($name, $selected = '', $parameters = '') {
-    $countries_array = array(array('id' => '', 'text' => OSCOM::getDef('pull_down_default')));
+  function tep_get_country_list($name, $selected = '', ?string $parameters = ''): string {
+    $countries_array = [['id' => '', 'text' => OSCOM::getDef('pull_down_default')]];
     $countries = tep_get_countries();
 
     for ($i=0, $n=sizeof($countries); $i<$n; $i++) {
-      $countries_array[] = array('id' => $countries[$i]['countries_id'], 'text' => $countries[$i]['countries_name']);
+      $countries_array[] = ['id' => $countries[$i]['countries_id'], 'text' => $countries[$i]['countries_name']];
     }
 
     return HTML::selectField($name, $countries_array, $selected, $parameters);

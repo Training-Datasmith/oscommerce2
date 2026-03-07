@@ -67,13 +67,13 @@
       }
     }
 
-    if (strlen($firstname) < ENTRY_FIRST_NAME_MIN_LENGTH) {
+    if (strlen((string) $firstname) < ENTRY_FIRST_NAME_MIN_LENGTH) {
       $error = true;
 
       $messageStack->add('create_account', OSCOM::getDef('entry_first_name_error', ['min_length' => ENTRY_FIRST_NAME_MIN_LENGTH]));
     }
 
-    if (strlen($lastname) < ENTRY_LAST_NAME_MIN_LENGTH) {
+    if (strlen((string) $lastname) < ENTRY_LAST_NAME_MIN_LENGTH) {
       $error = true;
 
       $messageStack->add('create_account', OSCOM::getDef('entry_last_name_error', ['min_length' => ENTRY_LAST_NAME_MIN_LENGTH]));
@@ -82,7 +82,7 @@
     if (ACCOUNT_DOB == 'true') {
       $dobDateTime = new DateTime($dob);
 
-      if ((strlen($dob) < ENTRY_DOB_MIN_LENGTH) || ($dobDateTime->isValid() === false)) {
+      if ((strlen((string) $dob) < ENTRY_DOB_MIN_LENGTH) || ($dobDateTime->isValid() === false)) {
         $error = true;
 
         $messageStack->add('create_account', OSCOM::getDef('entry_date_of_birth_error'));
@@ -114,13 +114,13 @@
       $messageStack->add('create_account', OSCOM::getDef('entry_street_address_error', ['min_length' => ENTRY_STREET_ADDRESS_MIN_LENGTH]));
     }
 
-    if (strlen($postcode) < ENTRY_POSTCODE_MIN_LENGTH) {
+    if (strlen((string) $postcode) < ENTRY_POSTCODE_MIN_LENGTH) {
       $error = true;
 
       $messageStack->add('create_account', OSCOM::getDef('entry_post_code_error', ['min_length' => ENTRY_POSTCODE_MIN_LENGTH]));
     }
 
-    if (strlen($city) < ENTRY_CITY_MIN_LENGTH) {
+    if (strlen((string) $city) < ENTRY_CITY_MIN_LENGTH) {
       $error = true;
 
       $messageStack->add('create_account', OSCOM::getDef('entry_city_error', ['min_length' => ENTRY_CITY_MIN_LENGTH]));
@@ -156,7 +156,7 @@
           $messageStack->add('create_account', OSCOM::getDef('entry_state_error_select'));
         }
       } else {
-        if (strlen($state) < ENTRY_STATE_MIN_LENGTH) {
+        if (strlen((string) $state) < ENTRY_STATE_MIN_LENGTH) {
           $error = true;
 
           $messageStack->add('create_account', OSCOM::getDef('entry_state_error', ['min_length' => ENTRY_STATE_MIN_LENGTH]));
@@ -164,14 +164,14 @@
       }
     }
 
-    if (strlen($telephone) < ENTRY_TELEPHONE_MIN_LENGTH) {
+    if (strlen((string) $telephone) < ENTRY_TELEPHONE_MIN_LENGTH) {
       $error = true;
 
       $messageStack->add('create_account', OSCOM::getDef('entry_telephone_number_error', ['min_length' => ENTRY_TELEPHONE_MIN_LENGTH]));
     }
 
 
-    if (strlen($password) < ENTRY_PASSWORD_MIN_LENGTH) {
+    if (strlen((string) $password) < ENTRY_PASSWORD_MIN_LENGTH) {
       $error = true;
 
       $messageStack->add('create_account', OSCOM::getDef('entry_password_error', ['min_length' => ENTRY_PASSWORD_MIN_LENGTH]));
@@ -182,13 +182,13 @@
     }
 
     if ($error == false) {
-      $sql_data_array = array('customers_firstname' => $firstname,
+      $sql_data_array = ['customers_firstname' => $firstname,
                               'customers_lastname' => $lastname,
                               'customers_email_address' => $email_address,
                               'customers_telephone' => $telephone,
                               'customers_fax' => $fax,
                               'customers_newsletter' => $newsletter,
-                              'customers_password' => Hash::encrypt($password));
+                              'customers_password' => Hash::encrypt($password)];
 
       if (ACCOUNT_GENDER == 'true') $sql_data_array['customers_gender'] = $gender;
       if (ACCOUNT_DOB == 'true') $sql_data_array['customers_dob'] = $dobDateTime->getRaw(false);
@@ -197,13 +197,13 @@
 
       $_SESSION['customer_id'] = $OSCOM_Db->lastInsertId();
 
-      $sql_data_array = array('customers_id' => $_SESSION['customer_id'],
+      $sql_data_array = ['customers_id' => $_SESSION['customer_id'],
                               'entry_firstname' => $firstname,
                               'entry_lastname' => $lastname,
                               'entry_street_address' => $street_address,
                               'entry_postcode' => $postcode,
                               'entry_city' => $city,
-                              'entry_country_id' => $country);
+                              'entry_country_id' => $country];
 
       if (ACCOUNT_GENDER == 'true') $sql_data_array['entry_gender'] = $gender;
       if (ACCOUNT_COMPANY == 'true') $sql_data_array['entry_company'] = $company;
@@ -435,14 +435,14 @@
         <?php
         if ($process == true) {
           if ($entry_state_has_zones == true) {
-            $zones_array = array();
+            $zones_array = [];
 
             $Qzones = $OSCOM_Db->prepare('select zone_name from :table_zones where zone_country_id = :zone_country_id order by zone_name');
             $Qzones->bindInt(':zone_country_id', $country);
             $Qzones->execute();
 
             while ($Qzones->fetch()) {
-              $zones_array[] = array('id' => $Qzones->value('zone_name'), 'text' => $Qzones->value('zone_name'));
+              $zones_array[] = ['id' => $Qzones->value('zone_name'), 'text' => $Qzones->value('zone_name')];
             }
             echo HTML::selectField('state', $zones_array, 0, 'id="inputState" aria-describedby="atState"');
             echo OSCOM::getDef('form_required_input');
@@ -514,7 +514,7 @@
       <label for="inputPassword" class="control-label col-sm-3"><?php echo OSCOM::getDef('entry_password'); ?></label>
       <div class="col-sm-9">
         <?php
-        echo HTML::passwordField('password', NULL, 'required aria-required="true" id="inputPassword" autocomplete="new-password" placeholder="' . OSCOM::getDef('entry_password_text') . '"', 'password');
+        echo HTML::passwordField('password', NULL, 'required aria-required="true" id="inputPassword" autocomplete="new-password" placeholder="' . OSCOM::getDef('entry_password_text') . '"');
         echo OSCOM::getDef('form_required_input');
         ?>
       </div>
@@ -523,7 +523,7 @@
       <label for="inputConfirmation" class="control-label col-sm-3"><?php echo OSCOM::getDef('entry_password_confirmation'); ?></label>
       <div class="col-sm-9">
         <?php
-        echo HTML::passwordField('confirmation', NULL, 'required aria-required="true" id="inputConfirmation" autocomplete="new-password" placeholder="' . OSCOM::getDef('entry_password_confirmation_text') . '"', 'password');
+        echo HTML::passwordField('confirmation', NULL, 'required aria-required="true" id="inputConfirmation" autocomplete="new-password" placeholder="' . OSCOM::getDef('entry_password_confirmation_text') . '"');
         echo OSCOM::getDef('form_required_input');
         ?>
       </div>

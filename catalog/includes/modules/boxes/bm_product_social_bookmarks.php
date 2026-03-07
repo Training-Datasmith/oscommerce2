@@ -10,12 +10,18 @@
   use OSC\OM\Registry;
 
   class bm_product_social_bookmarks {
-    var $code = 'bm_product_social_bookmarks';
-    var $group = 'boxes';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    public $code = 'bm_product_social_bookmarks';
+    /**
+     * @var 'boxes_column_left'|'boxes_column_right'
+     */
+    public $group = 'boxes';
+    public $title;
+    public $description;
+    public $sort_order;
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
     protected $lang;
 
@@ -33,13 +39,13 @@
       }
     }
 
-    function execute() {
+    function execute(): void {
       global $oscTemplate;
 
       if ( isset($_GET['products_id']) && defined('MODULE_SOCIAL_BOOKMARKS_INSTALLED') && tep_not_null(MODULE_SOCIAL_BOOKMARKS_INSTALLED) ) {
-        $sbm_array = explode(';', MODULE_SOCIAL_BOOKMARKS_INSTALLED);
+        $sbm_array = explode(';', (string) MODULE_SOCIAL_BOOKMARKS_INSTALLED);
 
-        $social_bookmarks = array();
+        $social_bookmarks = [];
 
         foreach ( $sbm_array as $sbm ) {
           $class = basename($sbm, '.php');
@@ -71,11 +77,11 @@
       return $this->enabled;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_BOXES_PRODUCT_SOCIAL_BOOKMARKS_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -115,8 +121,8 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_BOXES_PRODUCT_SOCIAL_BOOKMARKS_STATUS', 'MODULE_BOXES_PRODUCT_SOCIAL_BOOKMARKS_CONTENT_PLACEMENT', 'MODULE_BOXES_PRODUCT_SOCIAL_BOOKMARKS_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_BOXES_PRODUCT_SOCIAL_BOOKMARKS_STATUS', 'MODULE_BOXES_PRODUCT_SOCIAL_BOOKMARKS_CONTENT_PLACEMENT', 'MODULE_BOXES_PRODUCT_SOCIAL_BOOKMARKS_SORT_ORDER'];
     }
   }
 

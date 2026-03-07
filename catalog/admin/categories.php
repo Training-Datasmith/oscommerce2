@@ -20,7 +20,7 @@
   require('includes/classes/currencies.php');
   $currencies = new currencies();
 
-  $action = (isset($_GET['action']) ? $_GET['action'] : '');
+  $action = ($_GET['action'] ?? '');
 
   $OSCOM_Hooks->call('Products', 'PreAction');
 
@@ -43,11 +43,11 @@
         if (isset($_POST['categories_id'])) $categories_id = HTML::sanitize($_POST['categories_id']);
         $sort_order = HTML::sanitize($_POST['sort_order']);
 
-        $sql_data_array = array('sort_order' => (int)$sort_order);
+        $sql_data_array = ['sort_order' => (int)$sort_order];
 
         if ($action == 'insert_category') {
-          $insert_sql_data = array('parent_id' => $current_category_id,
-                                   'date_added' => 'now()');
+          $insert_sql_data = ['parent_id' => $current_category_id,
+                                   'date_added' => 'now()'];
 
           $sql_data_array = array_merge($sql_data_array, $insert_sql_data);
 
@@ -55,7 +55,7 @@
 
           $categories_id = $OSCOM_Db->lastInsertId();
         } elseif ($action == 'update_category') {
-          $update_sql_data = array('last_modified' => 'now()');
+          $update_sql_data = ['last_modified' => 'now()'];
 
           $sql_data_array = array_merge($sql_data_array, $update_sql_data);
 
@@ -68,11 +68,11 @@
 
           $language_id = $languages[$i]['id'];
 
-          $sql_data_array = array('categories_name' => HTML::sanitize($categories_name_array[$language_id]));
+          $sql_data_array = ['categories_name' => HTML::sanitize($categories_name_array[$language_id])];
 
           if ($action == 'insert_category') {
-            $insert_sql_data = array('categories_id' => $categories_id,
-                                     'language_id' => $languages[$i]['id']);
+            $insert_sql_data = ['categories_id' => $categories_id,
+                                     'language_id' => $languages[$i]['id']];
 
             $sql_data_array = array_merge($sql_data_array, $insert_sql_data);
 
@@ -106,8 +106,8 @@
           $categories_id = HTML::sanitize($_POST['categories_id']);
 
           $categories = tep_get_category_tree($categories_id, '', '0', '', true);
-          $products = array();
-          $products_delete = array();
+          $products = [];
+          $products_delete = [];
 
           for ($i=0, $n=sizeof($categories); $i<$n; $i++) {
             $Qproducts = $OSCOM_Db->get('products_to_categories', 'products_id', ['categories_id' => (int)$categories[$i]['id']]);
@@ -181,7 +181,7 @@
           $categories_id = HTML::sanitize($_POST['categories_id']);
           $new_parent_id = HTML::sanitize($_POST['move_to_category_id']);
 
-          $path = explode('_', tep_get_generated_category_path_ids($new_parent_id));
+          $path = explode('_', (string) tep_get_generated_category_path_ids($new_parent_id));
 
           if (in_array($categories_id, $path)) {
             $OSCOM_MessageStack->add(OSCOM::getDef('error_cannot_move_category_to_parent'), 'error');
@@ -235,7 +235,7 @@
 
         $products_date_available = (date('Y-m-d') < $products_date_available) ? $products_date_available : 'null';
 
-        $sql_data_array = array('products_quantity' => (int)HTML::sanitize($_POST['products_quantity']),
+        $sql_data_array = ['products_quantity' => (int)HTML::sanitize($_POST['products_quantity']),
                                 'products_model' => HTML::sanitize($_POST['products_model']),
                                 'products_price' => (float)HTML::sanitize($_POST['products_price']),
                                 'products_date_available' => $products_date_available,
@@ -243,7 +243,7 @@
                                 'products_status' => HTML::sanitize($_POST['products_status']),
                                 'products_tax_class_id' => HTML::sanitize($_POST['products_tax_class_id']),
                                 'manufacturers_id' => (int)HTML::sanitize($_POST['manufacturers_id']),
-                                'products_gtin' => tep_not_null($_POST['products_gtin']) ? str_pad(HTML::sanitize($_POST['products_gtin']), 14, '0', STR_PAD_LEFT) : 'null');
+                                'products_gtin' => tep_not_null($_POST['products_gtin']) ? str_pad((string) HTML::sanitize($_POST['products_gtin']), 14, '0', STR_PAD_LEFT) : 'null'];
 
         $products_image = new upload('products_image');
         $products_image->set_destination(OSCOM::getConfig('dir_root', 'Shop') . 'images/');
@@ -252,7 +252,7 @@
         }
 
         if ($action == 'insert_product') {
-          $insert_sql_data = array('products_date_added' => 'now()');
+          $insert_sql_data = ['products_date_added' => 'now()'];
 
           $sql_data_array = array_merge($sql_data_array, $insert_sql_data);
 
@@ -264,7 +264,7 @@
             'categories_id' => (int)$current_category_id
           ]);
         } elseif ($action == 'update_product') {
-          $update_sql_data = array('products_last_modified' => 'now()');
+          $update_sql_data = ['products_last_modified' => 'now()'];
 
           $sql_data_array = array_merge($sql_data_array, $update_sql_data);
 
@@ -275,13 +275,13 @@
         for ($i=0, $n=sizeof($languages); $i<$n; $i++) {
           $language_id = $languages[$i]['id'];
 
-          $sql_data_array = array('products_name' => HTML::sanitize($_POST['products_name'][$language_id]),
+          $sql_data_array = ['products_name' => HTML::sanitize($_POST['products_name'][$language_id]),
                                   'products_description' => $_POST['products_description'][$language_id],
-                                  'products_url' => HTML::sanitize($_POST['products_url'][$language_id]));
+                                  'products_url' => HTML::sanitize($_POST['products_url'][$language_id])];
 
           if ($action == 'insert_product') {
-            $insert_sql_data = array('products_id' => $products_id,
-                                     'language_id' => $language_id);
+            $insert_sql_data = ['products_id' => $products_id,
+                                     'language_id' => $language_id];
 
             $sql_data_array = array_merge($sql_data_array, $insert_sql_data);
 
@@ -295,15 +295,15 @@
         }
 
         $pi_sort_order = 0;
-        $piArray = array(0);
+        $piArray = [0];
 
         foreach ($_FILES as $key => $value) {
 // Update existing large product images
-          if (preg_match('/^products_image_large_([0-9]+)$/', $key, $matches)) {
+          if (preg_match('/^products_image_large_([0-9]+)$/', (string) $key, $matches)) {
             $pi_sort_order++;
 
-            $sql_data_array = array('htmlcontent' => $_POST['products_image_htmlcontent_' . $matches[1]],
-                                    'sort_order' => $pi_sort_order);
+            $sql_data_array = ['htmlcontent' => $_POST['products_image_htmlcontent_' . $matches[1]],
+                                    'sort_order' => $pi_sort_order];
 
             $t = new upload($key);
             $t->set_destination(OSCOM::getConfig('dir_root', 'Shop') . 'images/');
@@ -317,10 +317,10 @@
             ]);
 
             $piArray[] = (int)$matches[1];
-          } elseif (preg_match('/^products_image_large_new_([0-9]+)$/', $key, $matches)) {
+          } elseif (preg_match('/^products_image_large_new_([0-9]+)$/', (string) $key, $matches)) {
 // Insert new large product images
-            $sql_data_array = array('products_id' => (int)$products_id,
-                                    'htmlcontent' => $_POST['products_image_htmlcontent_new_' . $matches[1]]);
+            $sql_data_array = ['products_id' => (int)$products_id,
+                                    'htmlcontent' => $_POST['products_image_htmlcontent_new_' . $matches[1]]];
 
             $t = new upload($key);
             $t->set_destination(OSCOM::getConfig('dir_root', 'Shop') . 'images/');
@@ -503,14 +503,14 @@
     if ($action == 'new_product') {
       $show_listing = false;
 
-      $parameters = array('products_name' => '',
+      $parameters = ['products_name' => '',
                           'products_description' => '',
                           'products_url' => '',
                           'products_id' => '',
                           'products_quantity' => '',
                           'products_model' => '',
                           'products_image' => '',
-                          'products_larger_images' => array(),
+                          'products_larger_images' => [],
                           'products_price' => '',
                           'products_weight' => '',
                           'products_date_added' => '',
@@ -519,7 +519,7 @@
                           'products_status' => '',
                           'products_tax_class_id' => '',
                           'manufacturers_id' => '',
-                          'products_gtin' => '');
+                          'products_gtin' => ''];
 
       $pInfo = new objectInfo($parameters);
 
@@ -551,7 +551,7 @@
         }
       }
 
-      $manufacturers_array = array(array('id' => '', 'text' => OSCOM::getDef('text_none')));
+      $manufacturers_array = [['id' => '', 'text' => OSCOM::getDef('text_none')]];
 
       $Qmanufacturers = $OSCOM_Db->get('manufacturers', [
         'manufacturers_id',
@@ -565,7 +565,7 @@
         ];
       }
 
-      $tax_class_array = array(array('id' => '0', 'text' => OSCOM::getDef('text_none')));
+      $tax_class_array = [['id' => '0', 'text' => OSCOM::getDef('text_none')]];
 
       $Qtax = $OSCOM_Db->get('tax_class', [
         'tax_class_id',
@@ -996,10 +996,10 @@ $(function() {
       }
 
       if (isset($_GET['origin'])) {
-        $pos_params = strpos($_GET['origin'], '?', 0);
+        $pos_params = strpos((string) $_GET['origin'], '?', 0);
         if ($pos_params != false) {
-          $back_url = substr($_GET['origin'], 0, $pos_params);
-          $back_url_params = substr($_GET['origin'], $pos_params + 1);
+          $back_url = substr((string) $_GET['origin'], 0, $pos_params);
+          $back_url_params = substr((string) $_GET['origin'], $pos_params + 1);
         } else {
           $back_url = $_GET['origin'];
           $back_url_params = '';
@@ -1039,8 +1039,8 @@ $(function() {
         ]);
 
         if ($Qcategory->fetch() !== false) {
-          $category_childs = array('childs_count' => tep_childs_in_category_count($Qcategory->valueInt('categories_id')));
-          $category_products = array('products_count' => tep_products_in_category_count($Qcategory->valueInt('categories_id')));
+          $category_childs = ['childs_count' => tep_childs_in_category_count($Qcategory->valueInt('categories_id'))];
+          $category_products = ['products_count' => tep_products_in_category_count($Qcategory->valueInt('categories_id'))];
 
           $cInfo_array = array_merge($Qcategory->toArray(), $category_childs, $category_products);
           $cInfo = new objectInfo($cInfo_array);
@@ -1079,10 +1079,10 @@ $(function() {
 
       switch ($action) {
         case 'new_category':
-          $heading[] = array('text' => OSCOM::getDef('text_info_heading_new_category'));
+          $heading[] = ['text' => OSCOM::getDef('text_info_heading_new_category')];
 
-          $contents = array('form' => HTML::form('newcategory', OSCOM::link(FILENAME_CATEGORIES, 'action=insert_category&cPath=' . $cPath), 'post', 'enctype="multipart/form-data"'));
-          $contents[] = array('text' => OSCOM::getDef('text_new_category_intro'));
+          $contents = ['form' => HTML::form('newcategory', OSCOM::link(FILENAME_CATEGORIES, 'action=insert_category&cPath=' . $cPath), 'post', 'enctype="multipart/form-data"')];
+          $contents[] = ['text' => OSCOM::getDef('text_new_category_intro')];
 
           $category_inputs_string = '';
           $languages = tep_get_languages();
@@ -1090,18 +1090,18 @@ $(function() {
             $category_inputs_string .= '<br />' . $OSCOM_Language->getImage($languages[$i]['code']) . '&nbsp;' . HTML::inputField('categories_name[' . $languages[$i]['id'] . ']');
           }
 
-          $contents[] = array('text' => OSCOM::getDef('text_categories_name') . $category_inputs_string);
-          $contents[] = array('text' => OSCOM::getDef('text_categories_image') . '<br />' . HTML::fileField('categories_image'));
-          $contents[] = array('text' => OSCOM::getDef('text_sort_order') . '<br />' . HTML::inputField('sort_order', '', 'size="2"'));
-          $contents[] = array('text' => HTML::button(OSCOM::getDef('image_save'), 'fa fa-save', null, null, 'btn-success') . HTML::button(OSCOM::getDef('image_cancel'), null, OSCOM::link(FILENAME_CATEGORIES, 'cPath=' . $cPath), null, 'btn-link'));
+          $contents[] = ['text' => OSCOM::getDef('text_categories_name') . $category_inputs_string];
+          $contents[] = ['text' => OSCOM::getDef('text_categories_image') . '<br />' . HTML::fileField('categories_image')];
+          $contents[] = ['text' => OSCOM::getDef('text_sort_order') . '<br />' . HTML::inputField('sort_order', '', 'size="2"')];
+          $contents[] = ['text' => HTML::button(OSCOM::getDef('image_save'), 'fa fa-save', null, null, 'btn-success') . HTML::button(OSCOM::getDef('image_cancel'), null, OSCOM::link(FILENAME_CATEGORIES, 'cPath=' . $cPath), null, 'btn-link')];
           break;
 
         case 'edit_category':
           if (isset($cInfo)) {
-            $heading[] = array('text' => OSCOM::getDef('text_info_heading_edit_category'));
+            $heading[] = ['text' => OSCOM::getDef('text_info_heading_edit_category')];
 
-            $contents = array('form' => HTML::form('categories', OSCOM::link(FILENAME_CATEGORIES, 'action=update_category&cPath=' . $cPath), 'post', 'enctype="multipart/form-data"') . HTML::hiddenField('categories_id', $cInfo->categories_id));
-            $contents[] = array('text' => OSCOM::getDef('text_edit_intro'));
+            $contents = ['form' => HTML::form('categories', OSCOM::link(FILENAME_CATEGORIES, 'action=update_category&cPath=' . $cPath), 'post', 'enctype="multipart/form-data"') . HTML::hiddenField('categories_id', $cInfo->categories_id)];
+            $contents[] = ['text' => OSCOM::getDef('text_edit_intro')];
 
             $category_inputs_string = '';
             $languages = tep_get_languages();
@@ -1109,45 +1109,45 @@ $(function() {
               $category_inputs_string .= '<br />' . $OSCOM_Language->getImage($languages[$i]['code']) . '&nbsp;' . HTML::inputField('categories_name[' . $languages[$i]['id'] . ']', tep_get_category_name($cInfo->categories_id, $languages[$i]['id']));
             }
 
-            $contents[] = array('text' => OSCOM::getDef('text_edit_categories_name') . $category_inputs_string);
-            $contents[] = array('text' => HTML::image(OSCOM::linkImage('Shop/' . $cInfo->categories_image), $cInfo->categories_name) . '<br />' . OSCOM::getConfig('http_path', 'Shop') . OSCOM::getConfig('http_images_path', 'Shop') . '<br /><strong>' . $cInfo->categories_image . '</strong>');
-            $contents[] = array('text' => OSCOM::getDef('text_edit_categories_image') . '<br />' . HTML::fileField('categories_image'));
-            $contents[] = array('text' => OSCOM::getDef('text_edit_sort_order') . '<br />' . HTML::inputField('sort_order', $cInfo->sort_order, 'size="2"'));
-            $contents[] = array('text' => HTML::button(OSCOM::getDef('image_save'), 'fa fa-save', null, null, 'btn-success') . HTML::button(OSCOM::getDef('image_cancel'), null, OSCOM::link(FILENAME_CATEGORIES, 'cPath=' . $cPath . '&cID=' . $cInfo->categories_id), null, 'btn-link'));
+            $contents[] = ['text' => OSCOM::getDef('text_edit_categories_name') . $category_inputs_string];
+            $contents[] = ['text' => HTML::image(OSCOM::linkImage('Shop/' . $cInfo->categories_image), $cInfo->categories_name) . '<br />' . OSCOM::getConfig('http_path', 'Shop') . OSCOM::getConfig('http_images_path', 'Shop') . '<br /><strong>' . $cInfo->categories_image . '</strong>'];
+            $contents[] = ['text' => OSCOM::getDef('text_edit_categories_image') . '<br />' . HTML::fileField('categories_image')];
+            $contents[] = ['text' => OSCOM::getDef('text_edit_sort_order') . '<br />' . HTML::inputField('sort_order', $cInfo->sort_order, 'size="2"')];
+            $contents[] = ['text' => HTML::button(OSCOM::getDef('image_save'), 'fa fa-save', null, null, 'btn-success') . HTML::button(OSCOM::getDef('image_cancel'), null, OSCOM::link(FILENAME_CATEGORIES, 'cPath=' . $cPath . '&cID=' . $cInfo->categories_id), null, 'btn-link')];
           }
           break;
 
         case 'delete_category':
           if (isset($cInfo)) {
-            $heading[] = array('text' => OSCOM::getDef('text_info_heading_delete_category'));
+            $heading[] = ['text' => OSCOM::getDef('text_info_heading_delete_category')];
 
-            $contents = array('form' => HTML::form('categories', OSCOM::link(FILENAME_CATEGORIES, 'action=delete_category_confirm&cPath=' . $cPath)) . HTML::hiddenField('categories_id', $cInfo->categories_id));
-            $contents[] = array('text' => OSCOM::getDef('text_delete_category_intro'));
-            $contents[] = array('text' => '<strong>' . $cInfo->categories_name . '</strong>');
-            if ($cInfo->childs_count > 0) $contents[] = array('text' => OSCOM::getDef('text_delete_warning_childs', ['childs_count' => $cInfo->childs_count]));
-            if ($cInfo->products_count > 0) $contents[] = array('text' => OSCOM::getDef('text_delete_warning_products', ['products_count' => $cInfo->products_count]));
-            $contents[] = array('text' => HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash', null, null, 'btn-danger') . HTML::button(OSCOM::getDef('image_cancel'), null, OSCOM::link(FILENAME_CATEGORIES, 'cPath=' . $cPath . '&cID=' . $cInfo->categories_id), null, 'btn-link'));
+            $contents = ['form' => HTML::form('categories', OSCOM::link(FILENAME_CATEGORIES, 'action=delete_category_confirm&cPath=' . $cPath)) . HTML::hiddenField('categories_id', $cInfo->categories_id)];
+            $contents[] = ['text' => OSCOM::getDef('text_delete_category_intro')];
+            $contents[] = ['text' => '<strong>' . $cInfo->categories_name . '</strong>'];
+            if ($cInfo->childs_count > 0) $contents[] = ['text' => OSCOM::getDef('text_delete_warning_childs', ['childs_count' => $cInfo->childs_count])];
+            if ($cInfo->products_count > 0) $contents[] = ['text' => OSCOM::getDef('text_delete_warning_products', ['products_count' => $cInfo->products_count])];
+            $contents[] = ['text' => HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash', null, null, 'btn-danger') . HTML::button(OSCOM::getDef('image_cancel'), null, OSCOM::link(FILENAME_CATEGORIES, 'cPath=' . $cPath . '&cID=' . $cInfo->categories_id), null, 'btn-link')];
           }
           break;
 
         case 'move_category':
           if (isset($cInfo)) {
-            $heading[] = array('text' => OSCOM::getDef('text_info_heading_move_category'));
+            $heading[] = ['text' => OSCOM::getDef('text_info_heading_move_category')];
 
-            $contents = array('form' => HTML::form('categories', OSCOM::link(FILENAME_CATEGORIES, 'action=move_category_confirm&cPath=' . $cPath)) . HTML::hiddenField('categories_id', $cInfo->categories_id));
-            $contents[] = array('text' => OSCOM::getDef('text_move_categories_intro', ['categories_name' => $cInfo->categories_name]));
-            $contents[] = array('text' => OSCOM::getDef('text_move', ['item_name' => $cInfo->categories_name]) . '<br />' . HTML::selectField('move_to_category_id', tep_get_category_tree(), $current_category_id));
-            $contents[] = array('text' => HTML::button(OSCOM::getDef('image_move'), 'fa fa-share', null, null, 'btn-success') . HTML::button(OSCOM::getDef('image_cancel'), null, OSCOM::link(FILENAME_CATEGORIES, 'cPath=' . $cPath . '&cID=' . $cInfo->categories_id), null, 'btn-link'));
+            $contents = ['form' => HTML::form('categories', OSCOM::link(FILENAME_CATEGORIES, 'action=move_category_confirm&cPath=' . $cPath)) . HTML::hiddenField('categories_id', $cInfo->categories_id)];
+            $contents[] = ['text' => OSCOM::getDef('text_move_categories_intro', ['categories_name' => $cInfo->categories_name])];
+            $contents[] = ['text' => OSCOM::getDef('text_move', ['item_name' => $cInfo->categories_name]) . '<br />' . HTML::selectField('move_to_category_id', tep_get_category_tree(), $current_category_id)];
+            $contents[] = ['text' => HTML::button(OSCOM::getDef('image_move'), 'fa fa-share', null, null, 'btn-success') . HTML::button(OSCOM::getDef('image_cancel'), null, OSCOM::link(FILENAME_CATEGORIES, 'cPath=' . $cPath . '&cID=' . $cInfo->categories_id), null, 'btn-link')];
           }
           break;
 
         case 'delete_product':
           if (isset($pInfo)) {
-            $heading[] = array('text' => OSCOM::getDef('text_info_heading_delete_product'));
+            $heading[] = ['text' => OSCOM::getDef('text_info_heading_delete_product')];
 
-            $contents = array('form' => HTML::form('products', OSCOM::link(FILENAME_CATEGORIES, 'action=delete_product_confirm&cPath=' . $cPath)) . HTML::hiddenField('products_id', $pInfo->products_id));
-            $contents[] = array('text' => OSCOM::getDef('text_delete_product_intro'));
-            $contents[] = array('text' => '<strong>' . $pInfo->products_name . '</strong>');
+            $contents = ['form' => HTML::form('products', OSCOM::link(FILENAME_CATEGORIES, 'action=delete_product_confirm&cPath=' . $cPath)) . HTML::hiddenField('products_id', $pInfo->products_id)];
+            $contents[] = ['text' => OSCOM::getDef('text_delete_product_intro')];
+            $contents[] = ['text' => '<strong>' . $pInfo->products_name . '</strong>'];
 
             $product_categories_string = '';
             $product_categories = tep_generate_category_path($pInfo->products_id, 'product');
@@ -1161,30 +1161,30 @@ $(function() {
             }
             $product_categories_string = substr($product_categories_string, 0, -4);
 
-            $contents[] = array('text' => $product_categories_string);
-            $contents[] = array('text' => HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash', null, null, 'btn-danger') . HTML::button(OSCOM::getDef('image_cancel'), null, OSCOM::link(FILENAME_CATEGORIES, 'cPath=' . $cPath . '&pID=' . $pInfo->products_id), null, 'btn-link'));
+            $contents[] = ['text' => $product_categories_string];
+            $contents[] = ['text' => HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash', null, null, 'btn-danger') . HTML::button(OSCOM::getDef('image_cancel'), null, OSCOM::link(FILENAME_CATEGORIES, 'cPath=' . $cPath . '&pID=' . $pInfo->products_id), null, 'btn-link')];
           }
           break;
 
         case 'move_product':
-          $heading[] = array('text' => OSCOM::getDef('text_info_heading_move_product'));
+          $heading[] = ['text' => OSCOM::getDef('text_info_heading_move_product')];
 
-          $contents = array('form' => HTML::form('products', OSCOM::link(FILENAME_CATEGORIES, 'action=move_product_confirm&cPath=' . $cPath)) . HTML::hiddenField('products_id', $pInfo->products_id));
-          $contents[] = array('text' => OSCOM::getDef('text_move_products_intro', ['products_name' => $pInfo->products_name]));
-          $contents[] = array('text' => OSCOM::getDef('text_info_current_categories') . '<br /><strong>' . tep_output_generated_category_path($pInfo->products_id, 'product') . '</strong>');
-          $contents[] = array('text' => OSCOM::getDef('text_move', ['item_name' => $pInfo->products_name]) . '<br />' . HTML::selectField('move_to_category_id', tep_get_category_tree(), $current_category_id));
-          $contents[] = array('text' => HTML::button(OSCOM::getDef('image_move'), 'fa fa-share', null, null, 'btn-success') . HTML::button(OSCOM::getDef('image_cancel'), null, OSCOM::link(FILENAME_CATEGORIES, 'cPath=' . $cPath . '&pID=' . $pInfo->products_id), null, 'btn-link'));
+          $contents = ['form' => HTML::form('products', OSCOM::link(FILENAME_CATEGORIES, 'action=move_product_confirm&cPath=' . $cPath)) . HTML::hiddenField('products_id', $pInfo->products_id)];
+          $contents[] = ['text' => OSCOM::getDef('text_move_products_intro', ['products_name' => $pInfo->products_name])];
+          $contents[] = ['text' => OSCOM::getDef('text_info_current_categories') . '<br /><strong>' . tep_output_generated_category_path($pInfo->products_id, 'product') . '</strong>'];
+          $contents[] = ['text' => OSCOM::getDef('text_move', ['item_name' => $pInfo->products_name]) . '<br />' . HTML::selectField('move_to_category_id', tep_get_category_tree(), $current_category_id)];
+          $contents[] = ['text' => HTML::button(OSCOM::getDef('image_move'), 'fa fa-share', null, null, 'btn-success') . HTML::button(OSCOM::getDef('image_cancel'), null, OSCOM::link(FILENAME_CATEGORIES, 'cPath=' . $cPath . '&pID=' . $pInfo->products_id), null, 'btn-link')];
           break;
 
         case 'copy_to':
-          $heading[] = array('text' => OSCOM::getDef('text_info_heading_copy_to'));
+          $heading[] = ['text' => OSCOM::getDef('text_info_heading_copy_to')];
 
-          $contents = array('form' => HTML::form('copy_to', OSCOM::link(FILENAME_CATEGORIES, 'action=copy_to_confirm&cPath=' . $cPath)) . HTML::hiddenField('products_id', $pInfo->products_id));
-          $contents[] = array('text' => OSCOM::getDef('text_info_copy_to_intro'));
-          $contents[] = array('text' => OSCOM::getDef('text_info_current_categories') . '<br /><strong>' . tep_output_generated_category_path($pInfo->products_id, 'product') . '</strong>');
-          $contents[] = array('text' => OSCOM::getDef('text_categories') . '<br />' . HTML::selectField('categories_id', tep_get_category_tree(), $current_category_id));
-          $contents[] = array('text' => OSCOM::getDef('text_how_to_copy') . '<br />' . HTML::radioField('copy_as', 'link', true) . ' ' . OSCOM::getDef('text_copy_as_link') . '<br />' . HTML::radioField('copy_as', 'duplicate') . ' ' . OSCOM::getDef('text_copy_as_duplicate'));
-          $contents[] = array('text' => HTML::button(OSCOM::getDef('image_copy'), 'fa fa-copy', null, null, 'btn-success') . HTML::button(OSCOM::getDef('image_cancel'), null, OSCOM::link(FILENAME_CATEGORIES, 'cPath=' . $cPath . '&pID=' . $pInfo->products_id), null, 'btn-link'));
+          $contents = ['form' => HTML::form('copy_to', OSCOM::link(FILENAME_CATEGORIES, 'action=copy_to_confirm&cPath=' . $cPath)) . HTML::hiddenField('products_id', $pInfo->products_id)];
+          $contents[] = ['text' => OSCOM::getDef('text_info_copy_to_intro')];
+          $contents[] = ['text' => OSCOM::getDef('text_info_current_categories') . '<br /><strong>' . tep_output_generated_category_path($pInfo->products_id, 'product') . '</strong>'];
+          $contents[] = ['text' => OSCOM::getDef('text_categories') . '<br />' . HTML::selectField('categories_id', tep_get_category_tree(), $current_category_id)];
+          $contents[] = ['text' => OSCOM::getDef('text_how_to_copy') . '<br />' . HTML::radioField('copy_as', 'link', true) . ' ' . OSCOM::getDef('text_copy_as_link') . '<br />' . HTML::radioField('copy_as', 'duplicate') . ' ' . OSCOM::getDef('text_copy_as_duplicate')];
+          $contents[] = ['text' => HTML::button(OSCOM::getDef('image_copy'), 'fa fa-copy', null, null, 'btn-success') . HTML::button(OSCOM::getDef('image_cancel'), null, OSCOM::link(FILENAME_CATEGORIES, 'cPath=' . $cPath . '&pID=' . $pInfo->products_id), null, 'btn-link')];
           break;
       }
 

@@ -10,9 +10,9 @@ namespace OSC\OM\Is;
 
 class ip_address
 {
-    public static function execute($ip)
+    public static function execute($ip): bool
     {
-        $ip = trim($ip);
+        $ip = trim((string) $ip);
 
         return !empty($ip) && filter_var($ip, FILTER_VALIDATE_IP, [
             'flags' => FILTER_FLAG_IPV4

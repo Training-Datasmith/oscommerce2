@@ -10,12 +10,18 @@
   use OSC\OM\Registry;
 
   class nb_languages {
-    var $code = 'nb_languages';
-    var $group = 'navbar_modules_right';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    public $code = 'nb_languages';
+    /**
+     * @var 'navbar_modules_home'|'navbar_modules_left'|'navbar_modules_right'
+     */
+    public $group = 'navbar_modules_right';
+    public $title;
+    public $description;
+    public $sort_order;
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
     function __construct() {
       $this->title = OSCOM::getDef('module_navbar_languages_title');
@@ -39,10 +45,10 @@
       }
     }
 
-    function getOutput() {
+    function getOutput(): void {
       global $oscTemplate, $PHP_SELF;
 
-      if (substr(basename($PHP_SELF), 0, 8) != 'checkout') {
+      if (!str_starts_with(basename((string) $PHP_SELF), 'checkout')) {
         ob_start();
         require('includes/modules/navbar_modules/templates/languages.php');
         $data = ob_get_clean();
@@ -55,11 +61,11 @@
       return $this->enabled;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_NAVBAR_LANGUAGES_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -99,7 +105,7 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_NAVBAR_LANGUAGES_STATUS', 'MODULE_NAVBAR_LANGUAGES_CONTENT_PLACEMENT', 'MODULE_NAVBAR_LANGUAGES_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_NAVBAR_LANGUAGES_STATUS', 'MODULE_NAVBAR_LANGUAGES_CONTENT_PLACEMENT', 'MODULE_NAVBAR_LANGUAGES_SORT_ORDER'];
     }
   }

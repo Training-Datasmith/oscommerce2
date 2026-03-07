@@ -56,7 +56,7 @@
     $_GET['page'] = 1;
   }
 
-  $action = (isset($_GET['action']) ? $_GET['action'] : '');
+  $action = ($_GET['action'] ?? '');
 
   $OSCOM_Hooks->call('Orders', 'PreAction');
 
@@ -127,14 +127,14 @@
           $OSCOM_MessageStack->add(OSCOM::getDef('warning_order_not_updated'), 'warning');
         }
 
-        OSCOM::redirect(FILENAME_ORDERS, tep_get_all_get_params(array('action')) . 'action=edit');
+        OSCOM::redirect(FILENAME_ORDERS, tep_get_all_get_params(['action']) . 'action=edit');
         break;
       case 'deleteconfirm':
         $oID = HTML::sanitize($_GET['oID']);
 
         tep_remove_order($oID, $_POST['restock']);
 
-        OSCOM::redirect(FILENAME_ORDERS, tep_get_all_get_params(array('oID', 'action')));
+        OSCOM::redirect(FILENAME_ORDERS, tep_get_all_get_params(['oID', 'action']));
         break;
     }
   }
@@ -154,9 +154,9 @@
       $show_listing = false;
 ?>
 
-<h3><?= '#' . $order->info['id'] . ' (' . strip_tags($order->info['total']) . ')'; ?></h3>
+<h3><?= '#' . $order->info['id'] . ' (' . strip_tags((string) $order->info['total']) . ')'; ?></h3>
 
-<div style="text-align: right; padding-bottom: 15px;"><?= HTML::button(OSCOM::getDef('image_back'), 'fa fa-chevron-left', OSCOM::link(FILENAME_ORDERS, tep_get_all_get_params(array('action'))), null, 'btn-info') . HTML::button(OSCOM::getDef('image_orders_invoice'), 'fa fa-file-text-o', OSCOM::link(FILENAME_ORDERS_INVOICE, 'oID=' . $_GET['oID']), array('newwindow' => true), 'btn-primary') . HTML::button(OSCOM::getDef('image_orders_packingslip'), 'fa fa-clipboard', OSCOM::link(FILENAME_ORDERS_PACKINGSLIP, 'oID=' . $_GET['oID']), array('newwindow' => true), 'btn-primary'); ?></div>
+<div style="text-align: right; padding-bottom: 15px;"><?= HTML::button(OSCOM::getDef('image_back'), 'fa fa-chevron-left', OSCOM::link(FILENAME_ORDERS, tep_get_all_get_params(['action'])), null, 'btn-info') . HTML::button(OSCOM::getDef('image_orders_invoice'), 'fa fa-file-text-o', OSCOM::link(FILENAME_ORDERS_INVOICE, 'oID=' . $_GET['oID']), ['newwindow' => true], 'btn-primary') . HTML::button(OSCOM::getDef('image_orders_packingslip'), 'fa fa-clipboard', OSCOM::link(FILENAME_ORDERS_PACKINGSLIP, 'oID=' . $_GET['oID']), ['newwindow' => true], 'btn-primary'); ?></div>
 
 <div id="orderTabs">
   <ul class="nav nav-tabs">
@@ -267,7 +267,7 @@
             </div>
 
             <div class="panel-body">
-              <p><?= strip_tags($order->info['total']); ?></p>
+              <p><?= strip_tags((string) $order->info['total']); ?></p>
             </div>
           </div>
         </div>
@@ -307,9 +307,9 @@
              '            <td valign="top">' . $order->products[$i]['model'] . '</td>' . "\n" .
              '            <td class="text-right" valign="top">' . tep_display_tax_value($order->products[$i]['tax']) . '%</td>' . "\n" .
              '            <td class="text-right" valign="top"><strong>' . $currencies->format($order->products[$i]['final_price'], true, $order->info['currency'], $order->info['currency_value']) . '</strong></td>' . "\n" .
-             '            <td class="text-right" valign="top"><strong>' . $currencies->format(tep_add_tax($order->products[$i]['final_price'], $order->products[$i]['tax'], true), true, $order->info['currency'], $order->info['currency_value']) . '</strong></td>' . "\n" .
+             '            <td class="text-right" valign="top"><strong>' . $currencies->format(tep_add_tax($order->products[$i]['final_price'], $order->products[$i]['tax']), true, $order->info['currency'], $order->info['currency_value']) . '</strong></td>' . "\n" .
              '            <td class="text-right" valign="top"><strong>' . $currencies->format($order->products[$i]['final_price'] * $order->products[$i]['qty'], true, $order->info['currency'], $order->info['currency_value']) . '</strong></td>' . "\n" .
-             '            <td class="text-right" valign="top"><strong>' . $currencies->format(tep_add_tax($order->products[$i]['final_price'], $order->products[$i]['tax'], true) * $order->products[$i]['qty'], true, $order->info['currency'], $order->info['currency_value']) . '</strong></td>' . "\n" .
+             '            <td class="text-right" valign="top"><strong>' . $currencies->format(tep_add_tax($order->products[$i]['final_price'], $order->products[$i]['tax']) * $order->products[$i]['qty'], true, $order->info['currency'], $order->info['currency_value']) . '</strong></td>' . "\n" .
              '          </tr>' . "\n";
       }
 ?>
@@ -324,7 +324,7 @@
       foreach ( $order->totals as $ot ) {
         echo '          <tr>' . "\n" .
              '            <td class="text-right">' . $ot['title'] . '</td>' . "\n" .
-             '            <td class="text-right">' . strip_tags($ot['text']) . '</td>' . "\n" .
+             '            <td class="text-right">' . strip_tags((string) $ot['text']) . '</td>' . "\n" .
              '          </tr>' . "\n";
       }
 ?>
@@ -334,7 +334,7 @@
     </div>
 
     <div id="section_status_history_content" class="tab-pane oscom-m-top-15">
-      <?= HTML::form('status', OSCOM::link(FILENAME_ORDERS, tep_get_all_get_params(array('action')) . 'action=update_order')); ?>
+      <?= HTML::form('status', OSCOM::link(FILENAME_ORDERS, tep_get_all_get_params(['action']) . 'action=update_order')); ?>
 
         <div class="form-group">
           <label for="inputOrderStatus" class="control-label"><?= OSCOM::getDef('entry_status'); ?></label>
@@ -395,7 +395,7 @@
           echo '          <tr>' . "\n" .
                '            <td valign="top">' . DateTime::toShort($Qhistory->value('date_added'), true) . '</td>' . "\n" .
                '            <td valign="top">' . $orders_status_array[$Qhistory->valueInt('orders_status_id')] . '</td>' . "\n" .
-               '            <td valign="top">' . nl2br(HTML::output($Qhistory->value('comments'))) . '&nbsp;</td>' . "\n" .
+               '            <td valign="top">' . nl2br((string) HTML::output($Qhistory->value('comments'))) . '&nbsp;</td>' . "\n" .
                '            <td class="text-right" valign="top">';
 
           if ($Qhistory->valueInt('customer_notified') === 1) {
@@ -429,12 +429,12 @@
       switch ($action) {
         case 'delete':
           if (isset($order)) {
-            $heading[] = array('text' => OSCOM::getDef('text_info_heading_delete_order'));
+            $heading[] = ['text' => OSCOM::getDef('text_info_heading_delete_order')];
 
-            $contents = array('form' => HTML::form('orders', OSCOM::link('orders.php', tep_get_all_get_params(array('action')) . '&action=deleteconfirm')));
-            $contents[] = array('text' => OSCOM::getDef('text_info_delete_intro') . '<br /><br /><strong>#' . $order->info['id'] . '</strong> ' . HTML::outputProtected($order->customer['name']) . ' (' . strip_tags($order->info['total']) . ')');
-            $contents[] = array('text' => HTML::checkboxField('restock') . ' ' . OSCOM::getDef('text_info_restock_product_quantity'));
-            $contents[] = array('text' => HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash', null, null, 'btn-danger') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link('orders.php', tep_get_all_get_params(array('action'))), null, 'btn-link'));
+            $contents = ['form' => HTML::form('orders', OSCOM::link('orders.php', tep_get_all_get_params(['action']) . '&action=deleteconfirm'))];
+            $contents[] = ['text' => OSCOM::getDef('text_info_delete_intro') . '<br /><br /><strong>#' . $order->info['id'] . '</strong> ' . HTML::outputProtected($order->customer['name']) . ' (' . strip_tags((string) $order->info['total']) . ')'];
+            $contents[] = ['text' => HTML::checkboxField('restock') . ' ' . OSCOM::getDef('text_info_restock_product_quantity')];
+            $contents[] = ['text' => HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash', null, null, 'btn-danger') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link('orders.php', tep_get_all_get_params(['action'])), null, 'btn-link')];
           }
           break;
       }
@@ -452,7 +452,7 @@
          HTML::inputField('oID', null, 'placeholder="' . OSCOM::getDef('heading_title_search') . '"') . HTML::hiddenField('action', 'edit') .
          '</form>' .
          HTML::form('status', OSCOM::link('orders.php'), 'get', 'class="form-inline"', ['session_id' => true]) .
-         HTML::selectField('status', array_merge(array(array('id' => '', 'text' => OSCOM::getDef('text_all_orders'))), $orders_statuses), '', 'onchange="this.form.submit();"') .
+         HTML::selectField('status', array_merge([['id' => '', 'text' => OSCOM::getDef('text_all_orders')]], $orders_statuses), '', 'onchange="this.form.submit();"') .
          '</form>';
 ?>
 
@@ -492,14 +492,14 @@
 ?>
 
     <tr>
-      <td><?= '<a href="' . OSCOM::link('orders.php', tep_get_all_get_params(array('oID', 'action')) . 'oID=' . $Qorders->valueInt('orders_id') . '&action=edit') . '">' . $Qorders->value('customers_name') . '</a> <small class="text-muted">#' . $Qorders->valueInt('orders_id') . '</small>'; ?></td>
-      <td class="text-right"><?= strip_tags($Qorders->value('order_total')) . ' <small class="text-muted">' . $Qorders->value('currency') . '</small>'; ?></td>
+      <td><?= '<a href="' . OSCOM::link('orders.php', tep_get_all_get_params(['oID', 'action']) . 'oID=' . $Qorders->valueInt('orders_id') . '&action=edit') . '">' . $Qorders->value('customers_name') . '</a> <small class="text-muted">#' . $Qorders->valueInt('orders_id') . '</small>'; ?></td>
+      <td class="text-right"><?= strip_tags((string) $Qorders->value('order_total')) . ' <small class="text-muted">' . $Qorders->value('currency') . '</small>'; ?></td>
       <td><div class="oscom-truncate" style="width: 150px;"><small class="text-muted"><?= $Qorders->value('payment_method'); ?></small></div></td>
       <td class="text-right"><?= DateTime::toShort($Qorders->value('date_purchased'), true); ?></td>
       <td class="text-right"><?= $Qorders->value('orders_status_name'); ?></td>
       <td class="action"><?=
-        '<a href="' . OSCOM::link('orders.php', tep_get_all_get_params(array('oID', 'action')) . 'oID=' . $Qorders->valueInt('orders_id') . '&action=edit') . '"><i class="fa fa-pencil" title="' . OSCOM::getDef('image_edit') . '"></i></a>
-         <a href="' . OSCOM::link('orders.php', tep_get_all_get_params(array('oID', 'action')) . 'oID=' . $Qorders->valueInt('orders_id') . '&action=delete') . '"><i class="fa fa-trash" title="' . OSCOM::getDef('image_delete') . '"></i></a>
+        '<a href="' . OSCOM::link('orders.php', tep_get_all_get_params(['oID', 'action']) . 'oID=' . $Qorders->valueInt('orders_id') . '&action=edit') . '"><i class="fa fa-pencil" title="' . OSCOM::getDef('image_edit') . '"></i></a>
+         <a href="' . OSCOM::link('orders.php', tep_get_all_get_params(['oID', 'action']) . 'oID=' . $Qorders->valueInt('orders_id') . '&action=delete') . '"><i class="fa fa-trash" title="' . OSCOM::getDef('image_delete') . '"></i></a>
          <a href="' . OSCOM::link('invoice.php', 'oID=' . $Qorders->valueInt('orders_id')) . '" target="_blank"><i class="fa fa-file-text-o" title="' . OSCOM::getDef('image_orders_invoice') . '"></i></a>
          <a href="' . OSCOM::link('packingslip.php', 'oID=' . $Qorders->valueInt('orders_id')) . '" target="_blank"><i class="fa fa-clipboard" title="' . OSCOM::getDef('image_orders_packingslip') . '"></i></a>';
       ?></td>

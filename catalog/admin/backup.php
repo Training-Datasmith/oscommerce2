@@ -14,7 +14,7 @@
 
   $backup_directory = OSCOM::getConfig('dir_root') . 'includes/backups/';
 
-  $action = (isset($_GET['action']) ? $_GET['action'] : '');
+  $action = ($_GET['action'] ?? '');
 
   if (tep_not_null($action)) {
     switch ($action) {
@@ -63,7 +63,7 @@
           $schema = 'drop table if exists ' . $table . ';' . "\n" .
                     'create table ' . $table . ' (' . "\n";
 
-          $table_list = array();
+          $table_list = [];
 
           $Qfields = $OSCOM_Db->query('show fields from ' . $table);
 
@@ -72,11 +72,11 @@
 
             $schema .= '  ' . $Qfields->value('Field') . ' ' . $Qfields->value('Type');
 
-            if (strlen($Qfields->value('Default')) > 0) $schema .= ' default \'' . $Qfields->value('Default') . '\'';
+            if (strlen((string) $Qfields->value('Default')) > 0) $schema .= ' default \'' . $Qfields->value('Default') . '\'';
 
             if ($Qfields->value('Null') != 'YES') $schema .= ' not null';
 
-            if (strlen($Qfields->value('Extra')) > 0) $schema .= ' ' . $Qfields->value('Extra');
+            if (strlen((string) $Qfields->value('Extra')) > 0) $schema .= ' ' . $Qfields->value('Extra');
 
             $schema .= ',' . "\n";
           }
@@ -84,7 +84,7 @@
           $schema = preg_replace("/,\n$/", '', $schema);
 
 // add the keys
-          $index = array();
+          $index = [];
 
           $Qkeys = $OSCOM_Db->query('show keys from ' . $table);
 
@@ -92,9 +92,9 @@
             $kname = $Qkeys->value('Key_name');
 
             if (!isset($index[$kname])) {
-              $index[$kname] = array('unique' => $Qkeys->valueInt('Non_unique') === 0,
+              $index[$kname] = ['unique' => $Qkeys->valueInt('Non_unique') === 0,
                                      'fulltext' => ($Qkeys->value('Index_type') == 'FULLTEXT' ? '1' : '0'),
-                                     'columns' => array());
+                                     'columns' => []];
             }
 
             $index[$kname]['columns'][] = $Qkeys->value('Column_name');
@@ -103,7 +103,7 @@
           foreach ( $index as $kname => $info ) {
             $schema .= ',' . "\n";
 
-            $columns = implode($info['columns'], ', ');
+            $columns = implode(', ', $info['columns']);
 
             if ($kname == 'PRIMARY') {
               $schema .= '  PRIMARY KEY (' . $columns . ')';
@@ -130,7 +130,7 @@
                 if (!$Qrows->hasValue($i)) {
                   $schema .= 'NULL, ';
                 } elseif (tep_not_null($Qrows->value($i))) {
-                  $row = addslashes($Qrows->value($i));
+                  $row = addslashes((string) $Qrows->value($i));
                   $row = preg_replace("/\n#/", "\n".'\#', $row);
 
                   $schema .= '\'' . $row . '\', ';
@@ -165,18 +165,16 @@
           unlink($backup_directory . $backup_file);
 
           exit;
-        } else {
-          switch ($_POST['compress']) {
-            case 'gzip':
-              exec(LOCAL_EXE_GZIP . ' ' . $backup_directory . $backup_file);
-              break;
-            case 'zip':
-              exec(LOCAL_EXE_ZIP . ' -j ' . $backup_directory . $backup_file . '.zip ' . $backup_directory . $backup_file);
-              unlink($backup_directory . $backup_file);
-          }
-
-          $OSCOM_MessageStack->add(OSCOM::getDef('success_database_saved'), 'success');
         }
+        switch ($_POST['compress']) {
+          case 'gzip':
+            exec(LOCAL_EXE_GZIP . ' ' . $backup_directory . $backup_file);
+            break;
+          case 'zip':
+            exec(LOCAL_EXE_ZIP . ' -j ' . $backup_directory . $backup_file . '.zip ' . $backup_directory . $backup_file);
+            unlink($backup_directory . $backup_file);
+        }
+        $OSCOM_MessageStack->add(OSCOM::getDef('success_database_saved'), 'success');
 
         OSCOM::redirect(FILENAME_BACKUP);
         break;
@@ -189,7 +187,7 @@
 
           if (is_file($backup_directory . $_GET['file'])) {
             $restore_file = $backup_directory . $_GET['file'];
-            $extension = substr($_GET['file'], -3);
+            $extension = substr((string) $_GET['file'], -3);
 
             if ( ($extension == 'sql') || ($extension == '.gz') || ($extension == 'zip') ) {
               switch ($extension) {
@@ -225,8 +223,8 @@
         }
 
         if (isset($restore_query)) {
-          $sql_array = array();
-          $drop_table_names = array();
+          $sql_array = [];
+          $drop_table_names = [];
           $sql_length = strlen($restore_query);
           $pos = strpos($restore_query, ';');
           for ($i=$pos; $i<$sql_length; $i++) {
@@ -238,7 +236,7 @@
             }
             if ($restore_query[($i+1)] == "\n") {
               for ($j=($i+2); $j<$sql_length; $j++) {
-                if (trim($restore_query[$j]) != '') {
+                if (trim((string) $restore_query[$j]) != '') {
                   $next = substr($restore_query, $j, 6);
                   if ($next[0] == '#') {
 // find out where the break position is so we can remove this line (#comment line)
@@ -259,7 +257,7 @@
               if ($next == '') { // get the last insert query
                 $next = 'insert';
               }
-              if ( (preg_match('/create/i', $next)) || (preg_match('/insert/i', $next)) || (preg_match('/drop t/i', $next)) ) {
+              if ( (preg_match('/create/i', (string) $next)) || (preg_match('/insert/i', (string) $next)) || (preg_match('/drop t/i', (string) $next)) ) {
                 $query = substr($restore_query, 0, $i);
 
                 $next = '';
@@ -309,7 +307,7 @@
         OSCOM::redirect(FILENAME_BACKUP);
         break;
       case 'download':
-        $extension = substr($_GET['file'], -3);
+        $extension = substr((string) $_GET['file'], -3);
 
         if ( ($extension == 'zip') || ($extension == '.gz') || ($extension == 'sql') ) {
           if ($fp = fopen($backup_directory . $_GET['file'], 'rb')) {
@@ -328,7 +326,7 @@
         }
         break;
       case 'deleteconfirm':
-        if (strstr($_GET['file'], '..')) OSCOM::redirect(FILENAME_BACKUP);
+        if (strstr((string) $_GET['file'], '..')) OSCOM::redirect(FILENAME_BACKUP);
 
         if (unlink($backup_directory . '/' . $_GET['file'])) {
           $OSCOM_MessageStack->add(OSCOM::getDef('success_backup_deleted'), 'success');
@@ -373,7 +371,7 @@
     $heading = $contents = [];
 
     if (isset($_GET['file'])) {
-      $file = basename($_GET['file']);
+      $file = basename((string) $_GET['file']);
 
       if (is_file($backup_directory . $file)) {
         $info = [
@@ -382,67 +380,67 @@
           'size' => number_format(filesize($backup_directory . $file)) . ' bytes'
         ];
 
-        switch (substr($file, -3)) {
-          case 'zip': $info['compression'] = 'ZIP'; break;
-          case '.gz': $info['compression'] = 'GZIP'; break;
-          default: $info['compression'] = OSCOM::getDef('text_no_extension'); break;
-        }
+        $info['compression'] = match (substr($file, -3)) {
+            'zip' => 'ZIP',
+            '.gz' => 'GZIP',
+            default => OSCOM::getDef('text_no_extension'),
+        };
 
         $buInfo = new objectInfo($info);
 
         switch ($action) {
           case 'restore':
-            $heading[] = array('text' => $buInfo->date);
+            $heading[] = ['text' => $buInfo->date];
 
-            $contents[] = array('text' => tep_break_string(OSCOM::getDef('text_info_restore', [
+            $contents[] = ['text' => tep_break_string(OSCOM::getDef('text_info_restore', [
               'db_server' => OSCOM::getConfig('db_server'),
               'db_user' => OSCOM::getConfig('db_server_username'),
               'db_database' => OSCOM::getConfig('db_database'),
               'backup_file' => $backup_directory . (($buInfo->compression != OSCOM::getDef('text_no_extension')) ? substr($buInfo->file, 0, strrpos($buInfo->file, '.')) : $buInfo->file),
               'extra_info' => ($buInfo->compression != OSCOM::getDef('text_no_extension')) ? OSCOM::getDef('text_info_unpack') : ''
-            ]), 35, ' '));
-            $contents[] = array('text' => HTML::button(OSCOM::getDef('image_restore'), 'fa fa-repeat', OSCOM::link(FILENAME_BACKUP, 'file=' . $buInfo->file . '&action=restorenow'), null, 'btn-success') . HTML::button(OSCOM::getDef('image_cancel'), null, OSCOM::link(FILENAME_BACKUP), null, 'btn-link'));
+            ]), 35, ' ')];
+            $contents[] = ['text' => HTML::button(OSCOM::getDef('image_restore'), 'fa fa-repeat', OSCOM::link(FILENAME_BACKUP, 'file=' . $buInfo->file . '&action=restorenow'), null, 'btn-success') . HTML::button(OSCOM::getDef('image_cancel'), null, OSCOM::link(FILENAME_BACKUP), null, 'btn-link')];
             break;
 
           case 'delete':
-            $heading[] = array('text' => $buInfo->date);
+            $heading[] = ['text' => $buInfo->date];
 
-            $contents = array('form' => HTML::form('delete', OSCOM::link(FILENAME_BACKUP, 'file=' . $buInfo->file . '&action=deleteconfirm')));
-            $contents[] = array('text' => OSCOM::getDef('text_delete_intro'));
-            $contents[] = array('text' => '<strong>' . $buInfo->file . '</strong>');
-            $contents[] = array('text' => HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash', null, null, 'btn-danger') . HTML::button(OSCOM::getDef('image_cancel'), null, OSCOM::link(FILENAME_BACKUP), null, 'btn-link'));
+            $contents = ['form' => HTML::form('delete', OSCOM::link(FILENAME_BACKUP, 'file=' . $buInfo->file . '&action=deleteconfirm'))];
+            $contents[] = ['text' => OSCOM::getDef('text_delete_intro')];
+            $contents[] = ['text' => '<strong>' . $buInfo->file . '</strong>'];
+            $contents[] = ['text' => HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash', null, null, 'btn-danger') . HTML::button(OSCOM::getDef('image_cancel'), null, OSCOM::link(FILENAME_BACKUP), null, 'btn-link')];
             break;
         }
       }
     } else {
       switch ($action) {
         case 'backup':
-          $heading[] = array('text' => OSCOM::getDef('text_info_heading_new_backup'));
+          $heading[] = ['text' => OSCOM::getDef('text_info_heading_new_backup')];
 
-          $contents = array('form' => HTML::form('backup', OSCOM::link(FILENAME_BACKUP, 'action=backupnow')));
-          $contents[] = array('text' => OSCOM::getDef('text_info_new_backup'));
+          $contents = ['form' => HTML::form('backup', OSCOM::link(FILENAME_BACKUP, 'action=backupnow'))];
+          $contents[] = ['text' => OSCOM::getDef('text_info_new_backup')];
 
-          $contents[] = array('text' => HTML::radioField('compress', 'no', true) . ' ' . OSCOM::getDef('text_info_use_no_compression'));
-          if (is_file(LOCAL_EXE_GZIP)) $contents[] = array('text' => HTML::radioField('compress', 'gzip') . ' ' . OSCOM::getDef('text_info_use_gzip'));
-          if (is_file(LOCAL_EXE_ZIP)) $contents[] = array('text' => HTML::radioField('compress', 'zip') . ' ' . OSCOM::getDef('text_info_use_zip'));
+          $contents[] = ['text' => HTML::radioField('compress', 'no', true) . ' ' . OSCOM::getDef('text_info_use_no_compression')];
+          if (is_file(LOCAL_EXE_GZIP)) $contents[] = ['text' => HTML::radioField('compress', 'gzip') . ' ' . OSCOM::getDef('text_info_use_gzip')];
+          if (is_file(LOCAL_EXE_ZIP)) $contents[] = ['text' => HTML::radioField('compress', 'zip') . ' ' . OSCOM::getDef('text_info_use_zip')];
 
           if ($dir_ok == true) {
-            $contents[] = array('text' => HTML::checkboxField('download', 'yes') . ' ' . OSCOM::getDef('text_info_download_only') . '*<br /><br />*' . OSCOM::getDef('text_info_best_through_https'));
+            $contents[] = ['text' => HTML::checkboxField('download', 'yes') . ' ' . OSCOM::getDef('text_info_download_only') . '*<br /><br />*' . OSCOM::getDef('text_info_best_through_https')];
           } else {
-            $contents[] = array('text' => HTML::radioField('download', 'yes', true) . ' ' . OSCOM::getDef('text_info_download_only') . '*<br /><br />*' . OSCOM::getDef('text_info_best_through_https'));
+            $contents[] = ['text' => HTML::radioField('download', 'yes', true) . ' ' . OSCOM::getDef('text_info_download_only') . '*<br /><br />*' . OSCOM::getDef('text_info_best_through_https')];
           }
 
-          $contents[] = array('text' => HTML::button(OSCOM::getDef('image_backup'), 'fa fa-copy', null, null, 'btn-success') . HTML::button(OSCOM::getDef('image_cancel'), null, OSCOM::link(FILENAME_BACKUP), null, 'btn-link'));
+          $contents[] = ['text' => HTML::button(OSCOM::getDef('image_backup'), 'fa fa-copy', null, null, 'btn-success') . HTML::button(OSCOM::getDef('image_cancel'), null, OSCOM::link(FILENAME_BACKUP), null, 'btn-link')];
           break;
 
         case 'restorelocal':
-          $heading[] = array('text' => OSCOM::getDef('text_info_heading_restore_local'));
+          $heading[] = ['text' => OSCOM::getDef('text_info_heading_restore_local')];
 
-          $contents = array('form' => HTML::form('restore', OSCOM::link(FILENAME_BACKUP, 'action=restorelocalnow'), 'post', 'enctype="multipart/form-data"'));
-          $contents[] = array('text' => OSCOM::getDef('text_info_restore_local') . '<br /><br />' . OSCOM::getDef('text_info_best_through_https'));
-          $contents[] = array('text' => HTML::fileField('sql_file'));
-          $contents[] = array('text' => OSCOM::getDef('text_info_restore_local_raw_file'));
-          $contents[] = array('text' => HTML::button(OSCOM::getDef('image_restore'), 'fa fa-repeat', null, null, 'btn-success') . HTML::button(OSCOM::getDef('image_cancel'), null, OSCOM::link(FILENAME_BACKUP), null, 'btn-link'));
+          $contents = ['form' => HTML::form('restore', OSCOM::link(FILENAME_BACKUP, 'action=restorelocalnow'), 'post', 'enctype="multipart/form-data"')];
+          $contents[] = ['text' => OSCOM::getDef('text_info_restore_local') . '<br /><br />' . OSCOM::getDef('text_info_best_through_https')];
+          $contents[] = ['text' => HTML::fileField('sql_file')];
+          $contents[] = ['text' => OSCOM::getDef('text_info_restore_local_raw_file')];
+          $contents[] = ['text' => HTML::button(OSCOM::getDef('image_restore'), 'fa fa-repeat', null, null, 'btn-success') . HTML::button(OSCOM::getDef('image_cancel'), null, OSCOM::link(FILENAME_BACKUP), null, 'btn-link')];
           break;
       }
     }
@@ -471,9 +469,9 @@
 <?php
     if ($dir_ok == true) {
       $dir = dir($backup_directory);
-      $contents = array();
+      $contents = [];
       while ($file = $dir->read()) {
-        if (!is_dir($backup_directory . $file) && in_array(substr($file, -3), array('zip', 'sql', '.gz'))) {
+        if (!is_dir($backup_directory . $file) && in_array(substr($file, -3), ['zip', 'sql', '.gz'])) {
           $contents[] = $file;
         }
       }

@@ -41,12 +41,12 @@
 
 <?php
   if (defined('MODULE_ADMIN_DASHBOARD_INSTALLED') && tep_not_null(MODULE_ADMIN_DASHBOARD_INSTALLED)) {
-    $adm_array = explode(';', MODULE_ADMIN_DASHBOARD_INSTALLED);
+    $adm_array = explode(';', (string) MODULE_ADMIN_DASHBOARD_INSTALLED);
 
     $col = 0;
 
     foreach ($adm_array as $adm) {
-      if (strpos($adm, '\\') !== false) {
+      if (str_contains($adm, '\\')) {
         $class = Apps::getModuleClass($adm, 'AdminDashboard');
       } else {
         $class = substr($adm, 0, strrpos($adm, '.'));

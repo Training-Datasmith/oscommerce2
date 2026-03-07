@@ -9,7 +9,7 @@
   class objectInfo {
 
 // class constructor
-    function objectInfo($object_array) {
+    function __construct($object_array) {
       foreach ($object_array as $key => $value) {
         $this->$key = $value;
       }

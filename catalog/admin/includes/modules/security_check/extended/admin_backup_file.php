@@ -10,8 +10,8 @@
   use OSC\OM\Registry;
 
   class securityCheckExtended_admin_backup_file {
-    var $type = 'error';
-    var $has_doc = true;
+    public $type = 'error';
+    public $has_doc = true;
 
     protected $lang;
 
@@ -30,12 +30,12 @@
 
       if ( is_dir($backup_directory) ) {
         $dir = dir($backup_directory);
-        $contents = array();
+        $contents = [];
         while ($file = $dir->read()) {
           if ( !is_dir($backup_directory . $file) ) {
             $ext = substr($file, strrpos($file, '.') + 1);
 
-            if ( in_array($ext, array('zip', 'sql', 'gz')) && !isset($contents[$ext]) ) {
+            if ( in_array($ext, ['zip', 'sql', 'gz']) && !isset($contents[$ext]) ) {
               $contents[$ext] = $file;
 
               if ( $ext != 'sql' ) { // zip and gz (binaries) are prioritized over sql (plain text)
@@ -73,7 +73,7 @@
 
     function getHttpRequest($url) {
 
-      $server = parse_url($url);
+      $server = parse_url((string) $url);
 
       if (isset($server['port']) === false) {
         $server['port'] = ($server['scheme'] == 'https') ? 443 : 80;
@@ -98,7 +98,7 @@
         $this->type = 'warning';
       }
 
-      $result = curl_exec($curl);
+      curl_exec($curl);
 
       $info = curl_getinfo($curl);
 

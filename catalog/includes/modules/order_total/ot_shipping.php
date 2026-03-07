@@ -10,7 +10,7 @@
   use OSC\OM\Registry;
 
   class ot_shipping {
-    var $title, $output;
+    public $title, $output;
 
     function __construct() {
       $this->code = 'ot_shipping';
@@ -19,10 +19,10 @@
       $this->enabled = defined('MODULE_ORDER_TOTAL_SHIPPING_STATUS') && (MODULE_ORDER_TOTAL_SHIPPING_STATUS == 'true') ? true : false;
       $this->sort_order = defined('MODULE_ORDER_TOTAL_SHIPPING_SORT_ORDER') && ((int)MODULE_ORDER_TOTAL_SHIPPING_SORT_ORDER > 0) ? (int)MODULE_ORDER_TOTAL_SHIPPING_SORT_ORDER : 0;
 
-      $this->output = array();
+      $this->output = [];
     }
 
-    function process() {
+    function process(): void {
       global $order, $currencies;
 
       if (MODULE_ORDER_TOTAL_SHIPPING_FREE_SHIPPING == 'true') {
@@ -45,9 +45,9 @@
         }
       }
 
-      if (strpos($_SESSION['shipping']['id'], '\\') !== false) {
-        list($vendor, $app, $module) = explode('\\', $_SESSION['shipping']['id']);
-        list($module, $method) = explode('_', $module);
+      if (str_contains((string) $_SESSION['shipping']['id'], '\\')) {
+        [$vendor, $app, $module] = explode('\\', (string) $_SESSION['shipping']['id']);
+        [$module, $method] = explode('_', $module);
 
         $module = $vendor . '\\' . $app . '\\' . $module;
 
@@ -57,7 +57,7 @@
           $OSCOM_SM = Registry::get($code);
         }
       } else {
-        list($module, $method) = explode('_', $_SESSION['shipping']['id']);
+        [$module, $method] = explode('_', (string) $_SESSION['shipping']['id']);
 
         if (is_object($GLOBALS[$module])) {
           $OSCOM_SM = $GLOBALS[$module];
@@ -76,21 +76,21 @@
           if (DISPLAY_PRICE_WITH_TAX == 'true') $order->info['shipping_cost'] += tep_calculate_tax($order->info['shipping_cost'], $shipping_tax);
         }
 
-        $this->output[] = array('title' => $order->info['shipping_method'] . ':',
+        $this->output[] = ['title' => $order->info['shipping_method'] . ':',
                                 'text' => $currencies->format($order->info['shipping_cost'], true, $order->info['currency'], $order->info['currency_value']),
-                                'value' => $order->info['shipping_cost']);
+                                'value' => $order->info['shipping_cost']];
       }
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_ORDER_TOTAL_SHIPPING_STATUS');
     }
 
-    function keys() {
-      return array('MODULE_ORDER_TOTAL_SHIPPING_STATUS', 'MODULE_ORDER_TOTAL_SHIPPING_SORT_ORDER', 'MODULE_ORDER_TOTAL_SHIPPING_FREE_SHIPPING', 'MODULE_ORDER_TOTAL_SHIPPING_FREE_SHIPPING_OVER', 'MODULE_ORDER_TOTAL_SHIPPING_DESTINATION');
+    function keys(): array {
+      return ['MODULE_ORDER_TOTAL_SHIPPING_STATUS', 'MODULE_ORDER_TOTAL_SHIPPING_SORT_ORDER', 'MODULE_ORDER_TOTAL_SHIPPING_FREE_SHIPPING', 'MODULE_ORDER_TOTAL_SHIPPING_FREE_SHIPPING_OVER', 'MODULE_ORDER_TOTAL_SHIPPING_DESTINATION'];
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [

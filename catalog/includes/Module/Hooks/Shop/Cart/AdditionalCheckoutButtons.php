@@ -10,7 +10,7 @@ namespace OSC\OM\Module\Hooks\Shop\Cart;
 
 class AdditionalCheckoutButtons
 {
-    public function display() {
+    public function display(): string {
         global $payment_modules;
 
         return implode('', $payment_modules->checkout_initialization_method());

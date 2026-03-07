@@ -14,19 +14,19 @@
 // Sets the status of a banner
   function tep_set_banner_status($banners_id, $status) {
     $OSCOM_Db = Registry::get('Db');
-
     if ($status == '1') {
-      return $OSCOM_Db->save('banners', ['status' => 1, 'date_status_change' => 'now()', 'date_scheduled' => 'null'], ['banners_id' => (int)$banners_id]);
-    } elseif ($status == '0') {
-      return $OSCOM_Db->save('banners', ['status' => 0, 'date_status_change' => 'now()'], ['banners_id' => (int)$banners_id]);
-    } else {
-      return -1;
+        return $OSCOM_Db->save('banners', ['status' => 1, 'date_status_change' => 'now()', 'date_scheduled' => 'null'], ['banners_id' => (int)$banners_id]);
     }
+
+    if ($status == '0') {
+        return $OSCOM_Db->save('banners', ['status' => 0, 'date_status_change' => 'now()'], ['banners_id' => (int)$banners_id]);
+    }
+    return -1;
   }
 
 ////
 // Auto activate banners
-  function tep_activate_banners() {
+  function tep_activate_banners(): void {
     $OSCOM_Db = Registry::get('Db');
 
     $Qbanners = $OSCOM_Db->query('select banners_id from :table_banners where date_scheduled is not null and date_scheduled <= now() and status != 1');
@@ -40,7 +40,7 @@
 
 ////
 // Auto expire banners
-  function tep_expire_banners() {
+  function tep_expire_banners(): void {
     $OSCOM_Db = Registry::get('Db');
 
     $Qbanners = $OSCOM_Db->query('select b.banners_id, sum(bh.banners_shown) as banners_shown from :table_banners b, :table_banners_history bh where b.status = 1 and b.banners_id = bh.banners_id and ((b.expires_date is not null and now() >= b.expires_date) or (b.expires_impressions >= banners_shown)) group by b.banners_id');

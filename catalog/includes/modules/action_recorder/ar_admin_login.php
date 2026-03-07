@@ -11,13 +11,19 @@
   use OSC\OM\Registry;
 
   class ar_admin_login {
-    var $code = 'ar_admin_login';
-    var $title;
-    var $description;
-    var $sort_order = 0;
-    var $minutes = 5;
-    var $attempts = 3;
-    var $identifier;
+    public $code = 'ar_admin_login';
+    public $title;
+    public $description;
+    public $sort_order = 0;
+    /**
+     * @var int
+     */
+    public $minutes = 5;
+    /**
+     * @var int
+     */
+    public $attempts = 3;
+    public $identifier;
 
     function __construct() {
       $this->title = OSCOM::getDef('module_action_recorder_admin_login_title');
@@ -29,11 +35,11 @@
       }
     }
 
-    function setIdentifier() {
+    function setIdentifier(): void {
       $this->identifier = HTTP::getIpAddress();
     }
 
-    function canPerform($user_id, $user_name) {
+    function canPerform($user_id, $user_name): bool {
       $OSCOM_Db = Registry::get('Db');
 
       $sql_query = 'select id from :table_action_recorder where module = :module';
@@ -74,11 +80,11 @@
       return $Qdel->rowCount();
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_ACTION_RECORDER_ADMIN_LOGIN_MINUTES');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -106,8 +112,8 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_ACTION_RECORDER_ADMIN_LOGIN_MINUTES', 'MODULE_ACTION_RECORDER_ADMIN_LOGIN_ATTEMPTS');
+    function keys(): array {
+      return ['MODULE_ACTION_RECORDER_ADMIN_LOGIN_MINUTES', 'MODULE_ACTION_RECORDER_ADMIN_LOGIN_ATTEMPTS'];
     }
   }
 ?>

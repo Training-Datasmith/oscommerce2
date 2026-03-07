@@ -39,7 +39,7 @@ abstract class SessionAbstract
             ini_set('session.use_strict_mode', 0);
         }
 
-        if (parse_url(OSCOM::getConfig('http_server'), PHP_URL_SCHEME) == 'https') {
+        if (parse_url((string) OSCOM::getConfig('http_server'), PHP_URL_SCHEME) == 'https') {
             if ((int)ini_get('session.cookie_secure') === 0) {
                 ini_set('session.cookie_secure', 1);
             }
@@ -61,15 +61,15 @@ abstract class SessionAbstract
 
         session_set_cookie_params(0, $OSCOM_Cookies->getPath(), $OSCOM_Cookies->getDomain(), (bool)ini_get('session.cookie_secure'), (bool)ini_get('session.cookie_httponly'));
 
-        if (isset($_GET[$this->name]) && ($this->force_cookies || !(bool)preg_match('/^[a-zA-Z0-9,-]+$/', $_GET[$this->name]) || !$this->exists($_GET[$this->name]))) {
+        if (isset($_GET[$this->name]) && ($this->force_cookies || !(bool)preg_match('/^[a-zA-Z0-9,-]+$/', (string) $_GET[$this->name]) || !$this->exists($_GET[$this->name]))) {
             unset($_GET[$this->name]);
         }
 
-        if (isset($_POST[$this->name]) && ($this->force_cookies || !(bool)preg_match('/^[a-zA-Z0-9,-]+$/', $_POST[$this->name]) || !$this->exists($_POST[$this->name]))) {
+        if (isset($_POST[$this->name]) && ($this->force_cookies || !(bool)preg_match('/^[a-zA-Z0-9,-]+$/', (string) $_POST[$this->name]) || !$this->exists($_POST[$this->name]))) {
             unset($_POST[$this->name]);
         }
 
-        if (isset($_COOKIE[$this->name]) && (!(bool)preg_match('/^[a-zA-Z0-9,-]+$/', $_COOKIE[$this->name]) || !$this->exists($_COOKIE[$this->name]))) {
+        if (isset($_COOKIE[$this->name]) && (!(bool)preg_match('/^[a-zA-Z0-9,-]+$/', (string) $_COOKIE[$this->name]) || !$this->exists($_COOKIE[$this->name]))) {
             $OSCOM_Cookies->del($this->name, $OSCOM_Cookies->getPath(), $OSCOM_Cookies->getDomain(), (bool)ini_get('session.cookie_secure'), (bool)ini_get('session.cookie_httponly'));
         }
 
@@ -81,7 +81,7 @@ abstract class SessionAbstract
             }
         }
 
-        if (($session_can_start === true) && session_start()) {
+        if (session_start()) {
             Registry::get('Hooks')->call('Session', 'StartAfter');
 
             return true;
@@ -90,7 +90,7 @@ abstract class SessionAbstract
         return false;
     }
 
-    public function setForceCookies($force_cookies)
+    public function setForceCookies($force_cookies): void
     {
         $this->force_cookies = $force_cookies;
     }

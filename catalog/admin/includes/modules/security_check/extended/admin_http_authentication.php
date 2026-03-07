@@ -10,7 +10,7 @@
   use OSC\OM\Registry;
 
   class securityCheckExtended_admin_http_authentication {
-    var $type = 'warning';
+    public $type = 'warning';
 
     protected $lang;
 
@@ -22,7 +22,7 @@
       $this->title = OSCOM::getDef('module_security_check_extended_admin_http_authentication_title');
     }
 
-    function pass() {
+    function pass(): bool {
 
       return isset($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['PHP_AUTH_PW']);
     }

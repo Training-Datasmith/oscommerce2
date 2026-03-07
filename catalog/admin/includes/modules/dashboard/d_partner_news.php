@@ -13,13 +13,16 @@
   use OSC\OM\Registry;
 
   class d_partner_news {
-    var $code = 'd_partner_news';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    public $code = 'd_partner_news';
+    public $title;
+    public $description;
+    public $sort_order;
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
-    function d_partner_news() {
+    function __construct() {
       $this->title = OSCOM::getDef('module_admin_dashboard_partner_news_title');
       $this->description = OSCOM::getDef('module_admin_dashboard_partner_news_description');
 
@@ -78,7 +81,7 @@
         ]);
 
         if (!empty($response)) {
-          $response = json_decode($response, true);
+          $response = json_decode((string) $response, true);
 
           if (is_array($response) && !empty($response)) {
             $result = $response;
@@ -95,11 +98,11 @@
       return $this->enabled;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_ADMIN_DASHBOARD_PARTNER_NEWS_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -128,8 +131,8 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_ADMIN_DASHBOARD_PARTNER_NEWS_STATUS', 'MODULE_ADMIN_DASHBOARD_PARTNER_NEWS_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_ADMIN_DASHBOARD_PARTNER_NEWS_STATUS', 'MODULE_ADMIN_DASHBOARD_PARTNER_NEWS_SORT_ORDER'];
     }
   }
 ?>

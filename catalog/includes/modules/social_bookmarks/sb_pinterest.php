@@ -10,12 +10,15 @@
   use OSC\OM\Registry;
 
   class sb_pinterest {
-    var $code = 'sb_pinterest';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $icon;
-    var $enabled = false;
+    public $code = 'sb_pinterest';
+    public $title;
+    public $description;
+    public $sort_order;
+    public $icon;
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
     function __construct() {
       $this->title = OSCOM::getDef('module_social_bookmarks_pinterest_title');
@@ -28,7 +31,7 @@
       }
     }
 
-    function getOutput() {
+    function getOutput(): string {
       global $oscTemplate;
 
       $OSCOM_Db = Registry::get('Db');
@@ -36,7 +39,7 @@
 // add the js in the footer
       $oscTemplate->addBlock('<script src="//assets.pinterest.com/js/pinit.js"></script>', 'footer_scripts');
 
-      $params = array();
+      $params = [];
 
 // grab the product name (used for description)
       $params['description'] = tep_get_products_name($_GET['products_id']);
@@ -67,7 +70,7 @@
       $output = '<a href="http://pinterest.com/pin/create/button/?';
 
       foreach ($params as $key => $value) {
-        $output .= $key . '=' . urlencode($value) . '&';
+        $output .= $key . '=' . urlencode((string) $value) . '&';
       }
 
       $output = substr($output, 0, -1); //remove last & from the url
@@ -85,11 +88,11 @@
       return $this->public_title;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_SOCIAL_BOOKMARKS_PINTEREST_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -129,8 +132,8 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_SOCIAL_BOOKMARKS_PINTEREST_STATUS', 'MODULE_SOCIAL_BOOKMARKS_PINTEREST_BUTTON_COUNT_POSITION', 'MODULE_SOCIAL_BOOKMARKS_PINTEREST_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_SOCIAL_BOOKMARKS_PINTEREST_STATUS', 'MODULE_SOCIAL_BOOKMARKS_PINTEREST_BUTTON_COUNT_POSITION', 'MODULE_SOCIAL_BOOKMARKS_PINTEREST_SORT_ORDER'];
     }
   }
 ?>

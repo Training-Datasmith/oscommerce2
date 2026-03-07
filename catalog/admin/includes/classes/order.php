@@ -9,19 +9,19 @@
   use OSC\OM\Registry;
 
   class order {
-    var $info, $totals, $products, $customer, $delivery;
+    public $info, $totals, $products, $customer, $delivery;
 
-    function order($order_id) {
-      $this->info = array();
-      $this->totals = array();
-      $this->products = array();
-      $this->customer = array();
-      $this->delivery = array();
+    function __construct($order_id) {
+      $this->info = [];
+      $this->totals = [];
+      $this->products = [];
+      $this->customer = [];
+      $this->delivery = [];
 
       $this->query($order_id);
     }
 
-    function query($order_id) {
+    function query($order_id): void {
       $OSCOM_Db = Registry::get('Db');
       $OSCOM_Language = Registry::get('Language');
 
@@ -55,7 +55,7 @@
         ];
       }
 
-      $this->info = array('id' => $Qorder->valueInt('orders_id'),
+      $this->info = ['id' => $Qorder->valueInt('orders_id'),
                           'total' => null,
                           'currency' => $Qorder->value('currency'),
                           'currency_value' => $Qorder->value('currency_value'),
@@ -67,7 +67,7 @@
                           'date_purchased' => $Qorder->value('date_purchased'),
                           'status' => $Qorder->value('orders_status_name'),
                           'orders_status' => $Qorder->value('orders_status'),
-                          'last_modified' => $Qorder->value('last_modified'));
+                          'last_modified' => $Qorder->value('last_modified')];
 
       foreach ( $this->totals as $t ) {
         if ( $t['class'] == 'ot_total' ) {
@@ -76,7 +76,7 @@
         }
       }
 
-      $this->customer = array('name' => $Qorder->value('customers_name'),
+      $this->customer = ['name' => $Qorder->value('customers_name'),
                               'company' => $Qorder->value('customers_company'),
                               'street_address' => $Qorder->value('customers_street_address'),
                               'suburb' => $Qorder->value('customers_suburb'),
@@ -86,9 +86,9 @@
                               'country' => $Qorder->value('customers_country'),
                               'format_id' => $Qorder->value('customers_address_format_id'),
                               'telephone' => $Qorder->value('customers_telephone'),
-                              'email_address' => $Qorder->value('customers_email_address'));
+                              'email_address' => $Qorder->value('customers_email_address')];
 
-      $this->delivery = array('name' => $Qorder->value('delivery_name'),
+      $this->delivery = ['name' => $Qorder->value('delivery_name'),
                               'company' => $Qorder->value('delivery_company'),
                               'street_address' => $Qorder->value('delivery_street_address'),
                               'suburb' => $Qorder->value('delivery_suburb'),
@@ -96,9 +96,9 @@
                               'postcode' => $Qorder->value('delivery_postcode'),
                               'state' => $Qorder->value('delivery_state'),
                               'country' => $Qorder->value('delivery_country'),
-                              'format_id' => $Qorder->value('delivery_address_format_id'));
+                              'format_id' => $Qorder->value('delivery_address_format_id')];
 
-      $this->billing = array('name' => $Qorder->value('billing_name'),
+      $this->billing = ['name' => $Qorder->value('billing_name'),
                              'company' => $Qorder->value('billing_company'),
                              'street_address' => $Qorder->value('billing_street_address'),
                              'suburb' => $Qorder->value('billing_suburb'),
@@ -106,7 +106,7 @@
                              'postcode' => $Qorder->value('billing_postcode'),
                              'state' => $Qorder->value('billing_state'),
                              'country' => $Qorder->value('billing_country'),
-                             'format_id' => $Qorder->value('billing_address_format_id'));
+                             'format_id' => $Qorder->value('billing_address_format_id')];
 
       $index = 0;
 
@@ -123,12 +123,12 @@
       ]);
 
       while ($Qproducts->fetch()) {
-        $this->products[$index] = array('qty' => $Qproducts->value('products_quantity'),
+        $this->products[$index] = ['qty' => $Qproducts->value('products_quantity'),
                                         'name' => $Qproducts->value('products_name'),
                                         'model' => $Qproducts->value('products_model'),
                                         'tax' => $Qproducts->value('products_tax'),
                                         'price' => $Qproducts->value('products_price'),
-                                        'final_price' => $Qproducts->value('final_price'));
+                                        'final_price' => $Qproducts->value('final_price')];
 
         $subindex = 0;
 
@@ -144,10 +144,10 @@
 
         if ($Qattributes->fetch() !== false) {
           do {
-            $this->products[$index]['attributes'][$subindex] = array('option' => $Qattributes->value('products_options'),
+            $this->products[$index]['attributes'][$subindex] = ['option' => $Qattributes->value('products_options'),
                                                                      'value' => $Qattributes->value('products_options_values'),
                                                                      'prefix' => $Qattributes->value('price_prefix'),
-                                                                     'price' => $Qattributes->value('options_values_price'));
+                                                                     'price' => $Qattributes->value('options_values_price')];
 
             $subindex++;
           } while ($Qattributes->fetch());

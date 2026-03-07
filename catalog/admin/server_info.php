@@ -15,15 +15,14 @@ require('includes/application_top.php');
 $OSCOM_Language->loadDefinitions('server_info');
 
 $info = tep_get_system_information();
-$server = parse_url(OSCOM::getConfig('http_server'));
+$server = parse_url((string) OSCOM::getConfig('http_server'));
 
-$action = (isset($_GET['action']) ? $_GET['action'] : '');
+$action = ($_GET['action'] ?? '');
 
 switch ($action) {
     case 'getPhpInfo':
         phpinfo();
         exit;
-        break;
 
     case 'submit':
         $response = HTTP::getResponse([
@@ -51,7 +50,6 @@ switch ($action) {
         echo tep_format_system_info_array($info);
 
         exit;
-        break;
 }
 
 require($oscTemplate->getFile('template_top.php'));

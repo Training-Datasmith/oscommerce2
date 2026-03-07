@@ -19,7 +19,7 @@
   }
 
   if (!isset($_GET['products_id'])) {
-    OSCOM::redirect('product_reviews.php', tep_get_all_get_params(array('action')));
+    OSCOM::redirect('product_reviews.php', tep_get_all_get_params(['action']));
   }
 
   $Qcheck = $OSCOM_Db->prepare('select p.products_id, p.products_model, p.products_image, p.products_price, p.products_tax_class_id, pd.products_name from :table_products p, :table_products_description pd where p.products_id = :products_id and p.products_status = 1 and p.products_id = pd.products_id and pd.language_id = :language_id');
@@ -28,7 +28,7 @@
   $Qcheck->execute();
 
   if ( $Qcheck->fetch() === false ) {
-    OSCOM::redirect('product_reviews.php', tep_get_all_get_params(array('action')));
+    OSCOM::redirect('product_reviews.php', tep_get_all_get_params(['action']));
   }
 
   $Qcustomer = $OSCOM_Db->get('customers', ['customers_firstname', 'customers_lastname'], ['customers_id' => $_SESSION['customer_id']]);
@@ -38,7 +38,7 @@
     $review = HTML::sanitize($_POST['review']);
 
     $error = false;
-    if (strlen($review) < REVIEW_TEXT_MIN_LENGTH) {
+    if (strlen((string) $review) < REVIEW_TEXT_MIN_LENGTH) {
       $error = true;
 
       $messageStack->add('review', OSCOM::getDef('js_review_text', ['min_length' => REVIEW_TEXT_MIN_LENGTH]));
@@ -57,7 +57,7 @@
       $OSCOM_Db->save('reviews_description', ['reviews_id' => $insert_id, 'languages_id' => $OSCOM_Language->getId(), 'reviews_text' => $review]);
 
       $messageStack->add_session('product_reviews', OSCOM::getDef('text_review_received'), 'success');
-      OSCOM::redirect('product_reviews.php', tep_get_all_get_params(array('action')));
+      OSCOM::redirect('product_reviews.php', tep_get_all_get_params(['action']));
     }
   }
 
@@ -129,7 +129,7 @@ function checkForm() {
     <div class="pull-right text-center">
       <?php echo '<a href="' . OSCOM::link('product_info.php', 'products_id=' . $Qcheck->valueInt('products_id')) . '">' . HTML::image(OSCOM::linkImage($Qcheck->value('products_image')), $Qcheck->value('products_name'), SMALL_IMAGE_WIDTH, SMALL_IMAGE_HEIGHT, 'hspace="5" vspace="5"') . '</a>'; ?>
 
-      <p><?php echo HTML::button(OSCOM::getDef('image_button_in_cart'), 'fa fa-shopping-cart', OSCOM::link(basename($PHP_SELF), tep_get_all_get_params(array('action')) . 'action=buy_now'), null, null, 'btn-success btn-reviews btn-buy'); ?></p>
+      <p><?php echo HTML::button(OSCOM::getDef('image_button_in_cart'), 'fa fa-shopping-cart', OSCOM::link(basename((string) $PHP_SELF), tep_get_all_get_params(['action']) . 'action=buy_now')); ?></p>
     </div>
 
     <div class="clearfix"></div>
@@ -177,7 +177,7 @@ function checkForm() {
   </div>
 
   <div class="buttonSet row">
-    <div class="col-xs-6"><?php echo HTML::button(OSCOM::getDef('image_button_back'), 'fa fa-angle-left', OSCOM::link('product_reviews.php', tep_get_all_get_params(array('reviews_id', 'action')))); ?></div>
+    <div class="col-xs-6"><?php echo HTML::button(OSCOM::getDef('image_button_back'), 'fa fa-angle-left', OSCOM::link('product_reviews.php', tep_get_all_get_params(['reviews_id', 'action']))); ?></div>
     <div class="col-xs-6 text-right"><?php echo HTML::button(OSCOM::getDef('image_button_continue'), 'fa fa-angle-right', null, null, 'btn-success'); ?></div>
   </div>
 </div>

@@ -16,7 +16,7 @@ use OSC\OM\OSCOM;
       </div>
 
       <div class="form-group">
-        <?php echo HTML::passwordField('password', NULL, 'required aria-required="true" id="inputPassword" autocomplete="new-password" placeholder="' . OSCOM::getDef('entry_password_text') . '"', 'password'); ?>
+        <?php echo HTML::passwordField('password', NULL, 'required aria-required="true" id="inputPassword" autocomplete="new-password" placeholder="' . OSCOM::getDef('entry_password_text') . '"'); ?>
       </div>
 
       <p class="text-right"><?php echo HTML::button(OSCOM::getDef('image_button_login'), 'fa fa-sign-in', null, null, 'btn-success btn-block'); ?></p>

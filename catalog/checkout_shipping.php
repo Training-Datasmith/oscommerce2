@@ -109,9 +109,9 @@
 
         $OSCOM_SM = null;
 
-        if (strpos($_SESSION['shipping'], '\\') !== false) {
-          list($vendor, $app, $module) = explode('\\', $_SESSION['shipping']);
-          list($module, $method) = explode('_', $module);
+        if (str_contains($_SESSION['shipping'], '\\')) {
+          [$vendor, $app, $module] = explode('\\', $_SESSION['shipping']);
+          [$module, $method] = explode('_', $module);
 
           $module = $vendor . '\\' . $app . '\\' . $module;
 
@@ -121,7 +121,7 @@
             $OSCOM_SM = Registry::get($code);
           }
         } else {
-          list($module, $method) = explode('_', $_SESSION['shipping']);
+          [$module, $method] = explode('_', $_SESSION['shipping']);
 
           if (is_object($GLOBALS[$module])) {
             $OSCOM_SM = $GLOBALS[$module];
@@ -140,9 +140,9 @@
             unset($_SESSION['shipping']);
           } else {
             if ( (isset($quote[0]['methods'][0]['title'])) && (isset($quote[0]['methods'][0]['cost'])) ) {
-              $_SESSION['shipping'] = array('id' => $_SESSION['shipping'],
+              $_SESSION['shipping'] = ['id' => $_SESSION['shipping'],
                                             'title' => (($free_shipping == true) ?  $quote[0]['methods'][0]['title'] : $quote[0]['module'] . (isset($quote[0]['methods'][0]['title']) && !empty($quote[0]['methods'][0]['title']) ? ' (' . $quote[0]['methods'][0]['title'] . ')' : '')),
-                                            'cost' => $quote[0]['methods'][0]['cost']);
+                                            'cost' => $quote[0]['methods'][0]['cost']];
 
               OSCOM::redirect('checkout_payment.php');
             }
@@ -306,7 +306,7 @@
             echo '&nbsp;';
           }
           else {
-            echo $currencies->format(tep_add_tax($quotes[$i]['methods'][$j]['cost'], (isset($quotes[$i]['tax']) ? $quotes[$i]['tax'] : 0))); ?>&nbsp;&nbsp;<?php echo HTML::radioField('shipping', $quotes[$i]['id'] . '_' . $quotes[$i]['methods'][$j]['id'], $checked, 'required aria-required="true"');
+            echo $currencies->format(tep_add_tax($quotes[$i]['methods'][$j]['cost'], ($quotes[$i]['tax'] ?? 0))); ?>&nbsp;&nbsp;<?php echo HTML::radioField('shipping', $quotes[$i]['id'] . '_' . $quotes[$i]['methods'][$j]['id'], $checked, 'required aria-required="true"');
           }
           ?>
         </td>
@@ -315,7 +315,7 @@
             } else {
 ?>
 
-        <td align="right"><?php echo $currencies->format(tep_add_tax($quotes[$i]['methods'][$j]['cost'], (isset($quotes[$i]['tax']) ? $quotes[$i]['tax'] : 0))) . HTML::hiddenField('shipping', $quotes[$i]['id'] . '_' . $quotes[$i]['methods'][$j]['id']); ?></td>
+        <td align="right"><?php echo $currencies->format(tep_add_tax($quotes[$i]['methods'][$j]['cost'], ($quotes[$i]['tax'] ?? 0))) . HTML::hiddenField('shipping', $quotes[$i]['id'] . '_' . $quotes[$i]['methods'][$j]['id']); ?></td>
 
 <?php
             }
@@ -344,7 +344,7 @@
       <label for="inputComments" class="control-label col-sm-4"><?php echo OSCOM::getDef('table_heading_comments'); ?></label>
       <div class="col-sm-8">
         <?php
-        echo HTML::textareaField('comments', 60, 5, (isset($_SESSION['comments']) ? $_SESSION['comments'] : ''), 'id="inputComments" placeholder="' . OSCOM::getDef('table_heading_comments') . '"');
+        echo HTML::textareaField('comments', 60, 5, ($_SESSION['comments'] ?? ''), 'id="inputComments" placeholder="' . OSCOM::getDef('table_heading_comments') . '"');
         ?>
       </div>
     </div>

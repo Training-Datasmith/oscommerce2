@@ -14,7 +14,7 @@
 
   require('includes/application_top.php');
 
-  $action = (isset($_GET['action']) ? $_GET['action'] : '');
+  $action = ($_GET['action'] ?? '');
 
 // prepare to logout an active administrator if the login page is accessed again
   if (isset($_SESSION['admin'])) {
@@ -136,24 +136,24 @@
 <h2><i class="fa fa-home"></i> <a href="<?= OSCOM::link('login.php'); ?>"><?= STORE_NAME; ?></a></h3>
 
 <?php
-  $heading = array();
-  $contents = array();
+  $heading = [];
+  $contents = [];
 
   if ($Qcheck->check()) {
-    $heading[] = array('text' => OSCOM::getDef('heading_title'));
+    $heading[] = ['text' => OSCOM::getDef('heading_title')];
 
-    $contents = array('form' => HTML::form('login', OSCOM::link(FILENAME_LOGIN, 'action=process')));
-    $contents[] = array('text' => OSCOM::getDef('text_username') . '<br />' . HTML::inputField('username'));
-    $contents[] = array('text' => OSCOM::getDef('text_password') . '<br />' . HTML::passwordField('password'));
-    $contents[] = array('text' => HTML::button(OSCOM::getDef('button_login'), 'fa fa-sign-in', null, null, 'btn-primary'));
+    $contents = ['form' => HTML::form('login', OSCOM::link(FILENAME_LOGIN, 'action=process'))];
+    $contents[] = ['text' => OSCOM::getDef('text_username') . '<br />' . HTML::inputField('username')];
+    $contents[] = ['text' => OSCOM::getDef('text_password') . '<br />' . HTML::passwordField('password')];
+    $contents[] = ['text' => HTML::button(OSCOM::getDef('button_login'), 'fa fa-sign-in', null, null, 'btn-primary')];
   } else {
-    $heading[] = array('text' => OSCOM::getDef('heading_title'));
+    $heading[] = ['text' => OSCOM::getDef('heading_title')];
 
-    $contents = array('form' => HTML::form('login', OSCOM::link(FILENAME_LOGIN, 'action=create')));
-    $contents[] = array('text' => OSCOM::getDef('text_create_first_administrator'));
-    $contents[] = array('text' => OSCOM::getDef('text_username') . '<br />' . HTML::inputField('username'));
-    $contents[] = array('text' => OSCOM::getDef('text_password') . '<br />' . HTML::passwordField('password'));
-    $contents[] = array('text' => HTML::button(OSCOM::getDef('button_create_administrator'), 'fa fa-sign-in', null, null, 'btn-primary'));
+    $contents = ['form' => HTML::form('login', OSCOM::link(FILENAME_LOGIN, 'action=create'))];
+    $contents[] = ['text' => OSCOM::getDef('text_create_first_administrator')];
+    $contents[] = ['text' => OSCOM::getDef('text_username') . '<br />' . HTML::inputField('username')];
+    $contents[] = ['text' => OSCOM::getDef('text_password') . '<br />' . HTML::passwordField('password')];
+    $contents[] = ['text' => HTML::button(OSCOM::getDef('button_create_administrator'), 'fa fa-sign-in', null, null, 'btn-primary')];
   }
 
   echo HTML::panel($heading, $contents);

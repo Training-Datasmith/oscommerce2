@@ -10,9 +10,9 @@ namespace OSC\OM;
 
 class Registry
 {
-    private static $data = [];
+    private static array $data = [];
 
-    public static function get($key)
+    public static function get(string $key)
     {
         if (!static::exists($key)) {
             trigger_error('OSC\OM\Registry::get - ' . $key . ' is not registered');
@@ -23,7 +23,7 @@ class Registry
         return static::$data[$key];
     }
 
-    public static function set($key, $value, $force = false)
+    public static function set(string $key, $value, $force = false)
     {
         if (!is_object($value)) {
             trigger_error('OSC\OM\Registry::set - ' . $key . ' is not an object and cannot be set in the registry');
@@ -40,7 +40,7 @@ class Registry
         static::$data[$key] = $value;
     }
 
-    public static function exists($key)
+    public static function exists($key): bool
     {
         return array_key_exists($key, static::$data);
     }

@@ -68,13 +68,13 @@
         }
       }
 
-      if (strlen($firstname) < ENTRY_FIRST_NAME_MIN_LENGTH) {
+      if (strlen((string) $firstname) < ENTRY_FIRST_NAME_MIN_LENGTH) {
         $error = true;
 
         $messageStack->add('checkout_address', OSCOM::getDef('entry_first_name_error', ['min_length' => ENTRY_FIRST_NAME_MIN_LENGTH]));
       }
 
-      if (strlen($lastname) < ENTRY_LAST_NAME_MIN_LENGTH) {
+      if (strlen((string) $lastname) < ENTRY_LAST_NAME_MIN_LENGTH) {
         $error = true;
 
         $messageStack->add('checkout_address', OSCOM::getDef('entry_last_name_error', ['min_length' => ENTRY_LAST_NAME_MIN_LENGTH]));
@@ -86,13 +86,13 @@
         $messageStack->add('checkout_address', OSCOM::getDef('entry_street_address_error', ['min_length' => ENTRY_STREET_ADDRESS_MIN_LENGTH]));
       }
 
-      if (strlen($postcode) < ENTRY_POSTCODE_MIN_LENGTH) {
+      if (strlen((string) $postcode) < ENTRY_POSTCODE_MIN_LENGTH) {
         $error = true;
 
         $messageStack->add('checkout_address', OSCOM::getDef('entry_post_code_error', ['min_length' => ENTRY_POSTCODE_MIN_LENGTH]));
       }
 
-      if (strlen($city) < ENTRY_CITY_MIN_LENGTH) {
+      if (strlen((string) $city) < ENTRY_CITY_MIN_LENGTH) {
         $error = true;
 
         $messageStack->add('checkout_address', OSCOM::getDef('entry_city_error', ['min_length' => ENTRY_CITY_MIN_LENGTH]));
@@ -122,7 +122,7 @@
             $messageStack->add('checkout_address', OSCOM::getDef('entry_state_error_select'));
           }
         } else {
-          if (strlen($state) < ENTRY_STATE_MIN_LENGTH) {
+          if (strlen((string) $state) < ENTRY_STATE_MIN_LENGTH) {
             $error = true;
 
             $messageStack->add('checkout_address', OSCOM::getDef('entry_state_error', ['min_length' => ENTRY_STATE_MIN_LENGTH]));
@@ -137,13 +137,13 @@
       }
 
       if ($error == false) {
-        $sql_data_array = array('customers_id' => $_SESSION['customer_id'],
+        $sql_data_array = ['customers_id' => $_SESSION['customer_id'],
                                 'entry_firstname' => $firstname,
                                 'entry_lastname' => $lastname,
                                 'entry_street_address' => $street_address,
                                 'entry_postcode' => $postcode,
                                 'entry_city' => $city,
-                                'entry_country_id' => $country);
+                                'entry_country_id' => $country];
 
         if (ACCOUNT_GENDER == 'true') $sql_data_array['entry_gender'] = $gender;
         if (ACCOUNT_COMPANY == 'true') $sql_data_array['entry_company'] = $company;

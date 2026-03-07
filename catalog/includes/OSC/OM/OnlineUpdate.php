@@ -13,23 +13,23 @@ use OSC\OM\OSCOM;
 
 class OnlineUpdate
 {
-    public static function log($message, $version)
+    public static function log($message, string $version): void
     {
         if (FileSystem::isWritable(OSCOM::BASE_DIR . 'Work/OnlineUpdates/' . $version . '-log.txt', true)) {
-            $message = '[' . date('d-M-Y H:i:s') . '] ' . trim($message) . "\n";
+            $message = '[' . date('d-M-Y H:i:s') . '] ' . trim((string) $message) . "\n";
 
             file_put_contents(OSCOM::BASE_DIR . 'Work/OnlineUpdates/' . $version . '-log.txt', $message, FILE_APPEND);
         }
     }
 
-    public static function resetLog($version)
+    public static function resetLog(string $version): void
     {
         if (static::logExists($version) && FileSystem::isWritable(OSCOM::BASE_DIR . 'Work/OnlineUpdates/' . $version . '-log.txt')) {
             unlink(OSCOM::BASE_DIR . 'Work/OnlineUpdates/' . $version . '-log.txt');
         }
     }
 
-    public static function getLog($version)
+    public static function getLog(string $version): string
     {
         $result = '';
 
@@ -40,19 +40,17 @@ class OnlineUpdate
         return trim($result);
     }
 
-    public static function logExists($version)
+    public static function logExists(string $version): bool
     {
         return is_file(OSCOM::BASE_DIR . 'Work/OnlineUpdates/' . $version . '-log.txt');
     }
 
-    public static function getLogPath($version)
+    public static function getLogPath(string $version)
     {
-        $result = '';
-
         if (static::logExists($version)) {
-            $result = FileSystem::displayPath(OSCOM::BASE_DIR . 'Work/OnlineUpdates/' . $version . '-log.txt');
+            return FileSystem::displayPath(OSCOM::BASE_DIR . 'Work/OnlineUpdates/' . $version . '-log.txt');
         }
 
-        return $result;
+        return '';
     }
 }

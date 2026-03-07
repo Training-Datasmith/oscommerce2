@@ -29,7 +29,7 @@
     $Qsp = $OSCOM_Db->get('sagepay_server_securitykeys', 'securitykey', ['code' => $skcode], null, 1);
 
     if ($Qsp->fetch() !== false) {
-      $transaction_details = array('ID' => $_POST['VPSTxId']);
+      $transaction_details = ['ID' => $_POST['VPSTxId']];
 
       $sig = $_POST['VPSTxId'] . $_POST['VendorTxCode'] . $_POST['Status'];
 
@@ -168,6 +168,4 @@
   Registry::get('Session')->kill();
 
   exit;
-
-  require('includes/application_bottom.php');
 ?>

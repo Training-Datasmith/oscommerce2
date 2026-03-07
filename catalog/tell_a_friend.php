@@ -72,7 +72,7 @@
       $messageStack->add('friend', OSCOM::getDef('error_to_address'));
     }
 
-    $actionRecorder = new actionRecorder('ar_tell_a_friend', (isset($_SESSION['customer_id']) ? $_SESSION['customer_id'] : null), $from_name);
+    $actionRecorder = new actionRecorder('ar_tell_a_friend', ($_SESSION['customer_id'] ?? null), $from_name);
     if (!$actionRecorder->canPerform()) {
       $error = true;
 

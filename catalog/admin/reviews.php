@@ -16,7 +16,7 @@
     $_GET['page'] = 1;
   }
 
-  $action = (isset($_GET['action']) ? $_GET['action'] : '');
+  $action = ($_GET['action'] ?? '');
 
   if (tep_not_null($action)) {
     switch ($action) {
@@ -164,7 +164,7 @@
       <tr>
         <td><table width="100%" border="0" cellspacing="0" cellpadding="0">
           <tr>
-            <td valign="top" class="main"><strong><?php echo OSCOM::getDef('entry_review'); ?></strong><br /><br /><?php echo nl2br(HTML::output(tep_break_string($rInfo->reviews_text, 15))); ?></td>
+            <td valign="top" class="main"><strong><?php echo OSCOM::getDef('entry_review'); ?></strong><br /><br /><?php echo nl2br((string) HTML::output(tep_break_string($rInfo->reviews_text, 15))); ?></td>
           </tr>
         </table></td>
       </tr>
@@ -286,31 +286,31 @@
               </tr>
             </table></td>
 <?php
-    $heading = array();
-    $contents = array();
+    $heading = [];
+    $contents = [];
 
     switch ($action) {
       case 'delete':
-        $heading[] = array('text' => '<strong>' . OSCOM::getDef('text_info_heading_delete_review') . '</strong>');
+        $heading[] = ['text' => '<strong>' . OSCOM::getDef('text_info_heading_delete_review') . '</strong>'];
 
-        $contents = array('form' => HTML::form('reviews', OSCOM::link(FILENAME_REVIEWS, 'page=' . $_GET['page'] . '&rID=' . $rInfo->reviews_id . '&action=deleteconfirm')));
-        $contents[] = array('text' => OSCOM::getDef('text_info_delete_review_intro'));
-        $contents[] = array('text' => '<br /><strong>' . $rInfo->products_name . '</strong>');
-        $contents[] = array('align' => 'center', 'text' => '<br />' . HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_REVIEWS, 'page=' . $_GET['page'] . '&rID=' . $rInfo->reviews_id)));
+        $contents = ['form' => HTML::form('reviews', OSCOM::link(FILENAME_REVIEWS, 'page=' . $_GET['page'] . '&rID=' . $rInfo->reviews_id . '&action=deleteconfirm'))];
+        $contents[] = ['text' => OSCOM::getDef('text_info_delete_review_intro')];
+        $contents[] = ['text' => '<br /><strong>' . $rInfo->products_name . '</strong>'];
+        $contents[] = ['align' => 'center', 'text' => '<br />' . HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_REVIEWS, 'page=' . $_GET['page'] . '&rID=' . $rInfo->reviews_id))];
         break;
       default:
       if (isset($rInfo) && is_object($rInfo)) {
-        $heading[] = array('text' => '<strong>' . $rInfo->products_name . '</strong>');
+        $heading[] = ['text' => '<strong>' . $rInfo->products_name . '</strong>'];
 
-        $contents[] = array('align' => 'center', 'text' => HTML::button(OSCOM::getDef('image_edit'), 'fa fa-edit', OSCOM::link(FILENAME_REVIEWS, 'page=' . $_GET['page'] . '&rID=' . $rInfo->reviews_id . '&action=edit')) . HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash', OSCOM::link(FILENAME_REVIEWS, 'page=' . $_GET['page'] . '&rID=' . $rInfo->reviews_id . '&action=delete')));
-        $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_date_added') . ' ' . DateTime::toShort($rInfo->date_added));
-        if (tep_not_null($rInfo->last_modified)) $contents[] = array('text' => OSCOM::getDef('text_info_last_modified') . ' ' . DateTime::toShort($rInfo->last_modified));
-        $contents[] = array('text' => '<br />' . tep_info_image($rInfo->products_image, $rInfo->products_name, SMALL_IMAGE_WIDTH, SMALL_IMAGE_HEIGHT));
-        $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_review_author') . ' ' . $rInfo->customers_name);
-        $contents[] = array('text' => OSCOM::getDef('text_info_review_rating') . ' ' . HTML::image(OSCOM::linkImage('Shop/stars_' . $rInfo->reviews_rating . '.gif')));
-        $contents[] = array('text' => OSCOM::getDef('text_info_review_read') . ' ' . $rInfo->reviews_read);
-        $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_review_size') . ' ' . $rInfo->reviews_text_size . ' bytes');
-        $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_products_average_rating') . ' ' . number_format($rInfo->average_rating, 2) . '%');
+        $contents[] = ['align' => 'center', 'text' => HTML::button(OSCOM::getDef('image_edit'), 'fa fa-edit', OSCOM::link(FILENAME_REVIEWS, 'page=' . $_GET['page'] . '&rID=' . $rInfo->reviews_id . '&action=edit')) . HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash', OSCOM::link(FILENAME_REVIEWS, 'page=' . $_GET['page'] . '&rID=' . $rInfo->reviews_id . '&action=delete'))];
+        $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_date_added') . ' ' . DateTime::toShort($rInfo->date_added)];
+        if (tep_not_null($rInfo->last_modified)) $contents[] = ['text' => OSCOM::getDef('text_info_last_modified') . ' ' . DateTime::toShort($rInfo->last_modified)];
+        $contents[] = ['text' => '<br />' . tep_info_image($rInfo->products_image, $rInfo->products_name, SMALL_IMAGE_WIDTH, SMALL_IMAGE_HEIGHT)];
+        $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_review_author') . ' ' . $rInfo->customers_name];
+        $contents[] = ['text' => OSCOM::getDef('text_info_review_rating') . ' ' . HTML::image(OSCOM::linkImage('Shop/stars_' . $rInfo->reviews_rating . '.gif'))];
+        $contents[] = ['text' => OSCOM::getDef('text_info_review_read') . ' ' . $rInfo->reviews_read];
+        $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_review_size') . ' ' . $rInfo->reviews_text_size . ' bytes'];
+        $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_products_average_rating') . ' ' . number_format($rInfo->average_rating, 2) . '%'];
       }
         break;
     }

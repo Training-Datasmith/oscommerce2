@@ -12,7 +12,7 @@
 
   require('includes/application_top.php');
 
-  $action = (isset($_GET['action']) ? $_GET['action'] : '');
+  $action = ($_GET['action'] ?? '');
 
   if (tep_not_null($action)) {
     switch ($action) {
@@ -20,7 +20,7 @@
         $error = false;
 
         $store_logo = new upload('store_logo');
-        $store_logo->set_extensions(array('png', 'gif', 'jpg'));
+        $store_logo->set_extensions(['png', 'gif', 'jpg']);
         $store_logo->set_destination(OSCOM::getConfig('dir_root', 'Shop') . 'images/');
 
         if ($store_logo->parse()) {

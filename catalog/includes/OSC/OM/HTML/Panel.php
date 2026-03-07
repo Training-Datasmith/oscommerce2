@@ -10,7 +10,7 @@ namespace OSC\OM\HTML;
 
 class Panel
 {
-    public static function get($heading, $body, $params = null)
+    public static function get($heading, $body, $params = null): string
     {
         if (!isset($params)) {
             $params = [];
@@ -36,12 +36,10 @@ class Panel
             $result .= static::buildBody($body);
         }
 
-        $result .= '</div>';
-
-        return $result;
+        return $result . '</div>';
     }
 
-    protected static function buildHeading($data)
+    protected static function buildHeading($data): string
     {
         $result = '<div class="panel-heading">';
 
@@ -49,12 +47,10 @@ class Panel
             $result .= '<h3 class="panel-title">' . $d['text'] . '</h3>';
         }
 
-        $result .= '</div>';
-
-        return $result;
+        return $result . '</div>';
     }
 
-    protected static function buildBody($data)
+    protected static function buildBody(array $data): string
     {
         $result = '<div class="panel-body"><div class="container-fluid">';
 
@@ -88,8 +84,6 @@ class Panel
             $result .= '</form>';
         }
 
-        $result .= '</div></div>';
-
-        return $result;
+        return $result . '</div></div>';
     }
 }

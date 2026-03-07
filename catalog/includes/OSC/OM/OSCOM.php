@@ -23,7 +23,7 @@ class OSCOM
     protected static $site = 'Shop';
     protected static $cfg = [];
 
-    public static function initialize()
+    public static function initialize(): void
     {
         static::loadConfig();
 
@@ -51,15 +51,14 @@ class OSCOM
         return static::$version;
     }
 
-    public static function siteExists($site, $strict = true) {
+    public static function siteExists(string $site, $strict = true): bool {
         $class = 'OSC\Sites\\' . $site . '\\' . $site;
 
         if (class_exists($class)) {
-            if (is_subclass_of($class, 'OSC\OM\SitesInterface')) {
+            if (is_subclass_of($class, \OSC\OM\SitesInterface::class)) {
                 return true;
-            } else {
-                trigger_error('OSC\OM\OSCOM::siteExists() - ' . $site . ': Site does not implement OSC\OM\SitesInterface and cannot be loaded.');
             }
+            trigger_error('OSC\OM\OSCOM::siteExists() - ' . $site . ': Site does not implement OSC\OM\SitesInterface and cannot be loaded.');
         } elseif ($strict === true) {
             trigger_error('OSC\OM\OSCOM::siteExists() - ' . $site . ': Site does not exist.');
         }
@@ -67,7 +66,7 @@ class OSCOM
         return false;
     }
 
-    public static function loadSite($site = null)
+    public static function loadSite($site = null): void
     {
         if (!isset($site)) {
             $site = static::$site;
@@ -76,7 +75,7 @@ class OSCOM
         static::setSite($site);
     }
 
-    public static function setSite($site)
+    public static function setSite($site): void
     {
         if (!static::siteExists($site)) {
             $site = static::$site;
@@ -112,20 +111,20 @@ class OSCOM
         return Registry::get('Site')->getPage()->useSiteTemplate();
     }
 
-    public static function isRPC()
+    public static function isRPC(): bool
     {
         $OSCOM_Site = Registry::get('Site');
 
         return $OSCOM_Site->hasPage() && $OSCOM_Site->getPage()->isRPC();
     }
 
-    public static function link($page, $parameters = null, $add_session_id = true, $search_engine_safe = true)
+    public static function link($page, $parameters = null, $add_session_id = true, $search_engine_safe = true): string|array
     {
         $page = HTML::sanitize($page);
 
         $site = $req_site = static::$site;
 
-        if ((strpos($page, '/') !== false) && (preg_match('/^([A-Z][A-Za-z0-9-_]*)\/(.*)$/', $page, $matches) === 1) && OSCOM::siteExists($matches[1], false)) {
+        if ((str_contains((string) $page, '/')) && (preg_match('/^([A-Z][A-Za-z0-9-_]*)\/(.*)$/', (string) $page, $matches) === 1) && OSCOM::siteExists($matches[1], false)) {
             $req_site = $matches[1];
             $page = $matches[2];
         }
@@ -163,7 +162,7 @@ class OSCOM
             $separator = '?';
         }
 
-        while ((substr($link, -1) == '&') || (substr($link, -1) == '?')) {
+        while ((str_ends_with($link, '&')) || (str_ends_with($link, '?'))) {
             $link = substr($link, 0, -1);
         }
 
@@ -172,24 +171,24 @@ class OSCOM
             $OSCOM_Session = Registry::get('Session');
 
             if ($OSCOM_Session->hasStarted() && ($OSCOM_Session->isForceCookies() === false)) {
-                if ((strlen(SID) > 0) || (((HTTP::getRequestType() == 'NONSSL') && (parse_url(static::getConfig('http_server', $req_site), PHP_URL_SCHEME) == 'https')) || ((HTTP::getRequestType() == 'SSL') && (parse_url(static::getConfig('http_server', $req_site), PHP_URL_SCHEME) == 'http')))) {
+                if ((strlen(SID) > 0) || (((HTTP::getRequestType() == 'NONSSL') && (parse_url((string) static::getConfig('http_server', $req_site), PHP_URL_SCHEME) == 'https')) || ((HTTP::getRequestType() == 'SSL') && (parse_url((string) static::getConfig('http_server', $req_site), PHP_URL_SCHEME) == 'http')))) {
                     $link .= $separator . HTML::sanitize(session_name() . '=' . session_id());
                 }
             }
         }
 
-        while (strpos($link, '&&') !== false) {
+        while (str_contains($link, '&&')) {
             $link = str_replace('&&', '&', $link);
         }
 
         if (($search_engine_safe == true) && defined('SEARCH_ENGINE_FRIENDLY_URLS') && (SEARCH_ENGINE_FRIENDLY_URLS == 'true')) {
-            $link = str_replace(['?', '&', '='], '/', $link);
+            return str_replace(['?', '&', '='], '/', $link);
         }
 
         return $link;
     }
 
-    public static function linkImage()
+    public static function linkImage(): mixed
     {
         $args = func_get_args();
 
@@ -206,19 +205,17 @@ class OSCOM
         $page = $args[0];
         $req_site = static::$site;
 
-        if ((strpos($page, '/') !== false) && (preg_match('/^([A-Z][A-Za-z0-9-_]*)\/(.*)$/', $page, $matches) === 1) && OSCOM::siteExists($matches[1], false)) {
+        if ((str_contains((string) $page, '/')) && (preg_match('/^([A-Z][A-Za-z0-9-_]*)\/(.*)$/', (string) $page, $matches) === 1) && OSCOM::siteExists($matches[1], false)) {
             $req_site = $matches[1];
             $page = $matches[2];
         }
 
         $args[0] = $req_site . '/' . static::getConfig('http_images_path', $req_site) . $page;
 
-        $url = forward_static_call_array('static::link', $args);
-
-        return $url;
+        return forward_static_call_array(static::link(...), $args);
     }
 
-    public static function linkPublic()
+    public static function linkPublic(): mixed
     {
         $args = func_get_args();
 
@@ -235,44 +232,42 @@ class OSCOM
         $page = $args[0];
         $req_site = static::$site;
 
-        if ((strpos($page, '/') !== false) && (preg_match('/^([A-Z][A-Za-z0-9-_]*)\/(.*)$/', $page, $matches) === 1) && OSCOM::siteExists($matches[1], false)) {
+        if ((str_contains((string) $page, '/')) && (preg_match('/^([A-Z][A-Za-z0-9-_]*)\/(.*)$/', (string) $page, $matches) === 1) && OSCOM::siteExists($matches[1], false)) {
             $req_site = $matches[1];
             $page = $matches[2];
         }
 
         $args[0] = 'Shop/public/Sites/' . $req_site . '/' . $page;
 
-        $url = forward_static_call_array('static::link', $args);
-
-        return $url;
+        return forward_static_call_array(static::link(...), $args);
     }
 
-    public static function redirect()
+    public static function redirect(): void
     {
         $args = func_get_args();
 
-        $url = forward_static_call_array('static::link', $args);
+        $url = forward_static_call_array(static::link(...), $args);
 
-        if ((strstr($url, "\n") !== false) || (strstr($url, "\r") !== false)) {
+        if ((str_contains((string) $url, "\n")) || (str_contains((string) $url, "\r"))) {
             $url = static::link('index.php', '', false);
         }
 
         HTTP::redirect($url);
     }
 
-    public static function getDef()
+    public static function getDef(): mixed
     {
         $OSCOM_Language = Registry::get('Language');
 
         return call_user_func_array([$OSCOM_Language, 'getDef'], func_get_args());
     }
 
-    public static function hasRoute(array $path)
+    public static function hasRoute(array $path): bool
     {
         return array_slice(array_keys($_GET), 0, count($path)) == $path;
     }
 
-    public static function loadConfig()
+    public static function loadConfig(): void
     {
         static::loadConfigFile(static::BASE_DIR . 'Conf/global.php', 'global');
 
@@ -293,7 +288,7 @@ class OSCOM
         }
     }
 
-    public static function loadConfigFile($file, $group)
+    public static function loadConfigFile($file, $group): void
     {
         $cfg = [];
 
@@ -316,11 +311,7 @@ class OSCOM
             $group = static::getSite();
         }
 
-        if (isset(static::$cfg[$group][$key])) {
-            return static::$cfg[$group][$key];
-        }
-
-        return static::$cfg['global'][$key];
+        return static::$cfg[$group][$key] ?? static::$cfg['global'][$key];
     }
 
     public static function configExists($key, $group = null)
@@ -336,7 +327,7 @@ class OSCOM
         return isset(static::$cfg['global'][$key]);
     }
 
-    public static function setConfig($key, $value, $group = null)
+    public static function setConfig($key, $value, $group = null): void
     {
         if (!isset($group)) {
             $group = 'global';

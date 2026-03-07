@@ -19,7 +19,7 @@ class File extends \OSC\OM\SessionAbstract implements \SessionHandlerInterface
         session_set_save_handler($this, true);
     }
 
-    public function exists($session_id)
+    public function exists($session_id): bool
     {
         $id = basename($session_id);
 
@@ -51,7 +51,7 @@ class File extends \OSC\OM\SessionAbstract implements \SessionHandlerInterface
         }
 
         if ($result === false) {
-            $result = '';
+            return '';
         }
 
         return $result;
@@ -86,10 +86,10 @@ class File extends \OSC\OM\SessionAbstract implements \SessionHandlerInterface
         return true;
     }
 
-    public function setSavePath($path)
+    public function setSavePath($path): void
     {
-        if ((strlen($path) > 1) && (substr($path, -1) == '/')) {
-            $path = substr($path, 0, -1);
+        if ((strlen((string) $path) > 1) && (str_ends_with((string) $path, '/'))) {
+            $path = substr((string) $path, 0, -1);
         }
 
         session_save_path($path);

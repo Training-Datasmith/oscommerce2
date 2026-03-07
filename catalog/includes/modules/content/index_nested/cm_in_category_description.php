@@ -10,16 +10,25 @@
   use OSC\OM\Registry;
 
   class cm_in_category_description {
-    var $code;
-    var $group;
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    /**
+     * @var class-string<\cm_in_category_description>
+     */
+    public $code;
+    /**
+     * @var string
+     */
+    public $group;
+    public $title;
+    public $description;
+    public $sort_order;
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
     function __construct() {
-      $this->code = get_class($this);
-      $this->group = basename(dirname(__FILE__));
+      $this->code = static::class;
+      $this->group = basename(__DIR__);
 
       $this->title = OSCOM::getDef('module_content_in_category_description_title');
       $this->description = OSCOM::getDef('module_content_in_category_description_description');
@@ -31,7 +40,7 @@
       }
     }
 
-    function execute() {
+    function execute(): void {
       global $oscTemplate, $category;
 
       $content_width = MODULE_CONTENT_IN_CATEGORY_DESCRIPTION_CONTENT_WIDTH;
@@ -49,11 +58,11 @@
       return $this->enabled;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_CONTENT_IN_CATEGORY_DESCRIPTION_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -93,7 +102,7 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_CONTENT_IN_CATEGORY_DESCRIPTION_STATUS', 'MODULE_CONTENT_IN_CATEGORY_DESCRIPTION_CONTENT_WIDTH', 'MODULE_CONTENT_IN_CATEGORY_DESCRIPTION_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_CONTENT_IN_CATEGORY_DESCRIPTION_STATUS', 'MODULE_CONTENT_IN_CATEGORY_DESCRIPTION_CONTENT_WIDTH', 'MODULE_CONTENT_IN_CATEGORY_DESCRIPTION_SORT_ORDER'];
     }
   }

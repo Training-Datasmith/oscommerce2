@@ -10,7 +10,7 @@
   use OSC\OM\Registry;
 
   class securityCheck_install_directory {
-    var $type = 'warning';
+    public $type = 'warning';
 
     protected $lang;
 
@@ -20,7 +20,7 @@
       $this->lang->loadDefinitions('modules/security_check/install_directory');
     }
 
-    function pass() {
+    function pass(): bool {
       return !is_dir(OSCOM::getConfig('dir_root', 'Shop') . 'install');
     }
 

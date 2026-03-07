@@ -15,7 +15,7 @@
 
   require('includes/application_top.php');
 
-  $action = (isset($_GET['action']) ? $_GET['action'] : '');
+  $action = ($_GET['action'] ?? '');
 
   if (tep_not_null($action)) {
     switch ($action) {
@@ -38,7 +38,7 @@
           ]);
 
           if (!empty($response)) {
-            $showcase = json_decode($response, true);
+            $showcase = json_decode((string) $response, true);
           }
 
           if (is_array($showcase) && !empty($showcase) && isset($showcase['rpcStatus']) && ($showcase['rpcStatus'] === 1)) {
@@ -63,7 +63,6 @@
 
         echo json_encode($result);
         exit;
-        break;
 
       case 'getInstalledApps':
         $result = [
@@ -79,7 +78,6 @@
 
         echo json_encode($result);
         exit;
-        break;
     }
   }
 
@@ -133,7 +131,7 @@ $(function() {
 
     $('#appShowcase').append('<div class="row"><div class="text-center"><i class="fa fa-spinner fa-spin fa-2x"></i></div></div>');
 
-    $.get('<?= addslashes(OSCOM::link('apps.php', 'action=getShowcase')); ?>', function(response) {
+    $.get('<?= addslashes((string) OSCOM::link('apps.php', 'action=getShowcase')); ?>', function(response) {
       $('#appShowcase').empty();
 
       if ((typeof response == 'object') && ('result' in response) && (response.result === 1)) {
@@ -187,7 +185,7 @@ $(function() {
 
     $('#appsInstalledTable tbody').append('<tr><td colspan="' + $('#appsInstalledTable thead th').length + '"><i class="fa fa-spinner fa-spin"></i></td></tr>');
 
-    $.get('<?= addslashes(OSCOM::link('apps.php', 'action=getInstalledApps')); ?>', function(response) {
+    $.get('<?= addslashes((string) OSCOM::link('apps.php', 'action=getInstalledApps')); ?>', function(response) {
       $('#appsInstalledTable tbody').empty();
 
       if ((typeof response == 'object') && ('result' in response) && (response.result === 1)) {

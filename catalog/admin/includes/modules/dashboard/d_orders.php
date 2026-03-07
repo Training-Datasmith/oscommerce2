@@ -12,13 +12,16 @@
   use OSC\OM\Registry;
 
   class d_orders {
-    var $code = 'd_orders';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    public $code = 'd_orders';
+    public $title;
+    public $description;
+    public $sort_order;
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
-    function d_orders() {
+    function __construct() {
       $this->title = OSCOM::getDef('module_admin_dashboard_orders_title');
       $this->description = OSCOM::getDef('module_admin_dashboard_orders_description');
 
@@ -28,7 +31,7 @@
       }
     }
 
-    function getOutput() {
+    function getOutput(): string {
       $OSCOM_Db = Registry::get('Db');
       $OSCOM_Language = Registry::get('Language');
 
@@ -67,27 +70,25 @@
       while ($Qorders->fetch()) {
         $output .= '    <tr>
                           <td><a href="' . OSCOM::link(FILENAME_ORDERS, 'oID=' . $Qorders->valueInt('orders_id') . '&action=edit') . '">' . $Qorders->valueProtected('customers_name') . '</a></td>
-                          <td>' . strip_tags($Qorders->value('order_total')) . '</td>
+                          <td>' . strip_tags((string) $Qorders->value('order_total')) . '</td>
                           <td>' . DateTime::toShort($Qorders->value('date_last_modified')) . '</td>
                           <td>' . $Qorders->value('orders_status_name') . '</td>
                         </tr>';
       }
 
-      $output .= '  </tbody>
+      return $output . '  </tbody>
                   </table>';
-
-      return $output;
     }
 
     function isEnabled() {
       return $this->enabled;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_ADMIN_DASHBOARD_ORDERS_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -116,8 +117,8 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_ADMIN_DASHBOARD_ORDERS_STATUS', 'MODULE_ADMIN_DASHBOARD_ORDERS_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_ADMIN_DASHBOARD_ORDERS_STATUS', 'MODULE_ADMIN_DASHBOARD_ORDERS_SORT_ORDER'];
     }
   }
 ?>

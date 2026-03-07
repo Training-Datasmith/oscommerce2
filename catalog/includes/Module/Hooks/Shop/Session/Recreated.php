@@ -12,7 +12,7 @@ use OSC\OM\Hash;
 
 class Recreated
 {
-    public function execute($parameters) {
+    public function execute($parameters): void {
 // reset session token
         $_SESSION['sessiontoken'] = md5(Hash::getRandomInt() . Hash::getRandomInt() . Hash::getRandomInt() . Hash::getRandomInt());
     }

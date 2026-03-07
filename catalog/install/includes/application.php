@@ -14,7 +14,7 @@
   define('OSCOM_BASE_DIR', realpath(__DIR__ . '/../../includes/') . '/OSC/');
 
   require(OSCOM_BASE_DIR . 'OM/OSCOM.php');
-  spl_autoload_register('OSC\OM\OSCOM::autoload');
+  spl_autoload_register(OSC\OM\OSCOM::autoload(...));
 
   OSCOM::initialize();
 ?>

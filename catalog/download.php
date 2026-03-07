@@ -29,7 +29,7 @@
   if ($Qdownload->fetch() === false) die;
 
 // MySQL 3.22 does not have INTERVAL
-  list($dt_year, $dt_month, $dt_day) = explode('-', $Qdownload->value('date_purchased_day'));
+  [$dt_year, $dt_month, $dt_day] = explode('-', (string) $Qdownload->value('date_purchased_day'));
   $download_timestamp = mktime(23, 59, 59, $dt_month, $dt_day + $Qdownload->valueInt('download_maxdays'), $dt_year);
 
 // Die if time expired (maxdays = 0 means no time limit)
@@ -47,7 +47,7 @@
 // Returns a random name, 16 to 20 characters long
 // There are more than 10^28 combinations
 // The directory is "hidden", i.e. starts with '.'
-function tep_random_name()
+function tep_random_name(): string
 {
   $letters = 'abcdefghijklmnopqrstuvwxyz';
   $dirname = '.';
@@ -61,18 +61,31 @@ function tep_random_name()
 
 // Unlinks all subdirectories and files in $dir
 // Works only on one subdir level, will not recurse
-function tep_unlink_temp_dir($dir)
+function tep_unlink_temp_dir(string $dir): void
 {
   $h1 = opendir($dir);
   while ($subdir = readdir($h1)) {
 // Ignore non directories
     if (!is_dir($dir . $subdir)) continue;
-// Ignore . and .. and CVS
-    if ($subdir == '.' || $subdir == '..' || $subdir == 'CVS') continue;
+    // Ignore . and .. and CVS
+    if ($subdir == '.') {
+        continue;
+    }
+    if ($subdir == '..') {
+        continue;
+    }
+    if ($subdir == 'CVS') {
+        continue;
+    }
 // Loop and unlink files in subdirectory
     $h2 = opendir($dir . $subdir);
     while ($file = readdir($h2)) {
-      if ($file == '.' || $file == '..') continue;
+      if ($file == '.') {
+          continue;
+      }
+      if ($file == '..') {
+          continue;
+      }
       @unlink($dir . $subdir . '/' . $file);
     }
     closedir($h2);

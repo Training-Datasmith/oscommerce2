@@ -10,12 +10,15 @@
   use OSC\OM\Registry;
 
   class ht_canonical {
-    var $code = 'ht_canonical';
-    var $group = 'header_tags';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    public $code = 'ht_canonical';
+    public $group = 'header_tags';
+    public $title;
+    public $description;
+    public $sort_order;
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
     function __construct() {
       $this->title = OSCOM::getDef('module_header_tags_canonical_title');
@@ -27,12 +30,12 @@
       }
     }
 
-    function execute() {
+    function execute(): void {
       global $PHP_SELF, $cPath, $oscTemplate, $category_depth;
 
-      if (basename($PHP_SELF) == 'product_info.php') {
+      if (basename((string) $PHP_SELF) == 'product_info.php') {
         $oscTemplate->addBlock('<link rel="canonical" href="' . OSCOM::link('product_info.php', 'products_id=' . (int)$_GET['products_id'], false) . '" />' . "\n", $this->group);
-      } elseif (basename($PHP_SELF) == 'index.php') {
+      } elseif (basename((string) $PHP_SELF) == 'index.php') {
         if (isset($cPath) && tep_not_null($cPath) && ($category_depth == 'products')) {
           $oscTemplate->addBlock('<link rel="canonical" href="' . OSCOM::link('index.php', 'view=all&cPath=' . $cPath, false) . '" />' . "\n", $this->group);
         } elseif (isset($_GET['manufacturers_id']) && tep_not_null($_GET['manufacturers_id'])) {
@@ -40,8 +43,8 @@
         }
       }
       else {
-        $view_all_pages = array('products_new.php', 'specials.php');
-        if (in_array(basename($PHP_SELF), $view_all_pages)) {
+        $view_all_pages = ['products_new.php', 'specials.php'];
+        if (in_array(basename((string) $PHP_SELF), $view_all_pages)) {
           $oscTemplate->addBlock('<link rel="canonical" href="' . OSCOM::link($PHP_SELF, 'view=all', false) . '" />' . "\n", $this->group);
         }
       }
@@ -51,11 +54,11 @@
       return $this->enabled;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_HEADER_TAGS_CANONICAL_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -84,8 +87,8 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_HEADER_TAGS_CANONICAL_STATUS', 'MODULE_HEADER_TAGS_CANONICAL_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_HEADER_TAGS_CANONICAL_STATUS', 'MODULE_HEADER_TAGS_CANONICAL_SORT_ORDER'];
     }
   }
 ?>

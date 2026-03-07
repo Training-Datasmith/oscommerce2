@@ -11,13 +11,16 @@
   use OSC\OM\Registry;
 
   class d_total_customers {
-    var $code = 'd_total_customers';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    public $code = 'd_total_customers';
+    public $title;
+    public $description;
+    public $sort_order;
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
-    function d_total_customers() {
+    function __construct() {
       $this->title = OSCOM::getDef('module_admin_dashboard_total_customers_title');
       $this->description = OSCOM::getDef('module_admin_dashboard_total_customers_description');
 
@@ -27,10 +30,10 @@
       }
     }
 
-    function getOutput() {
+    function getOutput(): string {
       $OSCOM_Db = Registry::get('Db');
 
-      $days = array();
+      $days = [];
       for($i = 0; $i < 7; $i++) {
         $days[date('Y-m-d', strtotime('-'. $i .' days'))] = 0;
       }
@@ -49,7 +52,7 @@
       $data_labels = json_encode(array_keys($days));
       $data = json_encode(array_values($days));
 
-      $output = <<<EOD
+      return <<<EOD
 <h5 class="text-center"><a href="$chart_label_link">$chart_label</a></h5>
 <div id="d_total_customers"></div>
 <script>
@@ -87,19 +90,17 @@ $(function() {
 });
 </script>
 EOD;
-
-      return $output;
     }
 
     function isEnabled() {
       return $this->enabled;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_ADMIN_DASHBOARD_TOTAL_CUSTOMERS_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -128,8 +129,8 @@ EOD;
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_ADMIN_DASHBOARD_TOTAL_CUSTOMERS_STATUS', 'MODULE_ADMIN_DASHBOARD_TOTAL_CUSTOMERS_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_ADMIN_DASHBOARD_TOTAL_CUSTOMERS_STATUS', 'MODULE_ADMIN_DASHBOARD_TOTAL_CUSTOMERS_SORT_ORDER'];
     }
   }
 ?>

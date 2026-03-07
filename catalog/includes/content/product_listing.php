@@ -24,7 +24,7 @@
     <?php echo $Qlisting->getPageSetLabel(OSCOM::getDef('text_display_number_of_products')); ?>
   </div>
   <div class="col-sm-6">
-    <div class="pull-right pagenav"><?php echo $Qlisting->getPageSetLinks(tep_get_all_get_params(array('page', 'info', 'x', 'y'))); ?></div>
+    <div class="pull-right pagenav"><?php echo $Qlisting->getPageSetLinks(tep_get_all_get_params(['page', 'info', 'x', 'y'])); ?></div>
     <span class="pull-right"><?php echo OSCOM::getDef('text_result_page'); ?></span>
   </div>
 </div>
@@ -81,7 +81,7 @@
       </div>
 
     <?php
-    if ( (defined('MODULE_HEADER_TAGS_GRID_LIST_VIEW_STATUS') && MODULE_HEADER_TAGS_GRID_LIST_VIEW_STATUS == 'True') && (strpos(MODULE_HEADER_TAGS_GRID_LIST_VIEW_PAGES, basename($PHP_SELF)) !== false) ) {
+    if ( (defined('MODULE_HEADER_TAGS_GRID_LIST_VIEW_STATUS') && MODULE_HEADER_TAGS_GRID_LIST_VIEW_STATUS == 'True') && (str_contains(MODULE_HEADER_TAGS_GRID_LIST_VIEW_PAGES, basename((string) $PHP_SELF))) ) {
       ?>
       <strong><?php echo OSCOM::getDef('text_view'); ?></strong>
       <div class="btn-group">
@@ -114,7 +114,7 @@
     }
     $prod_list_contents .= '      </h2>';
 
-    $prod_list_contents .= '      <p class="group inner list-group-item-text" itemprop="description">' . strip_tags($Qlisting->value('products_description'), '<br>') . '&hellip;</p><div class="clearfix"></div>';
+    $prod_list_contents .= '      <p class="group inner list-group-item-text" itemprop="description">' . strip_tags((string) $Qlisting->value('products_description'), '<br>') . '&hellip;</p><div class="clearfix"></div>';
 
     $extra_list_contents = NULL;
 	  if ( (PRODUCT_LIST_MANUFACTURER > 0) && tep_not_null($Qlisting->valueInt('manufacturers_id')) ) {
@@ -152,7 +152,7 @@
       }
 
       if (PRODUCT_LIST_BUY_NOW > 0) {
-        $prod_list_contents .= '       <div class="col-xs-6 text-right">' . HTML::button(OSCOM::getDef('image_button_buy_now'), 'fa fa-shopping-cart', OSCOM::link(basename($PHP_SELF), tep_get_all_get_params(array('action', 'sort', 'cPath')) . 'action=buy_now&products_id=' . $Qlisting->valueInt('products_id')), null, 'btn-success btn-sm btn-product-listing btn-buy') . '</div>';
+        $prod_list_contents .= '       <div class="col-xs-6 text-right">' . HTML::button(OSCOM::getDef('image_button_buy_now'), 'fa fa-shopping-cart', OSCOM::link(basename((string) $PHP_SELF), tep_get_all_get_params(['action', 'sort', 'cPath']) . 'action=buy_now&products_id=' . $Qlisting->valueInt('products_id')), null, 'btn-success btn-sm btn-product-listing btn-buy') . '</div>';
       }
       $prod_list_contents .= '      </div>';
     }
@@ -182,7 +182,7 @@ if ( ($Qlisting->getPageSetTotalRows() > 0) && ((PREV_NEXT_BAR_LOCATION == '2') 
     <?php echo $Qlisting->getPageSetLabel(OSCOM::getDef('text_display_number_of_products')); ?>
   </div>
   <div class="col-sm-6">
-    <div class="pull-right pagenav"><?php echo $Qlisting->getPageSetLinks(tep_get_all_get_params(array('page', 'info', 'x', 'y'))); ?></div>
+    <div class="pull-right pagenav"><?php echo $Qlisting->getPageSetLinks(tep_get_all_get_params(['page', 'info', 'x', 'y'])); ?></div>
     <span class="pull-right"><?php echo OSCOM::getDef('text_result_page'); ?></span>
   </div>
 </div>

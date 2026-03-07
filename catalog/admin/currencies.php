@@ -19,7 +19,7 @@
     $_GET['page'] = 1;
   }
 
-  $action = (isset($_GET['action']) ? $_GET['action'] : '');
+  $action = ($_GET['action'] ?? '');
 
   if (tep_not_null($action)) {
     switch ($action) {
@@ -35,14 +35,14 @@
         $decimal_places = HTML::sanitize($_POST['decimal_places']);
         $value = HTML::sanitize($_POST['value']);
 
-        $sql_data_array = array('title' => $title,
+        $sql_data_array = ['title' => $title,
                                 'code' => $code,
                                 'symbol_left' => $symbol_left,
                                 'symbol_right' => $symbol_right,
                                 'decimal_point' => $decimal_point,
                                 'thousands_point' => $thousands_point,
                                 'decimal_places' => $decimal_places,
-                                'value' => $value);
+                                'value' => $value];
 
         if ($action == 'insert') {
           $OSCOM_Db->save('currencies', $sql_data_array);
@@ -88,36 +88,36 @@
     }
   }
 
-  $currency_select = array('USD' => array('title' => 'U.S. Dollar', 'code' => 'USD', 'symbol_left' => '$', 'symbol_right' => '', 'decimal_point' => '.', 'thousands_point' => ',', 'decimal_places' => '2'),
-                           'EUR' => array('title' => 'Euro', 'code' => 'EUR', 'symbol_left' => '', 'symbol_right' => '€', 'decimal_point' => '.', 'thousands_point' => ',', 'decimal_places' => '2'),
-                           'JPY' => array('title' => 'Japanese Yen', 'code' => 'JPY', 'symbol_left' => '¥', 'symbol_right' => '', 'decimal_point' => '.', 'thousands_point' => ',', 'decimal_places' => '2'),
-                           'GBP' => array('title' => 'Pounds Sterling', 'code' => 'GBP', 'symbol_left' => '£', 'symbol_right' => '', 'decimal_point' => '.', 'thousands_point' => ',', 'decimal_places' => '2'),
-                           'CHF' => array('title' => 'Swiss Franc', 'code' => 'CHF', 'symbol_left' => '', 'symbol_right' => 'CHF', 'decimal_point' => ',', 'thousands_point' => '.', 'decimal_places' => '2'),
-                           'AUD' => array('title' => 'Australian Dollar', 'code' => 'AUD', 'symbol_left' => '$', 'symbol_right' => '', 'decimal_point' => '.', 'thousands_point' => ',', 'decimal_places' => '2'),
-                           'CAD' => array('title' => 'Canadian Dollar', 'code' => 'CAD', 'symbol_left' => '$', 'symbol_right' => '', 'decimal_point' => '.', 'thousands_point' => ',', 'decimal_places' => '2'),
-                           'SEK' => array('title' => 'Swedish Krona', 'code' => 'SEK', 'symbol_left' => '', 'symbol_right' => 'kr', 'decimal_point' => ',', 'thousands_point' => '.', 'decimal_places' => '2'),
-                           'HKD' => array('title' => 'Hong Kong Dollar', 'code' => 'HKD', 'symbol_left' => '$', 'symbol_right' => '', 'decimal_point' => '.', 'thousands_point' => ',', 'decimal_places' => '2'),
-                           'NOK' => array('title' => 'Norwegian Krone', 'code' => 'NOK', 'symbol_left' => 'kr', 'symbol_right' => '', 'decimal_point' => ',', 'thousands_point' => '.', 'decimal_places' => '2'),
-                           'NZD' => array('title' => 'New Zealand Dollar', 'code' => 'NZD', 'symbol_left' => '$', 'symbol_right' => '', 'decimal_point' => '.', 'thousands_point' => ',', 'decimal_places' => '2'),
-                           'MXN' => array('title' => 'Mexican Peso', 'code' => 'MXN', 'symbol_left' => '$', 'symbol_right' => '', 'decimal_point' => '.', 'thousands_point' => ',', 'decimal_places' => '2'),
-                           'SGD' => array('title' => 'Singapore Dollar', 'code' => 'SGD', 'symbol_left' => '$', 'symbol_right' => '', 'decimal_point' => '.', 'thousands_point' => ',', 'decimal_places' => '2'),
-                           'BRL' => array('title' => 'Brazilian Real', 'code' => 'BRL', 'symbol_left' => 'R$', 'symbol_right' => '', 'decimal_point' => ',', 'thousands_point' => '.', 'decimal_places' => '2'),
-                           'CNY' => array('title' => 'Chinese RMB', 'code' => 'CNY', 'symbol_left' => '￥', 'symbol_right' => '', 'decimal_point' => '.', 'thousands_point' => ',', 'decimal_places' => '2'),
-                           'CZK' => array('title' => 'Czech Koruna', 'code' => 'CZK', 'symbol_left' => '', 'symbol_right' => 'Kč', 'decimal_point' => ',', 'thousands_point' => '.', 'decimal_places' => '2'),
-                           'DKK' => array('title' => 'Danish Krone', 'code' => 'DKK', 'symbol_left' => '', 'symbol_right' => 'kr', 'decimal_point' => ',', 'thousands_point' => '.', 'decimal_places' => '2'),
-                           'HUF' => array('title' => 'Hungarian Forint', 'code' => 'HUF', 'symbol_left' => '', 'symbol_right' => 'Ft', 'decimal_point' => '.', 'thousands_point' => ',', 'decimal_places' => '2'),
-                           'ILS' => array('title' => 'Israeli New Shekel', 'code' => 'ILS', 'symbol_left' => '₪', 'symbol_right' => '', 'decimal_point' => '.', 'thousands_point' => ',', 'decimal_places' => '2'),
-                           'INR' => array('title' => 'Indian Rupee', 'code' => 'INR', 'symbol_left' => 'Rs.', 'symbol_right' => '', 'decimal_point' => '.', 'thousands_point' => ',', 'decimal_places' => '2'),
-                           'MYR' => array('title' => 'Malaysian Ringgit', 'code' => 'MYR', 'symbol_left' => 'RM', 'symbol_right' => '', 'decimal_point' => '.', 'thousands_point' => ',', 'decimal_places' => '2'),
-                           'PHP' => array('title' => 'Philippine Peso', 'code' => 'PHP', 'symbol_left' => 'Php', 'symbol_right' => '', 'decimal_point' => '.', 'thousands_point' => ',', 'decimal_places' => '2'),
-                           'PLN' => array('title' => 'Polish Zloty', 'code' => 'PLN', 'symbol_left' => '', 'symbol_right' => 'zł', 'decimal_point' => ',', 'thousands_point' => '.', 'decimal_places' => '2'),
-                           'THB' => array('title' => 'Thai Baht', 'code' => 'THB', 'symbol_left' => '', 'symbol_right' => '฿', 'decimal_point' => '.', 'thousands_point' => ',', 'decimal_places' => '2'),
-                           'TWD' => array('title' => 'Taiwan New Dollar', 'code' => 'TWD', 'symbol_left' => 'NT$', 'symbol_right' => '', 'decimal_point' => '.', 'thousands_point' => ',', 'decimal_places' => '2'));
+  $currency_select = ['USD' => ['title' => 'U.S. Dollar', 'code' => 'USD', 'symbol_left' => '$', 'symbol_right' => '', 'decimal_point' => '.', 'thousands_point' => ',', 'decimal_places' => '2'],
+                           'EUR' => ['title' => 'Euro', 'code' => 'EUR', 'symbol_left' => '', 'symbol_right' => '€', 'decimal_point' => '.', 'thousands_point' => ',', 'decimal_places' => '2'],
+                           'JPY' => ['title' => 'Japanese Yen', 'code' => 'JPY', 'symbol_left' => '¥', 'symbol_right' => '', 'decimal_point' => '.', 'thousands_point' => ',', 'decimal_places' => '2'],
+                           'GBP' => ['title' => 'Pounds Sterling', 'code' => 'GBP', 'symbol_left' => '£', 'symbol_right' => '', 'decimal_point' => '.', 'thousands_point' => ',', 'decimal_places' => '2'],
+                           'CHF' => ['title' => 'Swiss Franc', 'code' => 'CHF', 'symbol_left' => '', 'symbol_right' => 'CHF', 'decimal_point' => ',', 'thousands_point' => '.', 'decimal_places' => '2'],
+                           'AUD' => ['title' => 'Australian Dollar', 'code' => 'AUD', 'symbol_left' => '$', 'symbol_right' => '', 'decimal_point' => '.', 'thousands_point' => ',', 'decimal_places' => '2'],
+                           'CAD' => ['title' => 'Canadian Dollar', 'code' => 'CAD', 'symbol_left' => '$', 'symbol_right' => '', 'decimal_point' => '.', 'thousands_point' => ',', 'decimal_places' => '2'],
+                           'SEK' => ['title' => 'Swedish Krona', 'code' => 'SEK', 'symbol_left' => '', 'symbol_right' => 'kr', 'decimal_point' => ',', 'thousands_point' => '.', 'decimal_places' => '2'],
+                           'HKD' => ['title' => 'Hong Kong Dollar', 'code' => 'HKD', 'symbol_left' => '$', 'symbol_right' => '', 'decimal_point' => '.', 'thousands_point' => ',', 'decimal_places' => '2'],
+                           'NOK' => ['title' => 'Norwegian Krone', 'code' => 'NOK', 'symbol_left' => 'kr', 'symbol_right' => '', 'decimal_point' => ',', 'thousands_point' => '.', 'decimal_places' => '2'],
+                           'NZD' => ['title' => 'New Zealand Dollar', 'code' => 'NZD', 'symbol_left' => '$', 'symbol_right' => '', 'decimal_point' => '.', 'thousands_point' => ',', 'decimal_places' => '2'],
+                           'MXN' => ['title' => 'Mexican Peso', 'code' => 'MXN', 'symbol_left' => '$', 'symbol_right' => '', 'decimal_point' => '.', 'thousands_point' => ',', 'decimal_places' => '2'],
+                           'SGD' => ['title' => 'Singapore Dollar', 'code' => 'SGD', 'symbol_left' => '$', 'symbol_right' => '', 'decimal_point' => '.', 'thousands_point' => ',', 'decimal_places' => '2'],
+                           'BRL' => ['title' => 'Brazilian Real', 'code' => 'BRL', 'symbol_left' => 'R$', 'symbol_right' => '', 'decimal_point' => ',', 'thousands_point' => '.', 'decimal_places' => '2'],
+                           'CNY' => ['title' => 'Chinese RMB', 'code' => 'CNY', 'symbol_left' => '￥', 'symbol_right' => '', 'decimal_point' => '.', 'thousands_point' => ',', 'decimal_places' => '2'],
+                           'CZK' => ['title' => 'Czech Koruna', 'code' => 'CZK', 'symbol_left' => '', 'symbol_right' => 'Kč', 'decimal_point' => ',', 'thousands_point' => '.', 'decimal_places' => '2'],
+                           'DKK' => ['title' => 'Danish Krone', 'code' => 'DKK', 'symbol_left' => '', 'symbol_right' => 'kr', 'decimal_point' => ',', 'thousands_point' => '.', 'decimal_places' => '2'],
+                           'HUF' => ['title' => 'Hungarian Forint', 'code' => 'HUF', 'symbol_left' => '', 'symbol_right' => 'Ft', 'decimal_point' => '.', 'thousands_point' => ',', 'decimal_places' => '2'],
+                           'ILS' => ['title' => 'Israeli New Shekel', 'code' => 'ILS', 'symbol_left' => '₪', 'symbol_right' => '', 'decimal_point' => '.', 'thousands_point' => ',', 'decimal_places' => '2'],
+                           'INR' => ['title' => 'Indian Rupee', 'code' => 'INR', 'symbol_left' => 'Rs.', 'symbol_right' => '', 'decimal_point' => '.', 'thousands_point' => ',', 'decimal_places' => '2'],
+                           'MYR' => ['title' => 'Malaysian Ringgit', 'code' => 'MYR', 'symbol_left' => 'RM', 'symbol_right' => '', 'decimal_point' => '.', 'thousands_point' => ',', 'decimal_places' => '2'],
+                           'PHP' => ['title' => 'Philippine Peso', 'code' => 'PHP', 'symbol_left' => 'Php', 'symbol_right' => '', 'decimal_point' => '.', 'thousands_point' => ',', 'decimal_places' => '2'],
+                           'PLN' => ['title' => 'Polish Zloty', 'code' => 'PLN', 'symbol_left' => '', 'symbol_right' => 'zł', 'decimal_point' => ',', 'thousands_point' => '.', 'decimal_places' => '2'],
+                           'THB' => ['title' => 'Thai Baht', 'code' => 'THB', 'symbol_left' => '', 'symbol_right' => '฿', 'decimal_point' => '.', 'thousands_point' => ',', 'decimal_places' => '2'],
+                           'TWD' => ['title' => 'Taiwan New Dollar', 'code' => 'TWD', 'symbol_left' => 'NT$', 'symbol_right' => '', 'decimal_point' => '.', 'thousands_point' => ',', 'decimal_places' => '2']];
 
-  $currency_select_array = array(array('id' => '', 'text' => OSCOM::getDef('text_info_common_currencies')));
+  $currency_select_array = [['id' => '', 'text' => OSCOM::getDef('text_info_common_currencies')]];
   foreach ($currency_select as $cs) {
     if (!isset($currencies->currencies[$cs['code']])) {
-      $currency_select_array[] = array('id' => $cs['code'], 'text' => '[' . $cs['code'] . '] ' . $cs['title']);
+      $currency_select_array[] = ['id' => $cs['code'], 'text' => '[' . $cs['code'] . '] ' . $cs['title']];
     }
   }
 
@@ -172,7 +172,7 @@ function updateForm() {
   $Qcurrencies->execute();
 
   while ($Qcurrencies->fetch()) {
-    if ((!isset($_GET['cID']) || (isset($_GET['cID']) && ((int)$_GET['cID'] === $Qcurrencies->valueInt('currencies_id')))) && !isset($cInfo) && (substr($action, 0, 3) != 'new')) {
+    if ((!isset($_GET['cID']) || (isset($_GET['cID']) && ((int)$_GET['cID'] === $Qcurrencies->valueInt('currencies_id')))) && !isset($cInfo) && (!str_starts_with($action, 'new'))) {
       $cInfo = new objectInfo($Qcurrencies->toArray());
     }
 
@@ -214,67 +214,67 @@ function updateForm() {
               </tr>
             </table></td>
 <?php
-  $heading = array();
-  $contents = array();
+  $heading = [];
+  $contents = [];
 
   switch ($action) {
     case 'new':
-      $heading[] = array('text' => '<strong>' . OSCOM::getDef('text_info_heading_new_currency') . '</strong>');
+      $heading[] = ['text' => '<strong>' . OSCOM::getDef('text_info_heading_new_currency') . '</strong>'];
 
-      $contents = array('form' => HTML::form('currencies', OSCOM::link(FILENAME_CURRENCIES, 'page=' . $_GET['page'] . (isset($cInfo) ? '&cID=' . $cInfo->currencies_id : '') . '&action=insert')));
-      $contents[] = array('text' => OSCOM::getDef('text_info_insert_intro'));
-      $contents[] = array('text' => '<br />' . HTML::selectField('cs', $currency_select_array, '', 'onchange="updateForm();"'));
-      $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_currency_title') . '<br />' . HTML::inputField('title'));
-      $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_currency_code') . '<br />' . HTML::inputField('code'));
-      $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_currency_symbol_left') . '<br />' . HTML::inputField('symbol_left'));
-      $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_currency_symbol_right') . '<br />' . HTML::inputField('symbol_right'));
-      $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_currency_decimal_point') . '<br />' . HTML::inputField('decimal_point'));
-      $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_currency_thousands_point') . '<br />' . HTML::inputField('thousands_point'));
-      $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_currency_decimal_places') . '<br />' . HTML::inputField('decimal_places'));
-      $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_currency_value') . '<br />' . HTML::inputField('value'));
-      $contents[] = array('text' => '<br />' . HTML::checkboxField('default') . ' ' . OSCOM::getDef('text_set_default'));
-      $contents[] = array('align' => 'center', 'text' => '<br />' . HTML::button(OSCOM::getDef('image_save'), 'fa fa-save') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_CURRENCIES, 'page=' . $_GET['page'] . '&cID=' . $_GET['cID'])));
+      $contents = ['form' => HTML::form('currencies', OSCOM::link(FILENAME_CURRENCIES, 'page=' . $_GET['page'] . (isset($cInfo) ? '&cID=' . $cInfo->currencies_id : '') . '&action=insert'))];
+      $contents[] = ['text' => OSCOM::getDef('text_info_insert_intro')];
+      $contents[] = ['text' => '<br />' . HTML::selectField('cs', $currency_select_array, '', 'onchange="updateForm();"')];
+      $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_currency_title') . '<br />' . HTML::inputField('title')];
+      $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_currency_code') . '<br />' . HTML::inputField('code')];
+      $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_currency_symbol_left') . '<br />' . HTML::inputField('symbol_left')];
+      $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_currency_symbol_right') . '<br />' . HTML::inputField('symbol_right')];
+      $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_currency_decimal_point') . '<br />' . HTML::inputField('decimal_point')];
+      $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_currency_thousands_point') . '<br />' . HTML::inputField('thousands_point')];
+      $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_currency_decimal_places') . '<br />' . HTML::inputField('decimal_places')];
+      $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_currency_value') . '<br />' . HTML::inputField('value')];
+      $contents[] = ['text' => '<br />' . HTML::checkboxField('default') . ' ' . OSCOM::getDef('text_set_default')];
+      $contents[] = ['align' => 'center', 'text' => '<br />' . HTML::button(OSCOM::getDef('image_save'), 'fa fa-save') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_CURRENCIES, 'page=' . $_GET['page'] . '&cID=' . $_GET['cID']))];
       break;
     case 'edit':
-      $heading[] = array('text' => '<strong>' . OSCOM::getDef('text_info_heading_edit_currency') . '</strong>');
+      $heading[] = ['text' => '<strong>' . OSCOM::getDef('text_info_heading_edit_currency') . '</strong>'];
 
-      $contents = array('form' => HTML::form('currencies', OSCOM::link(FILENAME_CURRENCIES, 'page=' . $_GET['page'] . '&cID=' . $cInfo->currencies_id . '&action=save')));
-      $contents[] = array('text' => OSCOM::getDef('text_info_edit_intro'));
-      $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_currency_title') . '<br />' . HTML::inputField('title', $cInfo->title));
-      $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_currency_code') . '<br />' . HTML::inputField('code', $cInfo->code));
-      $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_currency_symbol_left') . '<br />' . HTML::inputField('symbol_left', $cInfo->symbol_left));
-      $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_currency_symbol_right') . '<br />' . HTML::inputField('symbol_right', $cInfo->symbol_right));
-      $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_currency_decimal_point') . '<br />' . HTML::inputField('decimal_point', $cInfo->decimal_point));
-      $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_currency_thousands_point') . '<br />' . HTML::inputField('thousands_point', $cInfo->thousands_point));
-      $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_currency_decimal_places') . '<br />' . HTML::inputField('decimal_places', $cInfo->decimal_places));
-      $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_currency_value') . '<br />' . HTML::inputField('value', $cInfo->value));
-      if (DEFAULT_CURRENCY != $cInfo->code) $contents[] = array('text' => '<br />' . HTML::checkboxField('default') . ' ' . OSCOM::getDef('text_set_default'));
-      $contents[] = array('align' => 'center', 'text' => '<br />' . HTML::button(OSCOM::getDef('image_save'), 'fa fa-save') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_CURRENCIES, 'page=' . $_GET['page'] . '&cID=' . $cInfo->currencies_id)));
+      $contents = ['form' => HTML::form('currencies', OSCOM::link(FILENAME_CURRENCIES, 'page=' . $_GET['page'] . '&cID=' . $cInfo->currencies_id . '&action=save'))];
+      $contents[] = ['text' => OSCOM::getDef('text_info_edit_intro')];
+      $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_currency_title') . '<br />' . HTML::inputField('title', $cInfo->title)];
+      $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_currency_code') . '<br />' . HTML::inputField('code', $cInfo->code)];
+      $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_currency_symbol_left') . '<br />' . HTML::inputField('symbol_left', $cInfo->symbol_left)];
+      $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_currency_symbol_right') . '<br />' . HTML::inputField('symbol_right', $cInfo->symbol_right)];
+      $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_currency_decimal_point') . '<br />' . HTML::inputField('decimal_point', $cInfo->decimal_point)];
+      $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_currency_thousands_point') . '<br />' . HTML::inputField('thousands_point', $cInfo->thousands_point)];
+      $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_currency_decimal_places') . '<br />' . HTML::inputField('decimal_places', $cInfo->decimal_places)];
+      $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_currency_value') . '<br />' . HTML::inputField('value', $cInfo->value)];
+      if (DEFAULT_CURRENCY != $cInfo->code) $contents[] = ['text' => '<br />' . HTML::checkboxField('default') . ' ' . OSCOM::getDef('text_set_default')];
+      $contents[] = ['align' => 'center', 'text' => '<br />' . HTML::button(OSCOM::getDef('image_save'), 'fa fa-save') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_CURRENCIES, 'page=' . $_GET['page'] . '&cID=' . $cInfo->currencies_id))];
       break;
     case 'delete':
-      $heading[] = array('text' => '<strong>' . OSCOM::getDef('text_info_heading_delete_currency') . '</strong>');
+      $heading[] = ['text' => '<strong>' . OSCOM::getDef('text_info_heading_delete_currency') . '</strong>'];
 
-      $contents[] = array('text' => OSCOM::getDef('text_info_delete_intro'));
-      $contents[] = array('text' => '<br /><strong>' . $cInfo->title . '</strong>');
-      $contents[] = array('align' => 'center', 'text' => '<br />' . (($remove_currency) ? HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash', OSCOM::link(FILENAME_CURRENCIES, 'page=' . $_GET['page'] . '&cID=' . $cInfo->currencies_id . '&action=deleteconfirm')) : '') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_CURRENCIES, 'page=' . $_GET['page'] . '&cID=' . $cInfo->currencies_id)));
+      $contents[] = ['text' => OSCOM::getDef('text_info_delete_intro')];
+      $contents[] = ['text' => '<br /><strong>' . $cInfo->title . '</strong>'];
+      $contents[] = ['align' => 'center', 'text' => '<br />' . (($remove_currency) ? HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash', OSCOM::link(FILENAME_CURRENCIES, 'page=' . $_GET['page'] . '&cID=' . $cInfo->currencies_id . '&action=deleteconfirm')) : '') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_CURRENCIES, 'page=' . $_GET['page'] . '&cID=' . $cInfo->currencies_id))];
       break;
     default:
       if (is_object($cInfo)) {
-        $heading[] = array('text' => '<strong>' . $cInfo->title . '</strong>');
+        $heading[] = ['text' => '<strong>' . $cInfo->title . '</strong>'];
 
-        $contents[] = array('align' => 'center', 'text' => HTML::button(OSCOM::getDef('image_edit'), 'fa fa-edit', OSCOM::link(FILENAME_CURRENCIES, 'page=' . $_GET['page'] . '&cID=' . $cInfo->currencies_id . '&action=edit')) . HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash', OSCOM::link(FILENAME_CURRENCIES, 'page=' . $_GET['page'] . '&cID=' . $cInfo->currencies_id . '&action=delete')));
-        $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_currency_title') . ' ' . $cInfo->title);
-        $contents[] = array('text' => OSCOM::getDef('text_info_currency_code') . ' ' . $cInfo->code);
-        $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_currency_symbol_left') . ' ' . $cInfo->symbol_left);
-        $contents[] = array('text' => OSCOM::getDef('text_info_currency_symbol_right') . ' ' . $cInfo->symbol_right);
-        $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_currency_decimal_point') . ' ' . $cInfo->decimal_point);
-        $contents[] = array('text' => OSCOM::getDef('text_info_currency_thousands_point') . ' ' . $cInfo->thousands_point);
-        $contents[] = array('text' => OSCOM::getDef('text_info_currency_decimal_places') . ' ' . $cInfo->decimal_places);
+        $contents[] = ['align' => 'center', 'text' => HTML::button(OSCOM::getDef('image_edit'), 'fa fa-edit', OSCOM::link(FILENAME_CURRENCIES, 'page=' . $_GET['page'] . '&cID=' . $cInfo->currencies_id . '&action=edit')) . HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash', OSCOM::link(FILENAME_CURRENCIES, 'page=' . $_GET['page'] . '&cID=' . $cInfo->currencies_id . '&action=delete'))];
+        $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_currency_title') . ' ' . $cInfo->title];
+        $contents[] = ['text' => OSCOM::getDef('text_info_currency_code') . ' ' . $cInfo->code];
+        $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_currency_symbol_left') . ' ' . $cInfo->symbol_left];
+        $contents[] = ['text' => OSCOM::getDef('text_info_currency_symbol_right') . ' ' . $cInfo->symbol_right];
+        $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_currency_decimal_point') . ' ' . $cInfo->decimal_point];
+        $contents[] = ['text' => OSCOM::getDef('text_info_currency_thousands_point') . ' ' . $cInfo->thousands_point];
+        $contents[] = ['text' => OSCOM::getDef('text_info_currency_decimal_places') . ' ' . $cInfo->decimal_places];
         if (isset($cInfo->last_updated)) {
-          $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_currency_last_updated') . ' ' . DateTime::toShort($cInfo->last_updated));
+          $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_currency_last_updated') . ' ' . DateTime::toShort($cInfo->last_updated)];
         }
-        $contents[] = array('text' => OSCOM::getDef('text_info_currency_value') . ' ' . number_format($cInfo->value, 8));
-        $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_currency_example') . '<br />' . $currencies->format('30', false, DEFAULT_CURRENCY) . ' = ' . $currencies->format('30', true, $cInfo->code));
+        $contents[] = ['text' => OSCOM::getDef('text_info_currency_value') . ' ' . number_format($cInfo->value, 8)];
+        $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_currency_example') . '<br />' . $currencies->format('30', false, DEFAULT_CURRENCY) . ' = ' . $currencies->format('30', true, $cInfo->code)];
       }
       break;
   }

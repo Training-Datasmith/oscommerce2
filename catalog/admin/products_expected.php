@@ -72,14 +72,14 @@
               </tr>
             </table></td>
 <?php
-  $heading = array();
-  $contents = array();
+  $heading = [];
+  $contents = [];
 
   if (isset($pInfo) && is_object($pInfo)) {
-    $heading[] = array('text' => '<strong>' . $pInfo->products_name . '</strong>');
+    $heading[] = ['text' => '<strong>' . $pInfo->products_name . '</strong>'];
 
-    $contents[] = array('align' => 'center', 'text' => HTML::button(OSCOM::getDef('image_edit'), 'fa fa-edit', OSCOM::link(FILENAME_CATEGORIES, 'pID=' . $pInfo->products_id . '&action=new_product')));
-    $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_date_expected') . ' ' . DateTime::toShort($pInfo->products_date_available));
+    $contents[] = ['align' => 'center', 'text' => HTML::button(OSCOM::getDef('image_edit'), 'fa fa-edit', OSCOM::link(FILENAME_CATEGORIES, 'pID=' . $pInfo->products_id . '&action=new_product'))];
+    $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_date_expected') . ' ' . DateTime::toShort($pInfo->products_date_available)];
   }
 
   if ( (tep_not_null($heading)) && (tep_not_null($contents)) ) {

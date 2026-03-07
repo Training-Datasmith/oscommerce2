@@ -11,12 +11,15 @@
   use OSC\OM\Registry;
 
   class ht_product_meta {
-    var $code = 'ht_product_meta';
-    var $group = 'header_tags';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    public $code = 'ht_product_meta';
+    public $group = 'header_tags';
+    public $title;
+    public $description;
+    public $sort_order;
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
     function __construct() {
       $this->title = OSCOM::getDef('module_header_tags_product_meta_title');
@@ -28,7 +31,7 @@
       }
     }
 
-    function execute() {
+    function execute(): void {
       global $PHP_SELF, $oscTemplate, $Qproduct, $product_exists;
 
       $OSCOM_Db = Registry::get('Db');
@@ -68,11 +71,11 @@
       return $this->enabled;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_HEADER_TAGS_PRODUCT_META_STATUS');
     }
 
-    function install() {
+    function install(): void {
      $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -112,7 +115,7 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_HEADER_TAGS_PRODUCT_META_STATUS', 'MODULE_HEADER_TAGS_PRODUCT_META_KEYWORDS_STATUS', 'MODULE_HEADER_TAGS_PRODUCT_META_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_HEADER_TAGS_PRODUCT_META_STATUS', 'MODULE_HEADER_TAGS_PRODUCT_META_KEYWORDS_STATUS', 'MODULE_HEADER_TAGS_PRODUCT_META_SORT_ORDER'];
     }
   }

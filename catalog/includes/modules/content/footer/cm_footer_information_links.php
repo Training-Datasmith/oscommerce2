@@ -10,16 +10,25 @@
   use OSC\OM\Registry;
 
   class cm_footer_information_links {
-    var $code;
-    var $group;
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    /**
+     * @var class-string<\cm_footer_information_links>
+     */
+    public $code;
+    /**
+     * @var string
+     */
+    public $group;
+    public $title;
+    public $description;
+    public $sort_order;
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
     function __construct() {
-      $this->code = get_class($this);
-      $this->group = basename(dirname(__FILE__));
+      $this->code = static::class;
+      $this->group = basename(__DIR__);
 
       $this->title = OSCOM::getDef('module_content_footer_information_title');
       $this->description = OSCOM::getDef('module_content_footer_information_description');
@@ -31,7 +40,7 @@
       }
     }
 
-    function execute() {
+    function execute(): void {
       global $oscTemplate;
 
       $content_width = (int)MODULE_CONTENT_FOOTER_INFORMATION_CONTENT_WIDTH;
@@ -47,11 +56,11 @@
       return $this->enabled;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_CONTENT_FOOTER_INFORMATION_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -91,8 +100,8 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_CONTENT_FOOTER_INFORMATION_STATUS', 'MODULE_CONTENT_FOOTER_INFORMATION_CONTENT_WIDTH', 'MODULE_CONTENT_FOOTER_INFORMATION_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_CONTENT_FOOTER_INFORMATION_STATUS', 'MODULE_CONTENT_FOOTER_INFORMATION_CONTENT_WIDTH', 'MODULE_CONTENT_FOOTER_INFORMATION_SORT_ORDER'];
     }
   }
 

@@ -10,16 +10,25 @@
   use OSC\OM\Registry;
 
   class cm_account_set_password {
-    var $code;
-    var $group;
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    /**
+     * @var class-string<\cm_account_set_password>
+     */
+    public $code;
+    /**
+     * @var string
+     */
+    public $group;
+    public $title;
+    public $description;
+    public $sort_order;
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
     function __construct() {
-      $this->code = get_class($this);
-      $this->group = basename(dirname(__FILE__));
+      $this->code = static::class;
+      $this->group = basename(__DIR__);
 
       $this->title = OSCOM::getDef('module_content_account_set_password_title');
       $this->description = OSCOM::getDef('module_content_account_set_password_description');
@@ -30,7 +39,7 @@
       }
     }
 
-    function execute() {
+    function execute(): void {
       global $oscTemplate;
 
       $OSCOM_Db = Registry::get('Db');
@@ -55,9 +64,9 @@
           $oscTemplate->_data['account']['account']['links'] = $before_eight;
 
           if ( MODULE_CONTENT_ACCOUNT_SET_PASSWORD_ALLOW_PASSWORD == 'True' ) {
-            $oscTemplate->_data['account']['account']['links'] += array('set_password' => array('title' => OSCOM::getDef('module_content_account_set_password_set_password_link_title'),
+            $oscTemplate->_data['account']['account']['links'] += ['set_password' => ['title' => OSCOM::getDef('module_content_account_set_password_set_password_link_title'),
                                                                         'link' => OSCOM::link('ext/modules/content/account/set_password.php'),
-                                                                        'icon' => 'fa fa-fw fa-lock'));
+                                                                        'icon' => 'fa fa-fw fa-lock']];
           }
 
           $oscTemplate->_data['account']['account']['links'] += $after_eight;
@@ -69,11 +78,11 @@
       return $this->enabled;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_CONTENT_ACCOUNT_SET_PASSWORD_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -113,8 +122,8 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_CONTENT_ACCOUNT_SET_PASSWORD_STATUS', 'MODULE_CONTENT_ACCOUNT_SET_PASSWORD_ALLOW_PASSWORD', 'MODULE_CONTENT_ACCOUNT_SET_PASSWORD_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_CONTENT_ACCOUNT_SET_PASSWORD_STATUS', 'MODULE_CONTENT_ACCOUNT_SET_PASSWORD_ALLOW_PASSWORD', 'MODULE_CONTENT_ACCOUNT_SET_PASSWORD_SORT_ORDER'];
     }
   }
 ?>

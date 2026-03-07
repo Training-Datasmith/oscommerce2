@@ -9,13 +9,19 @@
   use OSC\OM\OSCOM;
 
   class cfgm_shipping {
-    var $code = 'shipping';
-    var $directory;
-    var $language_directory;
-    var $site = 'Shop';
-    var $key = 'MODULE_SHIPPING_INSTALLED';
-    var $title;
-    var $template_integration = false;
+    public $code = 'shipping';
+    /**
+     * @var string
+     */
+    public $directory;
+    /**
+     * @var string
+     */
+    public $language_directory;
+    public $site = 'Shop';
+    public $key = 'MODULE_SHIPPING_INSTALLED';
+    public $title;
+    public $template_integration = false;
 
     function __construct() {
       $this->directory = OSCOM::getConfig('dir_root', $this->site) . 'includes/modules/shipping/';

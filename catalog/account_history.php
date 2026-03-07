@@ -60,7 +60,7 @@
         <div class="row">
           <div class="col-sm-6"><?php echo '<strong>' . OSCOM::getDef('text_order_date') . '</strong> ' . DateTime::toLong($order['date_purchased']) . '<br /><strong>' . $order_type . '</strong> ' . HTML::outputProtected($order_name); ?></div>
           <br class="visible-xs" />
-          <div class="col-sm-6"><?php echo '<strong>' . OSCOM::getDef('text_order_products') . '</strong> ' . $Qproducts->valueInt('count') . '<br /><strong>' . OSCOM::getDef('text_order_cost') . '</strong> ' . strip_tags($order['order_total']); ?></div>
+          <div class="col-sm-6"><?php echo '<strong>' . OSCOM::getDef('text_order_products') . '</strong> ' . $Qproducts->valueInt('count') . '<br /><strong>' . OSCOM::getDef('text_order_cost') . '</strong> ' . strip_tags((string) $order['order_total']); ?></div>
         </div>
       </div>
       <div class="panel-footer"><?php echo HTML::button(OSCOM::getDef('small_image_button_view'), 'fa fa-file', OSCOM::link('account_history_info.php', (isset($_GET['page']) ? 'page=' . $_GET['page'] . '&' : '') . 'order_id=' . $order['orders_id']), null, 'btn-primary btn-xs'); ?></div>
@@ -72,7 +72,7 @@
 ?>
   <div class="row">
     <div class="col-md-6 pagenumber"><?php echo $Qorders->getPageSetLabel(OSCOM::getDef('text_display_number_of_orders')); ?></div>
-    <div class="col-md-6"><span class="pull-right pagenav"><?php echo $Qorders->getPageSetLinks(tep_get_all_get_params(array('page', 'info', 'x', 'y'))); ?></span><span class="pull-right"><?php echo OSCOM::getDef('text_result_page'); ?></span></div>
+    <div class="col-md-6"><span class="pull-right pagenav"><?php echo $Qorders->getPageSetLinks(tep_get_all_get_params(['page', 'info', 'x', 'y'])); ?></span><span class="pull-right"><?php echo OSCOM::getDef('text_result_page'); ?></span></div>
   </div>
 
 <?php

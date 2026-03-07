@@ -13,7 +13,7 @@
 
   require('includes/application_top.php');
 
-  $set = (isset($_GET['set']) ? $_GET['set'] : '');
+  $set = ($_GET['set'] ?? '');
 
   $modules = $cfgModules->getAll();
 
@@ -49,7 +49,7 @@
       break;
   }
 
-  $action = (isset($_GET['action']) ? $_GET['action'] : '');
+  $action = ($_GET['action'] ?? '');
 
   if (tep_not_null($action)) {
     switch ($action) {
@@ -64,7 +64,7 @@
         break;
       case 'install':
       case 'remove':
-        if (strpos($_GET['module'], '\\') !== false) {
+        if (str_contains((string) $_GET['module'], '\\')) {
           $class = Apps::getModuleClass($_GET['module'], $appModuleType);
 
           if (class_exists($class)) {
@@ -73,8 +73,8 @@
             $class = $_GET['module'];
           }
         } else {
-          $file_extension = substr($PHP_SELF, strrpos($PHP_SELF, '.'));
-          $class = basename($_GET['module']);
+          $file_extension = substr((string) $PHP_SELF, strrpos((string) $PHP_SELF, '.'));
+          $class = basename((string) $_GET['module']);
           if (is_file($module_directory . $class . $file_extension)) {
             include($module_directory . $class . $file_extension);
             $module = new $class;
@@ -89,7 +89,7 @@
 
             $module->install();
 
-            $modules_installed = explode(';', constant($module_key));
+            $modules_installed = explode(';', (string) constant($module_key));
 
             if (!in_array($class . $file_extension, $modules_installed)) {
               $modules_installed[] = $class . $file_extension;
@@ -100,7 +100,7 @@
           } elseif ($action == 'remove') {
             $module->remove();
 
-            $modules_installed = explode(';', constant($module_key));
+            $modules_installed = explode(';', (string) constant($module_key));
 
             if (in_array($class . $file_extension, $modules_installed)) {
               unset($modules_installed[array_search($class . $file_extension, $modules_installed)]);
@@ -117,11 +117,11 @@
 
   require($oscTemplate->getFile('template_top.php'));
 
-  $modules_installed = (defined($module_key) ? explode(';', constant($module_key)) : array());
+  $modules_installed = (defined($module_key) ? explode(';', (string) constant($module_key)) : []);
   $new_modules_counter = 0;
 
-  $file_extension = substr($PHP_SELF, strrpos($PHP_SELF, '.'));
-  $directory_array = array();
+  $file_extension = substr((string) $PHP_SELF, strrpos((string) $PHP_SELF, '.'));
+  $directory_array = [];
   if ($dir = @dir($module_directory)) {
     while ($file = $dir->read()) {
       if (!is_dir($module_directory . $file)) {
@@ -187,11 +187,11 @@
                 <td class="dataTableHeadingContent" align="right"><?php echo OSCOM::getDef('table_heading_action'); ?>&nbsp;</td>
               </tr>
 <?php
-  $installed_modules = array();
+  $installed_modules = [];
   for ($i=0, $n=sizeof($directory_array); $i<$n; $i++) {
     $file = $directory_array[$i];
 
-    if (strpos($file, '\\') !== false) {
+    if (str_contains((string) $file, '\\')) {
       $file_extension = '';
 
       $class = Apps::getModuleClass($file, $appModuleType);
@@ -201,13 +201,13 @@
 
       $class = $file;
     } else {
-      $file_extension = substr($PHP_SELF, strrpos($PHP_SELF, '.'));
+      $file_extension = substr((string) $PHP_SELF, strrpos((string) $PHP_SELF, '.'));
 
-      $OSCOM_Language->loadDefinitions($module_site . '/modules/' . $module_type . '/' . pathinfo($file, PATHINFO_FILENAME));
+      $OSCOM_Language->loadDefinitions($module_site . '/modules/' . $module_type . '/' . pathinfo((string) $file, PATHINFO_FILENAME));
 
       include($module_directory . $file);
 
-      $class = substr($file, 0, strrpos($file, '.'));
+      $class = substr((string) $file, 0, strrpos((string) $file, '.'));
 
       if (class_exists($class)) {
         $module = new $class;
@@ -224,16 +224,16 @@
       }
 
       if ((!isset($_GET['module']) || (isset($_GET['module']) && ($_GET['module'] == $class))) && !isset($mInfo)) {
-        $module_info = array('code' => $module->code,
+        $module_info = ['code' => $module->code,
                              'title' => $module->title,
                              'description' => $module->description,
                              'status' => $module->check(),
-                             'signature' => (isset($module->signature) ? $module->signature : null),
-                             'api_version' => (isset($module->api_version) ? $module->api_version : null));
+                             'signature' => ($module->signature ?? null),
+                             'api_version' => ($module->api_version ?? null)];
 
         $module_keys = $module->keys();
 
-        $keys_extra = array();
+        $keys_extra = [];
         for ($j=0, $k=sizeof($module_keys); $j<$k; $j++) {
           $Qkeys = $OSCOM_Db->get('configuration', [
             'configuration_title',
@@ -302,7 +302,7 @@
     if ($template_integration == true) {
       $Qcheck = $OSCOM_Db->get('configuration', 'configuration_value', ['configuration_key' => 'TEMPLATE_BLOCK_GROUPS']);
       if ($Qcheck->fetch() !== false) {
-        $tbgroups_array = explode(';', $Qcheck->value('configuration_value'));
+        $tbgroups_array = explode(';', (string) $Qcheck->value('configuration_value'));
         if (!in_array($module_type, $tbgroups_array)) {
           $tbgroups_array[] = $module_type;
           sort($tbgroups_array);
@@ -332,13 +332,13 @@
               </tr>
             </table></td>
 <?php
-  $heading = array();
-  $contents = array();
+  $heading = [];
+  $contents = [];
 
-  if (isset($mInfo) && (strpos($mInfo->code, '\\') !== false)) {
+  if (isset($mInfo) && (str_contains((string) $mInfo->code, '\\'))) {
     $file_extension = '';
   } else {
-    $file_extension = substr($PHP_SELF, strrpos($PHP_SELF, '.'));
+    $file_extension = substr((string) $PHP_SELF, strrpos((string) $PHP_SELF, '.'));
   }
 
   switch ($action) {
@@ -356,14 +356,14 @@
       }
       $keys = substr($keys, 0, strrpos($keys, '<br /><br />'));
 
-      $heading[] = array('text' => '<strong>' . $mInfo->title . '</strong>');
+      $heading[] = ['text' => '<strong>' . $mInfo->title . '</strong>'];
 
-      $contents = array('form' => HTML::form('modules', OSCOM::link(FILENAME_MODULES, 'set=' . $set . '&module=' . $_GET['module'] . '&action=save')));
-      $contents[] = array('text' => $keys);
-      $contents[] = array('align' => 'center', 'text' => '<br />' . HTML::button(OSCOM::getDef('image_save'), 'fa fa-save') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_MODULES, 'set=' . $set . '&module=' . $_GET['module'])));
+      $contents = ['form' => HTML::form('modules', OSCOM::link(FILENAME_MODULES, 'set=' . $set . '&module=' . $_GET['module'] . '&action=save'))];
+      $contents[] = ['text' => $keys];
+      $contents[] = ['align' => 'center', 'text' => '<br />' . HTML::button(OSCOM::getDef('image_save'), 'fa fa-save') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_MODULES, 'set=' . $set . '&module=' . $_GET['module']))];
       break;
     default:
-      $heading[] = array('text' => '<strong>' . $mInfo->title . '</strong>');
+      $heading[] = ['text' => '<strong>' . $mInfo->title . '</strong>'];
 
       if (in_array($mInfo->code . $file_extension, $modules_installed) && ($mInfo->status > 0)) {
         $keys = '';
@@ -371,8 +371,8 @@
           $keys .= '<strong>' . $value['title'] . '</strong><br />';
           if ($value['use_function']) {
             $use_function = $value['use_function'];
-            if (preg_match('/->/', $use_function)) {
-              $class_method = explode('->', $use_function);
+            if (preg_match('/->/', (string) $use_function)) {
+              $class_method = explode('->', (string) $use_function);
               if (!isset(${$class_method[0]}) || !is_object(${$class_method[0]})) {
                 include('includes/classes/' . $class_method[0] . '.php');
                 ${$class_method[0]} = new $class_method[0]();
@@ -388,31 +388,31 @@
         }
         $keys = substr($keys, 0, strrpos($keys, '<br /><br />'));
 
-        $contents[] = array('align' => 'center', 'text' => HTML::button(OSCOM::getDef('image_edit'), 'fa fa-edit', OSCOM::link(FILENAME_MODULES, 'set=' . $set . '&module=' . $mInfo->code . '&action=edit')) . HTML::button(OSCOM::getDef('image_module_remove'), 'fa fa-minus', OSCOM::link(FILENAME_MODULES, 'set=' . $set . '&module=' . $mInfo->code . '&action=remove')));
+        $contents[] = ['align' => 'center', 'text' => HTML::button(OSCOM::getDef('image_edit'), 'fa fa-edit', OSCOM::link(FILENAME_MODULES, 'set=' . $set . '&module=' . $mInfo->code . '&action=edit')) . HTML::button(OSCOM::getDef('image_module_remove'), 'fa fa-minus', OSCOM::link(FILENAME_MODULES, 'set=' . $set . '&module=' . $mInfo->code . '&action=remove'))];
 
-        if (isset($mInfo->signature) && (list($scode, $smodule, $sversion, $soscversion) = explode('|', $mInfo->signature))) {
-          $contents[] = array('text' => '<br />' . HTML::image(OSCOM::linkImage('icon_info.gif'), OSCOM::getDef('image_icon_info')) . '&nbsp;<strong>' . OSCOM::getDef('text_info_version') . '</strong> ' . $sversion . ' (<a href="http://sig.oscommerce.com/' . $mInfo->signature . '" target="_blank">' . OSCOM::getDef('text_info_online_status') . '</a>)');
+        if (isset($mInfo->signature) && ([$scode, $smodule, $sversion, $soscversion] = explode('|', $mInfo->signature))) {
+          $contents[] = ['text' => '<br />' . HTML::image(OSCOM::linkImage('icon_info.gif'), OSCOM::getDef('image_icon_info')) . '&nbsp;<strong>' . OSCOM::getDef('text_info_version') . '</strong> ' . $sversion . ' (<a href="http://sig.oscommerce.com/' . $mInfo->signature . '" target="_blank">' . OSCOM::getDef('text_info_online_status') . '</a>)'];
         }
 
         if (isset($mInfo->api_version)) {
-          $contents[] = array('text' => HTML::image(OSCOM::linkImage('icon_info.gif'), OSCOM::getDef('image_icon_info')) . '&nbsp;<strong>' . OSCOM::getDef('text_info_api_version') . '</strong> ' . $mInfo->api_version);
+          $contents[] = ['text' => HTML::image(OSCOM::linkImage('icon_info.gif'), OSCOM::getDef('image_icon_info')) . '&nbsp;<strong>' . OSCOM::getDef('text_info_api_version') . '</strong> ' . $mInfo->api_version];
         }
 
-        $contents[] = array('text' => '<br />' . $mInfo->description);
-        $contents[] = array('text' => '<br />' . $keys);
+        $contents[] = ['text' => '<br />' . $mInfo->description];
+        $contents[] = ['text' => '<br />' . $keys];
       } elseif (isset($_GET['list']) && ($_GET['list'] == 'new')) {
         if (isset($mInfo)) {
-          $contents[] = array('align' => 'center', 'text' => HTML::button(OSCOM::getDef('image_module_install'), 'fa fa-plus', OSCOM::link(FILENAME_MODULES, 'set=' . $set . '&module=' . $mInfo->code . '&action=install')));
+          $contents[] = ['align' => 'center', 'text' => HTML::button(OSCOM::getDef('image_module_install'), 'fa fa-plus', OSCOM::link(FILENAME_MODULES, 'set=' . $set . '&module=' . $mInfo->code . '&action=install'))];
 
-          if (isset($mInfo->signature) && (list($scode, $smodule, $sversion, $soscversion) = explode('|', $mInfo->signature))) {
-            $contents[] = array('text' => '<br />' . HTML::image(OSCOM::linkImage('icon_info.gif'), OSCOM::getDef('image_icon_info')) . '&nbsp;<strong>' . OSCOM::getDef('text_info_version') . '</strong> ' . $sversion . ' (<a href="http://sig.oscommerce.com/' . $mInfo->signature . '" target="_blank">' . OSCOM::getDef('text_info_online_status') . '</a>)');
+          if (isset($mInfo->signature) && ([$scode, $smodule, $sversion, $soscversion] = explode('|', $mInfo->signature))) {
+            $contents[] = ['text' => '<br />' . HTML::image(OSCOM::linkImage('icon_info.gif'), OSCOM::getDef('image_icon_info')) . '&nbsp;<strong>' . OSCOM::getDef('text_info_version') . '</strong> ' . $sversion . ' (<a href="http://sig.oscommerce.com/' . $mInfo->signature . '" target="_blank">' . OSCOM::getDef('text_info_online_status') . '</a>)'];
           }
 
           if (isset($mInfo->api_version)) {
-            $contents[] = array('text' => HTML::image(OSCOM::linkImage('icon_info.gif'), OSCOM::getDef('image_icon_info')) . '&nbsp;<strong>' . OSCOM::getDef('text_info_api_version') . '</strong> ' . $mInfo->api_version);
+            $contents[] = ['text' => HTML::image(OSCOM::linkImage('icon_info.gif'), OSCOM::getDef('image_icon_info')) . '&nbsp;<strong>' . OSCOM::getDef('text_info_api_version') . '</strong> ' . $mInfo->api_version];
           }
 
-          $contents[] = array('text' => '<br />' . $mInfo->description);
+          $contents[] = ['text' => '<br />' . $mInfo->description];
         }
       }
       break;

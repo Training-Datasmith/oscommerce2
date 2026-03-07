@@ -15,7 +15,7 @@
 
 // if the customer is not logged on, redirect them to the login page
   if (!isset($_SESSION['customer_id'])) {
-    $_SESSION['navigation']->set_snapshot(array('page' => 'checkout_payment.php'));
+    $_SESSION['navigation']->set_snapshot(['page' => 'checkout_payment.php']);
     OSCOM::redirect('login.php');
   }
 
@@ -69,7 +69,7 @@
 
   $payment_modules->update_status();
 
-  if (strpos($payment_modules->selected_module, '\\') !== false) {
+  if (str_contains((string) $payment_modules->selected_module, '\\')) {
     $code = 'Payment_' . str_replace('\\', '_', $payment_modules->selected_module);
 
     if (Registry::exists($code)) {
@@ -80,7 +80,7 @@
   }
 
   if ( !isset($OSCOM_PM) || ($payment_modules->selected_module != $_SESSION['payment']) || ($OSCOM_PM->enabled == false) ) {
-    OSCOM::redirect('checkout_payment.php', 'error_message=' . urlencode(OSCOM::getDef('error_no_payment_module_selected')));
+    OSCOM::redirect('checkout_payment.php', 'error_message=' . urlencode((string) OSCOM::getDef('error_no_payment_module_selected')));
   }
 
   require('includes/classes/order_total.php');
@@ -91,7 +91,7 @@
 // load the before_process function from the payment modules
   $payment_modules->before_process();
 
-  $sql_data_array = array('customers_id' => $_SESSION['customer_id'],
+  $sql_data_array = ['customers_id' => $_SESSION['customer_id'],
                           'customers_name' => $order->customer['firstname'] . ' ' . $order->customer['lastname'],
                           'customers_company' => $order->customer['company'],
                           'customers_street_address' => $order->customer['street_address'],
@@ -129,28 +129,28 @@
                           'date_purchased' => 'now()',
                           'orders_status' => $order->info['order_status'],
                           'currency' => $order->info['currency'],
-                          'currency_value' => $order->info['currency_value']);
+                          'currency_value' => $order->info['currency_value']];
 
   $OSCOM_Db->save('orders', $sql_data_array);
   $insert_id = $OSCOM_Db->lastInsertId();
 
   for ($i=0, $n=sizeof($order_totals); $i<$n; $i++) {
-    $sql_data_array = array('orders_id' => $insert_id,
+    $sql_data_array = ['orders_id' => $insert_id,
                             'title' => $order_totals[$i]['title'],
                             'text' => $order_totals[$i]['text'],
                             'value' => $order_totals[$i]['value'],
                             'class' => $order_totals[$i]['code'],
-                            'sort_order' => $order_totals[$i]['sort_order']);
+                            'sort_order' => $order_totals[$i]['sort_order']];
 
     $OSCOM_Db->save('orders_total', $sql_data_array);
   }
 
   $customer_notification = (SEND_EMAILS == 'true') ? '1' : '0';
-  $sql_data_array = array('orders_id' => $insert_id,
+  $sql_data_array = ['orders_id' => $insert_id,
                           'orders_status_id' => $order->info['order_status'],
                           'date_added' => 'now()',
                           'customer_notified' => $customer_notification,
-                          'comments' => $order->info['comments']);
+                          'comments' => $order->info['comments']];
 
   $OSCOM_Db->save('orders_status_history', $sql_data_array);
 
@@ -171,7 +171,7 @@
 
 // Will work with only one option for downloadable products
 // otherwise, we have to build the query dynamically with a loop
-        $products_attributes = (isset($order->products[$i]['attributes'])) ? $order->products[$i]['attributes'] : '';
+        $products_attributes = $order->products[$i]['attributes'] ?? '';
         if (is_array($products_attributes)) {
           $stock_query_sql .= ' and pa.options_id = :options_id and pa.options_values_id = :options_values_id';
         }
@@ -215,14 +215,14 @@
     $Qupdate->bindInt(':products_id', tep_get_prid($order->products[$i]['id']));
     $Qupdate->execute();
 
-    $sql_data_array = array('orders_id' => $insert_id,
+    $sql_data_array = ['orders_id' => $insert_id,
                             'products_id' => tep_get_prid($order->products[$i]['id']),
                             'products_model' => $order->products[$i]['model'],
                             'products_name' => $order->products[$i]['name'],
                             'products_price' => $order->products[$i]['price'],
                             'final_price' => $order->products[$i]['final_price'],
                             'products_tax' => $order->products[$i]['tax'],
-                            'products_quantity' => $order->products[$i]['qty']);
+                            'products_quantity' => $order->products[$i]['qty']];
 
     $OSCOM_Db->save('orders_products', $sql_data_array);
     $order_products_id = $OSCOM_Db->lastInsertId();
@@ -263,21 +263,21 @@
         $Qattributes->bindInt(':language_id', $OSCOM_Language->getId());
         $Qattributes->execute();
 
-        $sql_data_array = array('orders_id' => $insert_id,
+        $sql_data_array = ['orders_id' => $insert_id,
                                 'orders_products_id' => $order_products_id,
                                 'products_options' => $Qattributes->value('products_options_name'),
                                 'products_options_values' => $Qattributes->value('products_options_values_name'),
                                 'options_values_price' => $Qattributes->value('options_values_price'),
-                                'price_prefix' => $Qattributes->value('price_prefix'));
+                                'price_prefix' => $Qattributes->value('price_prefix')];
 
         $OSCOM_Db->save('orders_products_attributes', $sql_data_array);
 
         if ((DOWNLOAD_ENABLED == 'true') && $Qattributes->hasValue('products_attributes_filename') && tep_not_null($Qattributes->value('products_attributes_filename'))) {
-          $sql_data_array = array('orders_id' => $insert_id,
+          $sql_data_array = ['orders_id' => $insert_id,
                                   'orders_products_id' => $order_products_id,
                                   'orders_products_filename' => $Qattributes->value('products_attributes_filename'),
                                   'download_maxdays' => $Qattributes->value('products_attributes_maxdays'),
-                                  'download_count' => $Qattributes->value('products_attributes_maxcount'));
+                                  'download_count' => $Qattributes->value('products_attributes_maxcount')];
 
           $OSCOM_Db->save('orders_products_download', $sql_data_array);
         }
@@ -304,7 +304,7 @@
                   OSCOM::getDef('email_separator') . "\n";
 
   for ($i=0, $n=sizeof($order_totals); $i<$n; $i++) {
-    $email_order .= strip_tags($order_totals[$i]['title']) . ' ' . strip_tags($order_totals[$i]['text']) . "\n";
+    $email_order .= strip_tags((string) $order_totals[$i]['title']) . ' ' . strip_tags((string) $order_totals[$i]['text']) . "\n";
   }
 
   if ($order->content_type != 'virtual') {

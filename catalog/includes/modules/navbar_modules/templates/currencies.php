@@ -14,7 +14,7 @@ if (isset($currencies) && is_object($currencies)) {
 
 <?php
   foreach ($currencies->currencies as $key => $value) {
-    echo '<li><a href="' . OSCOM::link($PHP_SELF, tep_get_all_get_params(array('language', 'currency')) . 'currency=' . $key) . '">' . $value['title'] . '</a></li>';
+    echo '<li><a href="' . OSCOM::link($PHP_SELF, tep_get_all_get_params(['language', 'currency']) . 'currency=' . $key) . '">' . $value['title'] . '</a></li>';
   }
 ?>
 

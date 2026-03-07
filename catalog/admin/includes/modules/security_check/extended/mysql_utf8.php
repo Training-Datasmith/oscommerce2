@@ -10,8 +10,8 @@
   use OSC\OM\Registry;
 
   class securityCheckExtended_mysql_utf8 {
-    var $type = 'warning';
-    var $has_doc = true;
+    public $type = 'warning';
+    public $has_doc = true;
 
     protected $lang;
 
@@ -23,7 +23,7 @@
       $this->title = OSCOM::getDef('module_security_check_extended_mysql_utf8_title');
     }
 
-    function pass() {
+    function pass(): bool {
       $OSCOM_Db = Registry::get('Db');
 
       $Qcheck = $OSCOM_Db->query('show table status');
@@ -39,7 +39,7 @@
       return true;
     }
 
-    function getMessage() {
+    function getMessage(): string {
       return '<a href="' . OSCOM::link('database_tables.php') . '">' . OSCOM::getDef('module_security_check_extended_mysql_utf8_error') . '</a>';
     }
   }

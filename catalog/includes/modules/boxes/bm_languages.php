@@ -11,12 +11,18 @@
   use OSC\OM\Registry;
 
   class bm_languages {
-    var $code = 'bm_languages';
-    var $group = 'boxes';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    public $code = 'bm_languages';
+    /**
+     * @var 'boxes_column_left'|'boxes_column_right'
+     */
+    public $group = 'boxes';
+    public $title;
+    public $description;
+    public $sort_order;
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
     protected $lang;
 
@@ -34,16 +40,16 @@
       }
     }
 
-    function execute() {
+    function execute(): void {
       global $PHP_SELF, $oscTemplate;
 
-      if (substr(basename($PHP_SELF), 0, 8) != 'checkout') {
+      if (!str_starts_with(basename((string) $PHP_SELF), 'checkout')) {
         $languages = $this->lang->getAll();
 
         $languages_string = '';
 
         foreach ($languages as $code => $value) {
-          $languages_string .= ' <a href="' . OSCOM::link($PHP_SELF, tep_get_all_get_params(array('language', 'currency')) . 'language=' . $code) . '">' . $this->lang->getImage($value['code']) . '</a> ';
+          $languages_string .= ' <a href="' . OSCOM::link($PHP_SELF, tep_get_all_get_params(['language', 'currency']) . 'language=' . $code) . '">' . $this->lang->getImage($value['code']) . '</a> ';
         }
 
         ob_start();
@@ -58,11 +64,11 @@
       return $this->enabled;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_BOXES_LANGUAGES_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -102,8 +108,8 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_BOXES_LANGUAGES_STATUS', 'MODULE_BOXES_LANGUAGES_CONTENT_PLACEMENT', 'MODULE_BOXES_LANGUAGES_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_BOXES_LANGUAGES_STATUS', 'MODULE_BOXES_LANGUAGES_CONTENT_PLACEMENT', 'MODULE_BOXES_LANGUAGES_SORT_ORDER'];
     }
   }
 

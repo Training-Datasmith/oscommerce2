@@ -129,10 +129,10 @@
         <?php
         if ($process == true) {
           if ($entry_state_has_zones == true) {
-            $zones_array = array();
+            $zones_array = [];
             $Qzones = $OSCOM_Db->get('zones', 'zone_name', ['zone_country_id' => $country], 'zone_name');
             while ($Qzones->fetch()) {
-              $zones_array[] = array('id' => $Qzones->value('zone_name'), 'text' => $Qzones->value('zone_name'));
+              $zones_array[] = ['id' => $Qzones->value('zone_name'), 'text' => $Qzones->value('zone_name')];
             }
             echo HTML::selectField('state', $zones_array, 0, 'id="inputState" aria-describedby="atState"');
             if (tep_not_null(OSCOM::getDef('entry_state_text'))) echo '<span id="atState" class="help-block">' . OSCOM::getDef('entry_state_text') . '</span>';

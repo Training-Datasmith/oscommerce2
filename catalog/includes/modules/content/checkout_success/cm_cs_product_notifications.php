@@ -11,16 +11,25 @@
   use OSC\OM\Registry;
 
   class cm_cs_product_notifications {
-    var $code;
-    var $group;
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    /**
+     * @var class-string<\cm_cs_product_notifications>
+     */
+    public $code;
+    /**
+     * @var string
+     */
+    public $group;
+    public $title;
+    public $description;
+    public $sort_order;
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
     function __construct() {
-      $this->code = get_class($this);
-      $this->group = basename(dirname(__FILE__));
+      $this->code = static::class;
+      $this->group = basename(__DIR__);
 
       $this->title = OSCOM::getDef('module_content_checkout_success_product_notifications_title');
       $this->description = OSCOM::getDef('module_content_checkout_success_product_notifications_description');
@@ -31,7 +40,7 @@
       }
     }
 
-    function execute() {
+    function execute(): void {
       global $oscTemplate, $order_id;
 
       $OSCOM_Db = Registry::get('Db');
@@ -60,7 +69,7 @@
             }
           }
 
-          $products_displayed = array();
+          $products_displayed = [];
 
           $Qproducts = $OSCOM_Db->get('orders_products', ['products_id', 'products_name'], ['orders_id' => $order_id], 'products_name');
 
@@ -85,11 +94,11 @@
       return $this->enabled;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_CONTENT_CHECKOUT_SUCCESS_PRODUCT_NOTIFICATIONS_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -118,8 +127,8 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_CONTENT_CHECKOUT_SUCCESS_PRODUCT_NOTIFICATIONS_STATUS','MODULE_CONTENT_CHECKOUT_SUCCESS_PRODUCT_NOTIFICATIONS_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_CONTENT_CHECKOUT_SUCCESS_PRODUCT_NOTIFICATIONS_STATUS','MODULE_CONTENT_CHECKOUT_SUCCESS_PRODUCT_NOTIFICATIONS_SORT_ORDER'];
     }
   }
 ?>

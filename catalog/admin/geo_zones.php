@@ -16,7 +16,7 @@
     $_GET['spage'] = 1;
   }
 
-  $saction = (isset($_GET['saction']) ? $_GET['saction'] : '');
+  $saction = ($_GET['saction'] ?? '');
 
   if (tep_not_null($saction)) {
     switch ($saction) {
@@ -67,7 +67,7 @@
     $_GET['zpage'] = 1;
   }
 
-  $action = (isset($_GET['action']) ? $_GET['action'] : '');
+  $action = ($_GET['action'] ?? '');
 
   if (tep_not_null($action)) {
     switch ($action) {
@@ -172,7 +172,7 @@ function update_zone(theForm) {
     $Qzones->execute();
 
     while ($Qzones->fetch()) {
-      if ((!isset($_GET['sID']) || (isset($_GET['sID']) && ((int)$_GET['sID'] === $Qzones->valueInt('association_id')))) && !isset($sInfo) && (substr($action, 0, 3) != 'new')) {
+      if ((!isset($_GET['sID']) || (isset($_GET['sID']) && ((int)$_GET['sID'] === $Qzones->valueInt('association_id')))) && !isset($sInfo) && (!str_starts_with($action, 'new'))) {
         $sInfo = new objectInfo($Qzones->toArray());
 
         if (is_null($sInfo->countries_name)) {
@@ -223,7 +223,7 @@ function update_zone(theForm) {
     $Qzones->execute();
 
     while ($Qzones->fetch()) {
-      if ((!isset($_GET['zID']) || (isset($_GET['zID']) && ((int)$_GET['zID'] === $Qzones->valueInt('geo_zone_id')))) && !isset($zInfo) && (substr($action, 0, 3) != 'new')) {
+      if ((!isset($_GET['zID']) || (isset($_GET['zID']) && ((int)$_GET['zID'] === $Qzones->valueInt('geo_zone_id')))) && !isset($zInfo) && (!str_starts_with($action, 'new'))) {
         $Qtotal = $OSCOM_Db->prepare('select count(*) as num_zones from :table_zones_to_geo_zones where geo_zone_id = :geo_zone_id');
         $Qtotal->bindInt(':geo_zone_id', $Qzones->valueInt('geo_zone_id'));
         $Qtotal->execute();
@@ -260,84 +260,84 @@ function update_zone(theForm) {
 ?>
             </td>
 <?php
-  $heading = array();
-  $contents = array();
+  $heading = [];
+  $contents = [];
 
   if ($action == 'list') {
     switch ($saction) {
       case 'new':
-        $heading[] = array('text' => '<strong>' . OSCOM::getDef('text_info_heading_new_sub_zone') . '</strong>');
+        $heading[] = ['text' => '<strong>' . OSCOM::getDef('text_info_heading_new_sub_zone') . '</strong>'];
 
-        $contents = array('form' => HTML::form('zones', OSCOM::link(FILENAME_GEO_ZONES, 'zpage=' . $_GET['zpage'] . '&zID=' . $_GET['zID'] . '&action=list&spage=' . $_GET['spage'] . '&' . (isset($_GET['sID']) ? 'sID=' . $_GET['sID'] . '&' : '') . 'saction=insert_sub')));
-        $contents[] = array('text' => OSCOM::getDef('text_info_new_sub_zone_intro'));
-        $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_country') . '<br />' . HTML::selectField('zone_country_id', tep_get_countries(OSCOM::getDef('text_all_countries')), '', 'onchange="update_zone(this.form);"'));
-        $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_country_zone') . '<br />' . HTML::selectField('zone_id', tep_prepare_country_zones_pull_down()));
-        $contents[] = array('align' => 'center', 'text' => '<br />' . HTML::button(OSCOM::getDef('image_save'), 'fa fa-save') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_GEO_ZONES, 'zpage=' . $_GET['zpage'] . '&zID=' . $_GET['zID'] . '&action=list&spage=' . $_GET['spage'] . '&' . (isset($_GET['sID']) ? 'sID=' . $_GET['sID'] : ''))));
+        $contents = ['form' => HTML::form('zones', OSCOM::link(FILENAME_GEO_ZONES, 'zpage=' . $_GET['zpage'] . '&zID=' . $_GET['zID'] . '&action=list&spage=' . $_GET['spage'] . '&' . (isset($_GET['sID']) ? 'sID=' . $_GET['sID'] . '&' : '') . 'saction=insert_sub'))];
+        $contents[] = ['text' => OSCOM::getDef('text_info_new_sub_zone_intro')];
+        $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_country') . '<br />' . HTML::selectField('zone_country_id', tep_get_countries(OSCOM::getDef('text_all_countries')), '', 'onchange="update_zone(this.form);"')];
+        $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_country_zone') . '<br />' . HTML::selectField('zone_id', tep_prepare_country_zones_pull_down())];
+        $contents[] = ['align' => 'center', 'text' => '<br />' . HTML::button(OSCOM::getDef('image_save'), 'fa fa-save') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_GEO_ZONES, 'zpage=' . $_GET['zpage'] . '&zID=' . $_GET['zID'] . '&action=list&spage=' . $_GET['spage'] . '&' . (isset($_GET['sID']) ? 'sID=' . $_GET['sID'] : '')))];
         break;
       case 'edit':
-        $heading[] = array('text' => '<strong>' . OSCOM::getDef('text_info_heading_edit_sub_zone') . '</strong>');
+        $heading[] = ['text' => '<strong>' . OSCOM::getDef('text_info_heading_edit_sub_zone') . '</strong>'];
 
-        $contents = array('form' => HTML::form('zones', OSCOM::link(FILENAME_GEO_ZONES, 'zpage=' . $_GET['zpage'] . '&zID=' . $_GET['zID'] . '&action=list&spage=' . $_GET['spage'] . '&sID=' . $sInfo->association_id . '&saction=save_sub')));
-        $contents[] = array('text' => OSCOM::getDef('text_info_edit_sub_zone_intro'));
-        $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_country') . '<br />' . HTML::selectField('zone_country_id', tep_get_countries(OSCOM::getDef('text_all_countries')), $sInfo->zone_country_id, 'onchange="update_zone(this.form);"'));
-        $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_country_zone') . '<br />' . HTML::selectField('zone_id', tep_prepare_country_zones_pull_down($sInfo->zone_country_id), $sInfo->zone_id));
-        $contents[] = array('align' => 'center', 'text' => '<br />' . HTML::button(OSCOM::getDef('image_save'), 'fa fa-save') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_GEO_ZONES, 'zpage=' . $_GET['zpage'] . '&zID=' . $_GET['zID'] . '&action=list&spage=' . $_GET['spage'] . '&sID=' . $sInfo->association_id)));
+        $contents = ['form' => HTML::form('zones', OSCOM::link(FILENAME_GEO_ZONES, 'zpage=' . $_GET['zpage'] . '&zID=' . $_GET['zID'] . '&action=list&spage=' . $_GET['spage'] . '&sID=' . $sInfo->association_id . '&saction=save_sub'))];
+        $contents[] = ['text' => OSCOM::getDef('text_info_edit_sub_zone_intro')];
+        $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_country') . '<br />' . HTML::selectField('zone_country_id', tep_get_countries(OSCOM::getDef('text_all_countries')), $sInfo->zone_country_id, 'onchange="update_zone(this.form);"')];
+        $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_country_zone') . '<br />' . HTML::selectField('zone_id', tep_prepare_country_zones_pull_down($sInfo->zone_country_id), $sInfo->zone_id)];
+        $contents[] = ['align' => 'center', 'text' => '<br />' . HTML::button(OSCOM::getDef('image_save'), 'fa fa-save') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_GEO_ZONES, 'zpage=' . $_GET['zpage'] . '&zID=' . $_GET['zID'] . '&action=list&spage=' . $_GET['spage'] . '&sID=' . $sInfo->association_id))];
         break;
       case 'delete':
-        $heading[] = array('text' => '<strong>' . OSCOM::getDef('text_info_heading_delete_sub_zone') . '</strong>');
+        $heading[] = ['text' => '<strong>' . OSCOM::getDef('text_info_heading_delete_sub_zone') . '</strong>'];
 
-        $contents = array('form' => HTML::form('zones', OSCOM::link(FILENAME_GEO_ZONES, 'zpage=' . $_GET['zpage'] . '&zID=' . $_GET['zID'] . '&action=list&spage=' . $_GET['spage'] . '&sID=' . $sInfo->association_id . '&saction=deleteconfirm_sub')));
-        $contents[] = array('text' => OSCOM::getDef('text_info_delete_sub_zone_intro'));
-        $contents[] = array('text' => '<br /><strong>' . $sInfo->countries_name . '</strong>');
-        $contents[] = array('align' => 'center', 'text' => '<br />' . HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_GEO_ZONES, 'zpage=' . $_GET['zpage'] . '&zID=' . $_GET['zID'] . '&action=list&spage=' . $_GET['spage'] . '&sID=' . $sInfo->association_id)));
+        $contents = ['form' => HTML::form('zones', OSCOM::link(FILENAME_GEO_ZONES, 'zpage=' . $_GET['zpage'] . '&zID=' . $_GET['zID'] . '&action=list&spage=' . $_GET['spage'] . '&sID=' . $sInfo->association_id . '&saction=deleteconfirm_sub'))];
+        $contents[] = ['text' => OSCOM::getDef('text_info_delete_sub_zone_intro')];
+        $contents[] = ['text' => '<br /><strong>' . $sInfo->countries_name . '</strong>'];
+        $contents[] = ['align' => 'center', 'text' => '<br />' . HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_GEO_ZONES, 'zpage=' . $_GET['zpage'] . '&zID=' . $_GET['zID'] . '&action=list&spage=' . $_GET['spage'] . '&sID=' . $sInfo->association_id))];
         break;
       default:
         if (isset($sInfo) && is_object($sInfo)) {
-          $heading[] = array('text' => '<strong>' . $sInfo->countries_name . '</strong>');
+          $heading[] = ['text' => '<strong>' . $sInfo->countries_name . '</strong>'];
 
-          $contents[] = array('align' => 'center', 'text' => HTML::button(OSCOM::getDef('image_edit'), 'fa fa-edit', OSCOM::link(FILENAME_GEO_ZONES, 'zpage=' . $_GET['zpage'] . '&zID=' . $_GET['zID'] . '&action=list&spage=' . $_GET['spage'] . '&sID=' . $sInfo->association_id . '&saction=edit')) . HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash', OSCOM::link(FILENAME_GEO_ZONES, 'zpage=' . $_GET['zpage'] . '&zID=' . $_GET['zID'] . '&action=list&spage=' . $_GET['spage'] . '&sID=' . $sInfo->association_id . '&saction=delete')));
-          $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_date_added') . ' ' . DateTime::toShort($sInfo->date_added));
-          if (tep_not_null($sInfo->last_modified)) $contents[] = array('text' => OSCOM::getDef('text_info_last_modified') . ' ' . DateTime::toShort($sInfo->last_modified));
+          $contents[] = ['align' => 'center', 'text' => HTML::button(OSCOM::getDef('image_edit'), 'fa fa-edit', OSCOM::link(FILENAME_GEO_ZONES, 'zpage=' . $_GET['zpage'] . '&zID=' . $_GET['zID'] . '&action=list&spage=' . $_GET['spage'] . '&sID=' . $sInfo->association_id . '&saction=edit')) . HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash', OSCOM::link(FILENAME_GEO_ZONES, 'zpage=' . $_GET['zpage'] . '&zID=' . $_GET['zID'] . '&action=list&spage=' . $_GET['spage'] . '&sID=' . $sInfo->association_id . '&saction=delete'))];
+          $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_date_added') . ' ' . DateTime::toShort($sInfo->date_added)];
+          if (tep_not_null($sInfo->last_modified)) $contents[] = ['text' => OSCOM::getDef('text_info_last_modified') . ' ' . DateTime::toShort($sInfo->last_modified)];
         }
         break;
     }
   } else {
     switch ($action) {
       case 'new_zone':
-        $heading[] = array('text' => '<strong>' . OSCOM::getDef('text_info_heading_new_zone') . '</strong>');
+        $heading[] = ['text' => '<strong>' . OSCOM::getDef('text_info_heading_new_zone') . '</strong>'];
 
-        $contents = array('form' => HTML::form('zones', OSCOM::link(FILENAME_GEO_ZONES, 'zpage=' . $_GET['zpage'] . '&zID=' . $_GET['zID'] . '&action=insert_zone')));
-        $contents[] = array('text' => OSCOM::getDef('text_info_new_zone_intro'));
-        $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_zone_name') . '<br />' . HTML::inputField('geo_zone_name'));
-        $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_zone_description') . '<br />' . HTML::inputField('geo_zone_description'));
-        $contents[] = array('align' => 'center', 'text' => '<br />' . HTML::button(OSCOM::getDef('image_save'), 'fa fa-save') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_GEO_ZONES, 'zpage=' . $_GET['zpage'] . '&zID=' . $_GET['zID'])));
+        $contents = ['form' => HTML::form('zones', OSCOM::link(FILENAME_GEO_ZONES, 'zpage=' . $_GET['zpage'] . '&zID=' . $_GET['zID'] . '&action=insert_zone'))];
+        $contents[] = ['text' => OSCOM::getDef('text_info_new_zone_intro')];
+        $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_zone_name') . '<br />' . HTML::inputField('geo_zone_name')];
+        $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_zone_description') . '<br />' . HTML::inputField('geo_zone_description')];
+        $contents[] = ['align' => 'center', 'text' => '<br />' . HTML::button(OSCOM::getDef('image_save'), 'fa fa-save') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_GEO_ZONES, 'zpage=' . $_GET['zpage'] . '&zID=' . $_GET['zID']))];
         break;
       case 'edit_zone':
-        $heading[] = array('text' => '<strong>' . OSCOM::getDef('text_info_heading_edit_zone') . '</strong>');
+        $heading[] = ['text' => '<strong>' . OSCOM::getDef('text_info_heading_edit_zone') . '</strong>'];
 
-        $contents = array('form' => HTML::form('zones', OSCOM::link(FILENAME_GEO_ZONES, 'zpage=' . $_GET['zpage'] . '&zID=' . $zInfo->geo_zone_id . '&action=save_zone')));
-        $contents[] = array('text' => OSCOM::getDef('text_info_edit_zone_intro'));
-        $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_zone_name') . '<br />' . HTML::inputField('geo_zone_name', $zInfo->geo_zone_name));
-        $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_zone_description') . '<br />' . HTML::inputField('geo_zone_description', $zInfo->geo_zone_description));
-        $contents[] = array('align' => 'center', 'text' => '<br />' . HTML::button(OSCOM::getDef('image_save'), 'fa fa-save') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_GEO_ZONES, 'zpage=' . $_GET['zpage'] . '&zID=' . $zInfo->geo_zone_id)));
+        $contents = ['form' => HTML::form('zones', OSCOM::link(FILENAME_GEO_ZONES, 'zpage=' . $_GET['zpage'] . '&zID=' . $zInfo->geo_zone_id . '&action=save_zone'))];
+        $contents[] = ['text' => OSCOM::getDef('text_info_edit_zone_intro')];
+        $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_zone_name') . '<br />' . HTML::inputField('geo_zone_name', $zInfo->geo_zone_name)];
+        $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_zone_description') . '<br />' . HTML::inputField('geo_zone_description', $zInfo->geo_zone_description)];
+        $contents[] = ['align' => 'center', 'text' => '<br />' . HTML::button(OSCOM::getDef('image_save'), 'fa fa-save') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_GEO_ZONES, 'zpage=' . $_GET['zpage'] . '&zID=' . $zInfo->geo_zone_id))];
         break;
       case 'delete_zone':
-        $heading[] = array('text' => '<strong>' . OSCOM::getDef('text_info_heading_delete_zone') . '</strong>');
+        $heading[] = ['text' => '<strong>' . OSCOM::getDef('text_info_heading_delete_zone') . '</strong>'];
 
-        $contents = array('form' => HTML::form('zones', OSCOM::link(FILENAME_GEO_ZONES, 'zpage=' . $_GET['zpage'] . '&zID=' . $zInfo->geo_zone_id . '&action=deleteconfirm_zone')));
-        $contents[] = array('text' => OSCOM::getDef('text_info_delete_zone_intro'));
-        $contents[] = array('text' => '<br /><strong>' . $zInfo->geo_zone_name . '</strong>');
-        $contents[] = array('align' => 'center', 'text' => '<br />' . HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_GEO_ZONES, 'zpage=' . $_GET['zpage'] . '&zID=' . $zInfo->geo_zone_id)));
+        $contents = ['form' => HTML::form('zones', OSCOM::link(FILENAME_GEO_ZONES, 'zpage=' . $_GET['zpage'] . '&zID=' . $zInfo->geo_zone_id . '&action=deleteconfirm_zone'))];
+        $contents[] = ['text' => OSCOM::getDef('text_info_delete_zone_intro')];
+        $contents[] = ['text' => '<br /><strong>' . $zInfo->geo_zone_name . '</strong>'];
+        $contents[] = ['align' => 'center', 'text' => '<br />' . HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_GEO_ZONES, 'zpage=' . $_GET['zpage'] . '&zID=' . $zInfo->geo_zone_id))];
         break;
       default:
         if (isset($zInfo) && is_object($zInfo)) {
-          $heading[] = array('text' => '<strong>' . $zInfo->geo_zone_name . '</strong>');
+          $heading[] = ['text' => '<strong>' . $zInfo->geo_zone_name . '</strong>'];
 
-          $contents[] = array('align' => 'center', 'text' => HTML::button(OSCOM::getDef('image_edit'), 'fa fa-edit', OSCOM::link(FILENAME_GEO_ZONES, 'zpage=' . $_GET['zpage'] . '&zID=' . $zInfo->geo_zone_id . '&action=edit_zone')) . HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash', OSCOM::link(FILENAME_GEO_ZONES, 'zpage=' . $_GET['zpage'] . '&zID=' . $zInfo->geo_zone_id . '&action=delete_zone')) . HTML::button(OSCOM::getDef('image_details'), 'fa fa-info', OSCOM::link(FILENAME_GEO_ZONES, 'zpage=' . $_GET['zpage'] . '&zID=' . $zInfo->geo_zone_id . '&action=list')));
-          $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_number_zones') . ' ' . $zInfo->num_zones);
-          $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_date_added') . ' ' . DateTime::toShort($zInfo->date_added));
-          if (tep_not_null($zInfo->last_modified)) $contents[] = array('text' => OSCOM::getDef('text_info_last_modified') . ' ' . DateTime::toShort($zInfo->last_modified));
-          $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_zone_description') . '<br />' . $zInfo->geo_zone_description);
+          $contents[] = ['align' => 'center', 'text' => HTML::button(OSCOM::getDef('image_edit'), 'fa fa-edit', OSCOM::link(FILENAME_GEO_ZONES, 'zpage=' . $_GET['zpage'] . '&zID=' . $zInfo->geo_zone_id . '&action=edit_zone')) . HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash', OSCOM::link(FILENAME_GEO_ZONES, 'zpage=' . $_GET['zpage'] . '&zID=' . $zInfo->geo_zone_id . '&action=delete_zone')) . HTML::button(OSCOM::getDef('image_details'), 'fa fa-info', OSCOM::link(FILENAME_GEO_ZONES, 'zpage=' . $_GET['zpage'] . '&zID=' . $zInfo->geo_zone_id . '&action=list'))];
+          $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_number_zones') . ' ' . $zInfo->num_zones];
+          $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_date_added') . ' ' . DateTime::toShort($zInfo->date_added)];
+          if (tep_not_null($zInfo->last_modified)) $contents[] = ['text' => OSCOM::getDef('text_info_last_modified') . ' ' . DateTime::toShort($zInfo->last_modified)];
+          $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_zone_description') . '<br />' . $zInfo->geo_zone_description];
         }
         break;
     }

@@ -11,12 +11,15 @@
   use OSC\OM\Registry;
 
   class sb_twitter_button {
-    var $code = 'sb_twitter_button';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $icon = 'twitter.png';
-    var $enabled = false;
+    public $code = 'sb_twitter_button';
+    public $title;
+    public $description;
+    public $sort_order;
+    public $icon = 'twitter.png';
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
     function __construct() {
       $this->title = OSCOM::getDef('module_social_bookmarks_twitter_button_title');
@@ -29,8 +32,8 @@
       }
     }
 
-    function getOutput() {
-      $params = array('url=' . urlencode(OSCOM::link('product_info.php', 'products_id=' . $_GET['products_id'], false)));
+    function getOutput(): string {
+      $params = ['url=' . urlencode(OSCOM::link('product_info.php', 'products_id=' . $_GET['products_id'], false))];
 
       if ( strlen(MODULE_SOCIAL_BOOKMARKS_TWITTER_BUTTON_ACCOUNT) > 0 ) {
         $params[] = 'via=' . urlencode(MODULE_SOCIAL_BOOKMARKS_TWITTER_BUTTON_ACCOUNT);
@@ -63,11 +66,11 @@
       return $this->public_title;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_SOCIAL_BOOKMARKS_TWITTER_BUTTON_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -137,8 +140,8 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_SOCIAL_BOOKMARKS_TWITTER_BUTTON_STATUS', 'MODULE_SOCIAL_BOOKMARKS_TWITTER_BUTTON_ACCOUNT', 'MODULE_SOCIAL_BOOKMARKS_TWITTER_BUTTON_RELATED_ACCOUNT', 'MODULE_SOCIAL_BOOKMARKS_TWITTER_BUTTON_RELATED_ACCOUNT_DESC', 'MODULE_SOCIAL_BOOKMARKS_TWITTER_BUTTON_COUNT_POSITION', 'MODULE_SOCIAL_BOOKMARKS_TWITTER_BUTTON_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_SOCIAL_BOOKMARKS_TWITTER_BUTTON_STATUS', 'MODULE_SOCIAL_BOOKMARKS_TWITTER_BUTTON_ACCOUNT', 'MODULE_SOCIAL_BOOKMARKS_TWITTER_BUTTON_RELATED_ACCOUNT', 'MODULE_SOCIAL_BOOKMARKS_TWITTER_BUTTON_RELATED_ACCOUNT_DESC', 'MODULE_SOCIAL_BOOKMARKS_TWITTER_BUTTON_COUNT_POSITION', 'MODULE_SOCIAL_BOOKMARKS_TWITTER_BUTTON_SORT_ORDER'];
     }
   }
 ?>

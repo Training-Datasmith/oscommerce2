@@ -40,10 +40,8 @@ if (!is_callable('RandomCompat_strlen')) {
          * @param string $binary_string
          *
          * @throws TypeError
-         *
-         * @return int
          */
-        function RandomCompat_strlen($binary_string)
+        function RandomCompat_strlen($binary_string): int
         {
             if (!is_string($binary_string)) {
                 throw new TypeError(
@@ -63,10 +61,8 @@ if (!is_callable('RandomCompat_strlen')) {
          * @param string $binary_string
          *
          * @throws TypeError
-         *
-         * @return int
          */
-        function RandomCompat_strlen($binary_string)
+        function RandomCompat_strlen($binary_string): int
         {
             if (!is_string($binary_string)) {
                 throw new TypeError(
@@ -99,7 +95,7 @@ if (!is_callable('RandomCompat_substr')) {
          *
          * @return string
          */
-        function RandomCompat_substr($binary_string, $start, $length = null)
+        function RandomCompat_substr($binary_string, $start, $length = null): false|string
         {
             if (!is_string($binary_string)) {
                 throw new TypeError(
@@ -148,10 +144,8 @@ if (!is_callable('RandomCompat_substr')) {
          * @param int $length (optional)
          *
          * @throws TypeError
-         *
-         * @return string
          */
-        function RandomCompat_substr($binary_string, $start, $length = null)
+        function RandomCompat_substr($binary_string, $start, $length = null): string
         {
             if (!is_string($binary_string)) {
                 throw new TypeError(

@@ -21,12 +21,12 @@ class Cookies
         $this->path = OSCOM::getConfig('http_cookie_path');
     }
 
-    public function set($name, $value = '', $expire = 0, $path = null, $domain = null, $secure = true, $httponly = true)
+    public function set($name, $value = '', $expire = 0, $path = null, $domain = null, $secure = true, $httponly = true): bool
     {
-        return setcookie($name, $value, $expire, isset($path) ? $path : $this->path, isset($domain) ? $domain : $this->domain, $secure, $httponly);
+        return setcookie($name, (string) $value, ['expires' => $expire, 'path' => $path ?? $this->path, 'domain' => $domain ?? $this->domain, 'secure' => $secure, 'httponly' => $httponly]);
     }
 
-    public function del($name, $path = null, $domain = null, $secure = true, $httponly = true)
+    public function del($name, $path = null, $domain = null, $secure = true, $httponly = true): bool
     {
         if ($this->set($name, '', time() - 3600, $path, $domain, $secure, $httponly)) {
             if (isset($_COOKIE[$name])) {
@@ -49,12 +49,12 @@ class Cookies
         return $this->path;
     }
 
-    public function setDomain($domain)
+    public function setDomain($domain): void
     {
         $this->domain = $domain;
     }
 
-    public function setPath($path)
+    public function setPath($path): void
     {
         $this->path = $path;
     }

@@ -14,9 +14,9 @@ class HTTP
 {
     protected static $request_type;
 
-    public static function setRequestType()
+    public static function setRequestType(): void
     {
-        static::$request_type = ((isset($_SERVER['HTTPS']) && (strtolower($_SERVER['HTTPS']) == 'on')) || (isset($_SERVER['SERVER_PORT']) && ($_SERVER['SERVER_PORT'] == 443))) ? 'SSL' : 'NONSSL';
+        static::$request_type = ((isset($_SERVER['HTTPS']) && (strtolower((string) $_SERVER['HTTPS']) == 'on')) || (isset($_SERVER['SERVER_PORT']) && ($_SERVER['SERVER_PORT'] == 443))) ? 'SSL' : 'NONSSL';
     }
 
     public static function getRequestType()
@@ -24,10 +24,10 @@ class HTTP
         return static::$request_type;
     }
 
-    public static function redirect($url, $http_response_code = null)
+    public static function redirect($url, $http_response_code = null): void
     {
-        if ((strstr($url, "\n") === false) && (strstr($url, "\r") === false)) {
-            if ( strpos($url, '&amp;') !== false ) {
+        if ((!str_contains((string) $url, "\n")) && (!str_contains((string) $url, "\r"))) {
+            if ( str_contains((string) $url, '&amp;') ) {
                 $url = str_replace('&amp;', '&', $url);
             }
 
@@ -43,7 +43,7 @@ class HTTP
 
     public static function getResponse(array $parameters)
     {
-        $parameters['server'] = parse_url($parameters['url']);
+        $parameters['server'] = parse_url((string) $parameters['url']);
 
         if (!isset($parameters['server']['port'])) {
             $parameters['server']['port'] = ($parameters['server']['scheme'] == 'https') ? 443 : 80;
@@ -163,7 +163,7 @@ class HTTP
                 $matches = [];
                 preg_match('/(Location:|URI:)(.*?)\n/i', $headers, $matches);
 
-                $redir_url = trim(array_pop($matches));
+                $redir_url = trim((string) array_pop($matches));
 
                 $parameters['redir_counter']++;
 
@@ -180,30 +180,30 @@ class HTTP
         return $body;
     }
 
-    public static function getIpAddress($to_int = false)
+    public static function getIpAddress($to_int = false): string
     {
         $ips = [];
 
         if (isset($_SERVER['HTTP_X_FORWARDED_FOR']) && !empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            foreach (array_reverse(explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])) as $x_ip) {
+            foreach (array_reverse(explode(',', (string) $_SERVER['HTTP_X_FORWARDED_FOR'])) as $x_ip) {
                 $ips[] = trim($x_ip);
             }
         }
 
         if (isset($_SERVER['HTTP_CLIENT_IP'])) {
-            $ips[] = trim($_SERVER['HTTP_CLIENT_IP']);
+            $ips[] = trim((string) $_SERVER['HTTP_CLIENT_IP']);
         }
 
         if (isset($_SERVER['HTTP_X_CLUSTER_CLIENT_IP'])) {
-            $ips[] = trim($_SERVER['HTTP_X_CLUSTER_CLIENT_IP']);
+            $ips[] = trim((string) $_SERVER['HTTP_X_CLUSTER_CLIENT_IP']);
         }
 
         if (isset($_SERVER['HTTP_PROXY_USER'])) {
-            $ips[] = trim($_SERVER['HTTP_PROXY_USER']);
+            $ips[] = trim((string) $_SERVER['HTTP_PROXY_USER']);
         }
 
         if (isset($_SERVER['REMOTE_ADDR'])) {
-            $ips[] = trim($_SERVER['REMOTE_ADDR']);
+            $ips[] = trim((string) $_SERVER['REMOTE_ADDR']);
         }
 
         $ip = '0.0.0.0';
@@ -217,7 +217,7 @@ class HTTP
         }
 
         if ($to_int === true) {
-            $ip = sprintf('%u', ip2long($ip));
+            return sprintf('%u', ip2long($ip));
         }
 
         return $ip;

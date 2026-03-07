@@ -11,7 +11,7 @@
   use OSC\OM\Registry;
 
   class flat {
-    var $code, $title, $description, $icon, $enabled;
+    public $code, $title, $description, $icon, $enabled;
 
 // class constructor
     function __construct() {
@@ -50,11 +50,11 @@
     function quote($method = '') {
       global $order;
 
-      $this->quotes = array('id' => $this->code,
+      $this->quotes = ['id' => $this->code,
                             'module' => OSCOM::getDef('module_shipping_flat_text_title'),
-                            'methods' => array(array('id' => $this->code,
+                            'methods' => [['id' => $this->code,
                                                      'title' => OSCOM::getDef('module_shipping_flat_text_way'),
-                                                     'cost' => MODULE_SHIPPING_FLAT_COST)));
+                                                     'cost' => MODULE_SHIPPING_FLAT_COST]]];
 
       if ($this->tax_class > 0) {
         $this->quotes['tax'] = tep_get_tax_rate($this->tax_class, $order->delivery['country']['id'], $order->delivery['zone_id']);
@@ -65,11 +65,11 @@
       return $this->quotes;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_SHIPPING_FLAT_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -132,8 +132,8 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_SHIPPING_FLAT_STATUS', 'MODULE_SHIPPING_FLAT_COST', 'MODULE_SHIPPING_FLAT_TAX_CLASS', 'MODULE_SHIPPING_FLAT_ZONE', 'MODULE_SHIPPING_FLAT_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_SHIPPING_FLAT_STATUS', 'MODULE_SHIPPING_FLAT_COST', 'MODULE_SHIPPING_FLAT_TAX_CLASS', 'MODULE_SHIPPING_FLAT_ZONE', 'MODULE_SHIPPING_FLAT_SORT_ORDER'];
     }
   }
 ?>

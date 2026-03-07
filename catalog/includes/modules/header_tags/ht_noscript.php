@@ -11,12 +11,15 @@
   use OSC\OM\Registry;
 
   class ht_noscript {
-    var $code = 'ht_noscript';
-    var $group = 'header_tags';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    public $code = 'ht_noscript';
+    public $group = 'header_tags';
+    public $title;
+    public $description;
+    public $sort_order;
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
     function __construct() {
       $this->title = OSCOM::getDef('module_header_tags_noscript_title');
@@ -28,7 +31,7 @@
       }
     }
 
-    function execute() {
+    function execute(): void {
       global $oscTemplate;
 
       $oscTemplate->addBlock('<noscript><div class="no-script"><div class="no-script-inner">' . HTML::output(OSCOM::getDef('module_header_tags_noscript_text')) . '</div></div></noscript>', $this->group);
@@ -39,11 +42,11 @@
       return $this->enabled;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_HEADER_TAGS_NOSCRIPT_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -72,8 +75,8 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_HEADER_TAGS_NOSCRIPT_STATUS', 'MODULE_HEADER_TAGS_NOSCRIPT_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_HEADER_TAGS_NOSCRIPT_STATUS', 'MODULE_HEADER_TAGS_NOSCRIPT_SORT_ORDER'];
     }
   }
 ?>

@@ -18,7 +18,7 @@
 
 ////
 // Auto expire products on special
-  function tep_expire_specials() {
+  function tep_expire_specials(): void {
     $OSCOM_Db = Registry::get('Db');
 
     $Qspecials = $OSCOM_Db->query('select specials_id from :table_specials where status = 1 and now() >= expires_date and expires_date > 0');

@@ -248,7 +248,7 @@
       <label for="inputComments" class="control-label col-sm-4"><?php echo OSCOM::getDef('table_heading_comments'); ?></label>
       <div class="col-sm-8">
         <?php
-        echo HTML::textareaField('comments', 60, 5, (isset($_SESSION['comments']) ? $_SESSION['comments'] : ''), 'id="inputComments" placeholder="' . OSCOM::getDef('table_heading_comments') . '"');
+        echo HTML::textareaField('comments', 60, 5, ($_SESSION['comments'] ?? ''), 'id="inputComments" placeholder="' . OSCOM::getDef('table_heading_comments') . '"');
         ?>
       </div>
     </div>

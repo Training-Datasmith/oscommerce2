@@ -9,7 +9,7 @@
   use OSC\OM\DateTime;
   use OSC\OM\OSCOM;
 
-  if (!strstr($PHP_SELF, 'account_history_info.php')) {
+  if (!strstr((string) $PHP_SELF, 'account_history_info.php')) {
 // Get last order id for checkout_success
     $Qorders = $OSCOM_Db->get('orders', 'orders_id', ['customers_id' => $_SESSION['customer_id']], 'orders_id desc', 1);
     $last_order = $Qorders->valueInt('orders_id');
@@ -35,7 +35,7 @@
 <?php
     do {
 // MySQL 3.22 does not have INTERVAL
-      list($dt_year, $dt_month, $dt_day) = explode('-', $Qdownloads->value('date_purchased_day'));
+      [$dt_year, $dt_month, $dt_day] = explode('-', (string) $Qdownloads->value('date_purchased_day'));
       $download_timestamp = mktime(23, 59, 59, $dt_month, $dt_day + $Qdownloads->valueInt('download_maxdays'), $dt_year);
       $download_expiry = date('Y-m-d H:i:s', $download_timestamp);
 
@@ -61,7 +61,7 @@
     </table>
 
 <?php
-    if (!strstr($PHP_SELF, 'account_history_info.php')) {
+    if (!strstr((string) $PHP_SELF, 'account_history_info.php')) {
 ?>
 
     <p><?php printf(FOOTER_DOWNLOAD, '<a href="' . OSCOM::link('account.php') . '">' . OSCOM::getDef('header_title_my_account') . '</a>'); ?></p>

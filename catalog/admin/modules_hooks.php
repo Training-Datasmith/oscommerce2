@@ -52,7 +52,7 @@
   }
 
   foreach (Apps::getModules('Hooks') as $k => $v) {
-    list($vendor, $app, $code) = explode('\\', $k, 3);
+    [$vendor, $app, $code] = explode('\\', (string) $k, 3);
 
     $h = new \ReflectionClass($v);
 
@@ -100,7 +100,7 @@
     foreach ($data as $v) {
       $counter++;
 
-      list($site, $group) = explode('/', $code, 2);
+      [$site, $group] = explode('/', $code, 2);
 ?>
 
   <tr class="dataTableRow">

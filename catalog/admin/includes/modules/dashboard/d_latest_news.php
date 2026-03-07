@@ -14,13 +14,16 @@
   use OSC\OM\Registry;
 
   class d_latest_news {
-    var $code = 'd_latest_news';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    public $code = 'd_latest_news';
+    public $title;
+    public $description;
+    public $sort_order;
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
-    function d_latest_news() {
+    function __construct() {
       $this->title = OSCOM::getDef('module_admin_dashboard_latest_news_title');
       $this->description = OSCOM::getDef('module_admin_dashboard_latest_news_description');
 
@@ -30,7 +33,7 @@
       }
     }
 
-    function getOutput() {
+    function getOutput(): string {
       $entries = [];
 
       $newsCache = new Cache('oscommerce_website-news-latest5');
@@ -41,7 +44,7 @@
         $response = HTTP::getResponse(['url' => 'https://www.oscommerce.com/index.php?RPC&GetLatestNews']);
 
         if (!empty($response)) {
-          $response = json_decode($response, true);
+          $response = json_decode((string) $response, true);
 
           if (is_array($response) && (count($response) === 5)) {
             $entries = $response;
@@ -73,7 +76,7 @@
                         </tr>';
       }
 
-      $output .= '    <tr>
+      return $output . ('    <tr>
                         <td class="text-right" colspan="2">
                           <a href="https://www.oscommerce.com/Us&News" target="_blank" title="' . HTML::outputProtected(OSCOM::getDef('module_admin_dashboard_latest_news_icon_news')) . '"><span class="fa fa-fw fa-home"></span></a>
                           <a href="https://www.oscommerce.com/newsletter/subscribe" target="_blank" title="' . HTML::outputProtected(OSCOM::getDef('module_admin_dashboard_latest_news_icon_newsletter')) . '"><span class="fa fa-fw fa-newspaper-o"></span></a>
@@ -83,20 +86,18 @@
                         </td>
                       </tr>
                     </tbody>
-                  </table>';
-
-      return $output;
+                  </table>');
     }
 
     function isEnabled() {
       return $this->enabled;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_ADMIN_DASHBOARD_LATEST_NEWS_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -125,8 +126,8 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_ADMIN_DASHBOARD_LATEST_NEWS_STATUS', 'MODULE_ADMIN_DASHBOARD_LATEST_NEWS_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_ADMIN_DASHBOARD_LATEST_NEWS_STATUS', 'MODULE_ADMIN_DASHBOARD_LATEST_NEWS_SORT_ORDER'];
     }
   }
 ?>

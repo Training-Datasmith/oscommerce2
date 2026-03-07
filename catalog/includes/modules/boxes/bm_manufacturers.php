@@ -11,12 +11,18 @@
   use OSC\OM\Registry;
 
   class bm_manufacturers {
-    var $code = 'bm_manufacturers';
-    var $group = 'boxes';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    public $code = 'bm_manufacturers';
+    /**
+     * @var 'boxes_column_left'|'boxes_column_right'
+     */
+    public $group = 'boxes';
+    public $title;
+    public $description;
+    public $sort_order;
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
     function __construct() {
       $this->title = OSCOM::getDef('module_boxes_manufacturers_title');
@@ -30,7 +36,7 @@
       }
     }
 
-    function getData() {
+    function getData(): string {
       global $oscTemplate;
 
       $OSCOM_Db = Registry::get('Db');
@@ -49,7 +55,7 @@
           $manufacturers_list = '<ul class="nav nav-list">';
 
           foreach ($manufacturers as $m) {
-            $manufacturers_name = ((strlen($m['manufacturers_name']) > MAX_DISPLAY_MANUFACTURER_NAME_LEN) ? substr($m['manufacturers_name'], 0, MAX_DISPLAY_MANUFACTURER_NAME_LEN) . '..' : $m['manufacturers_name']);
+            $manufacturers_name = ((strlen((string) $m['manufacturers_name']) > MAX_DISPLAY_MANUFACTURER_NAME_LEN) ? substr((string) $m['manufacturers_name'], 0, MAX_DISPLAY_MANUFACTURER_NAME_LEN) . '..' : $m['manufacturers_name']);
 
             if (isset($_GET['manufacturers_id']) && ($_GET['manufacturers_id'] == $m['manufacturers_id'])) {
               $manufacturers_name = '<strong>' . $manufacturers_name .'</strong>';
@@ -63,21 +69,21 @@
           $data = $manufacturers_list;
         } else {
 // Display a drop-down
-          $manufacturers_array = array();
+          $manufacturers_array = [];
 
           if (MAX_MANUFACTURERS_LIST < 2) {
-            $manufacturers_array[] = array('id' => '', 'text' => OSCOM::getDef('pull_down_default'));
+            $manufacturers_array[] = ['id' => '', 'text' => OSCOM::getDef('pull_down_default')];
           }
 
           foreach ($manufacturers as $m) {
-            $manufacturers_name = ((strlen($m['manufacturers_name']) > MAX_DISPLAY_MANUFACTURER_NAME_LEN) ? substr($m['manufacturers_name'], 0, MAX_DISPLAY_MANUFACTURER_NAME_LEN) . '..' : $m['manufacturers_name']);
+            $manufacturers_name = ((strlen((string) $m['manufacturers_name']) > MAX_DISPLAY_MANUFACTURER_NAME_LEN) ? substr((string) $m['manufacturers_name'], 0, MAX_DISPLAY_MANUFACTURER_NAME_LEN) . '..' : $m['manufacturers_name']);
 
-            $manufacturers_array[] = array('id' => $m['manufacturers_id'],
-                                           'text' => $manufacturers_name);
+            $manufacturers_array[] = ['id' => $m['manufacturers_id'],
+                                           'text' => $manufacturers_name];
           }
 
           $data = HTML::form('manufacturers', OSCOM::link('index.php', '', false), 'get', null, ['session_id' => true]) .
-                  HTML::selectField('manufacturers_id', $manufacturers_array, (isset($_GET['manufacturers_id']) ? $_GET['manufacturers_id'] : ''), 'onchange="this.form.submit();" size="' . MAX_MANUFACTURERS_LIST . '"') .
+                  HTML::selectField('manufacturers_id', $manufacturers_array, ($_GET['manufacturers_id'] ?? ''), 'onchange="this.form.submit();" size="' . MAX_MANUFACTURERS_LIST . '"') .
                   '</form>';
         }
 
@@ -86,7 +92,7 @@
       return $data;
     }
 
-    function execute() {
+    function execute(): void {
       global $oscTemplate;
 
       $output = $this->getData();
@@ -102,11 +108,11 @@
       return $this->enabled;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_BOXES_MANUFACTURERS_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -146,8 +152,8 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_BOXES_MANUFACTURERS_STATUS', 'MODULE_BOXES_MANUFACTURERS_CONTENT_PLACEMENT', 'MODULE_BOXES_MANUFACTURERS_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_BOXES_MANUFACTURERS_STATUS', 'MODULE_BOXES_MANUFACTURERS_CONTENT_PLACEMENT', 'MODULE_BOXES_MANUFACTURERS_SORT_ORDER'];
     }
   }
 

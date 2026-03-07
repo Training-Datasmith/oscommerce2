@@ -11,12 +11,15 @@
   use OSC\OM\Registry;
 
   class ht_grid_list_view {
-    var $code = 'ht_grid_list_view';
-    var $group = 'footer_scripts';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    public $code = 'ht_grid_list_view';
+    public $group = 'footer_scripts';
+    public $title;
+    public $description;
+    public $sort_order;
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
     function __construct() {
       $this->title = OSCOM::getDef('module_header_tags_grid_list_view_title');
@@ -28,11 +31,11 @@
       }
     }
 
-    function execute() {
+    function execute(): void {
       global $PHP_SELF, $oscTemplate;
 
       if (tep_not_null(MODULE_HEADER_TAGS_GRID_LIST_VIEW_PAGES)) {
-        $pages_array = array();
+        $pages_array = [];
 
         foreach (explode(';', MODULE_HEADER_TAGS_GRID_LIST_VIEW_PAGES) as $page) {
           $page = trim($page);
@@ -42,7 +45,7 @@
           }
         }
 
-        if (in_array(basename($PHP_SELF), $pages_array)) {
+        if (in_array(basename((string) $PHP_SELF), $pages_array)) {
           $oscTemplate->addBlock('<script src="ext/js/js.cookie-2.1.2.min.js"></script>' . "\n", $this->group);
           $oscTemplate->addBlock('<script>$(function() {var cc = Cookies.get(\'list_grid\');if (cc == \'list\') {$(\'#products .item\').removeClass(\'grid-group-item\').addClass(\'list-group-item\');}else {$(\'#products .item\').removeClass(\'list-group-item\').addClass(\'grid-group-item\');}$(document).ready(function() {$(\'#list\').click(function(event){event.preventDefault();$(\'#products .item\').addClass(\'list-group-item\').removeClass(\'grid-group-item\');Cookies.set(\'list_grid\', \'list\');});$(\'#grid\').click(function(event){event.preventDefault();$(\'#products .item\').removeClass(\'list-group-item\').addClass(\'grid-group-item\');Cookies.set(\'list_grid\', \'grid\');});});});</script>' . "\n", $this->group);
         }
@@ -53,11 +56,11 @@
       return $this->enabled;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_HEADER_TAGS_GRID_LIST_VIEW_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -98,27 +101,27 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_HEADER_TAGS_GRID_LIST_VIEW_STATUS', 'MODULE_HEADER_TAGS_GRID_LIST_VIEW_PAGES', 'MODULE_HEADER_TAGS_GRID_LIST_VIEW_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_HEADER_TAGS_GRID_LIST_VIEW_STATUS', 'MODULE_HEADER_TAGS_GRID_LIST_VIEW_PAGES', 'MODULE_HEADER_TAGS_GRID_LIST_VIEW_SORT_ORDER'];
     }
 
-    function get_default_pages() {
-      return array('advanced_search_result.php',
+    function get_default_pages(): array {
+      return ['advanced_search_result.php',
                    'index.php',
                    'products_new.php',
-                   'specials.php');
+                   'specials.php'];
     }
   }
 
-  function ht_grid_list_view_show_pages($text) {
-    return nl2br(implode("\n", explode(';', $text)));
+  function ht_grid_list_view_show_pages($text): string {
+    return nl2br(implode("\n", explode(';', (string) $text)));
   }
 
-  function ht_grid_list_view_edit_pages($values, $key) {
+  function ht_grid_list_view_edit_pages($values, string $key): string {
     global $PHP_SELF;
 
-    $file_extension = substr($PHP_SELF, strrpos($PHP_SELF, '.'));
-    $files_array = array();
+    $file_extension = substr((string) $PHP_SELF, strrpos((string) $PHP_SELF, '.'));
+    $files_array = [];
 	  if ($dir = @dir(OSCOM::getConfig('dir_root', 'Shop'))) {
 	    while ($file = $dir->read()) {
 	      if (!is_dir(OSCOM::getConfig('dir_root', 'Shop') . $file)) {
@@ -144,7 +147,7 @@
 
     $output .= HTML::hiddenField('configuration[' . $key . ']', '', 'id="htrn_files"');
 
-    $output .= '<script>
+    return $output . '<script>
                 function htrn_update_cfg_value() {
                   var htrn_selected_files = \'\';
 
@@ -171,7 +174,5 @@
                   }
                 });
                 </script>';
-
-    return $output;
   }
 

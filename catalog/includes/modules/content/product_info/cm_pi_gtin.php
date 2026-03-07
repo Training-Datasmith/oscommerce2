@@ -11,16 +11,25 @@
   use OSC\OM\Registry;
 
   class cm_pi_gtin {
-    var $code;
-    var $group;
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    /**
+     * @var class-string<\cm_pi_gtin>
+     */
+    public $code;
+    /**
+     * @var string
+     */
+    public $group;
+    public $title;
+    public $description;
+    public $sort_order;
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
     function __construct() {
-      $this->code = get_class($this);
-      $this->group = basename(dirname(__FILE__));
+      $this->code = static::class;
+      $this->group = basename(__DIR__);
 
       $this->title = OSCOM::getDef('module_content_product_info_gtin_title');
       $this->description = OSCOM::getDef('module_content_product_info_gtin_description');
@@ -32,7 +41,7 @@
       }
     }
 
-    function execute() {
+    function execute(): void {
       global $oscTemplate;
 
       $content_width = (int)MODULE_CONTENT_PRODUCT_INFO_GTIN_CONTENT_WIDTH;
@@ -47,7 +56,7 @@
         $gtin = $Qgtin->value('products_gtin');
 
         if (!empty($gtin)) {
-          $gtin = substr($gtin, 0 - MODULE_CONTENT_PRODUCT_INFO_GTIN_LENGTH);
+          $gtin = substr((string) $gtin, 0 - MODULE_CONTENT_PRODUCT_INFO_GTIN_LENGTH);
 
           if (!empty($gtin)) {
             $gtin = HTML::outputProtected($gtin);
@@ -66,11 +75,11 @@
       return $this->enabled;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_CONTENT_PRODUCT_INFO_GTIN_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -121,7 +130,7 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_CONTENT_PRODUCT_INFO_GTIN_STATUS', 'MODULE_CONTENT_PRODUCT_INFO_GTIN_CONTENT_WIDTH', 'MODULE_CONTENT_PRODUCT_INFO_GTIN_LENGTH', 'MODULE_CONTENT_PRODUCT_INFO_GTIN_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_CONTENT_PRODUCT_INFO_GTIN_STATUS', 'MODULE_CONTENT_PRODUCT_INFO_GTIN_CONTENT_WIDTH', 'MODULE_CONTENT_PRODUCT_INFO_GTIN_LENGTH', 'MODULE_CONTENT_PRODUCT_INFO_GTIN_SORT_ORDER'];
     }
   }

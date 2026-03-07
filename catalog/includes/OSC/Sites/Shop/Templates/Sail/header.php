@@ -12,7 +12,7 @@
 <div class="col-xs-12">
   <div class="alert alert-danger">
     <a href="#" class="close fa fa-remove" data-dismiss="alert"></a>
-    <?php echo htmlspecialchars(stripslashes(urldecode($_GET['error_message']))); ?>
+    <?php echo htmlspecialchars(stripslashes(urldecode((string) $_GET['error_message']))); ?>
   </div>
 </div>
 <?php
@@ -24,7 +24,7 @@
 <div class="col-xs-12">
   <div class="alert alert-info">
     <a href="#" class="close fa fa-remove" data-dismiss="alert"></a>
-    <?php echo htmlspecialchars(stripslashes(urldecode($_GET['info_message']))); ?>
+    <?php echo htmlspecialchars(stripslashes(urldecode((string) $_GET['info_message']))); ?>
   </div>
 </div>
 <?php

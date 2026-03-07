@@ -14,13 +14,16 @@
   use OSC\OM\Registry;
 
   class d_latest_addons {
-    var $code = 'd_latest_addons';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    public $code = 'd_latest_addons';
+    public $title;
+    public $description;
+    public $sort_order;
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
-    function d_latest_addons() {
+    function __construct() {
       $this->title = OSCOM::getDef('module_admin_dashboard_latest_addons_title');
       $this->description = OSCOM::getDef('module_admin_dashboard_latest_addons_description');
 
@@ -30,7 +33,7 @@
       }
     }
 
-    function getOutput() {
+    function getOutput(): string {
       $entries = [];
 
       $addonsCache = new Cache('oscommerce_website-addons-latest5');
@@ -41,7 +44,7 @@
         $response = HTTP::getResponse(['url' => 'https://www.oscommerce.com/index.php?RPC&GetLatestAddons']);
 
         if (!empty($response)) {
-          $response = json_decode($response, true);
+          $response = json_decode((string) $response, true);
 
           if (is_array($response) && (count($response) === 5)) {
             $entries = $response;
@@ -73,24 +76,22 @@
                         </tr>';
       }
 
-      $output .= '    <tr>
+      return $output . ('    <tr>
                         <td class="text-right" colspan="2"><a href="http://addons.oscommerce.com" target="_blank" title="' . HTML::outputProtected(OSCOM::getDef('module_admin_dashboard_latest_addons_icon_site')) . '"><span class="fa fa-fw fa-home"></span></a></td>
                       </tr>
                     </tbody>
-                  </table>';
-
-      return $output;
+                  </table>');
     }
 
     function isEnabled() {
       return $this->enabled;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_ADMIN_DASHBOARD_LATEST_ADDONS_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -119,8 +120,8 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_ADMIN_DASHBOARD_LATEST_ADDONS_STATUS', 'MODULE_ADMIN_DASHBOARD_LATEST_ADDONS_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_ADMIN_DASHBOARD_LATEST_ADDONS_STATUS', 'MODULE_ADMIN_DASHBOARD_LATEST_ADDONS_SORT_ORDER'];
     }
   }
 ?>

@@ -12,10 +12,13 @@
 
   require('includes/application_top.php');
 
-  function tep_dt_get_tables() {
+  /**
+   * @return mixed[]
+   */
+  function tep_dt_get_tables(): array {
     $OSCOM_Db = Registry::get('Db');
 
-    $result = array();
+    $result = [];
 
     $Qtables = $OSCOM_Db->query('show table status');
 
@@ -43,19 +46,19 @@
   }
 
   $action = null;
-  $actions = array(array('id' => 'check',
-                         'text' => OSCOM::getDef('action_check_tables')),
-                   array('id' => 'analyze',
-                         'text' => OSCOM::getDef('action_analyze_tables')),
-                   array('id' => 'optimize',
-                         'text' => OSCOM::getDef('action_optimize_tables')),
-                   array('id' => 'repair',
-                         'text' => OSCOM::getDef('action_repair_tables')),
-                   array('id' => 'utf8',
-                         'text' => OSCOM::getDef('action_utf8_conversion')));
+  $actions = [['id' => 'check',
+                         'text' => OSCOM::getDef('action_check_tables')],
+                   ['id' => 'analyze',
+                         'text' => OSCOM::getDef('action_analyze_tables')],
+                   ['id' => 'optimize',
+                         'text' => OSCOM::getDef('action_optimize_tables')],
+                   ['id' => 'repair',
+                         'text' => OSCOM::getDef('action_repair_tables')],
+                   ['id' => 'utf8',
+                         'text' => OSCOM::getDef('action_utf8_conversion')]];
 
   if ( isset($_POST['action']) ) {
-    if ( in_array($_POST['action'], array('check', 'analyze', 'optimize', 'repair', 'utf8')) ) {
+    if ( in_array($_POST['action'], ['check', 'analyze', 'optimize', 'repair', 'utf8']) ) {
       if ( isset($_POST['id']) && is_array($_POST['id']) && !empty($_POST['id']) ) {
         $tables = tep_dt_get_tables();
 
@@ -79,12 +82,12 @@
     case 'repair':
       tep_set_time_limit(0);
 
-      $table_headers = array(OSCOM::getDef('table_heading_table'),
+      $table_headers = [OSCOM::getDef('table_heading_table'),
                              OSCOM::getDef('table_heading_msg_type'),
                              OSCOM::getDef('table_heading_msg'),
-                             HTML::checkboxField('masterblaster'));
+                             HTML::checkboxField('masterblaster')];
 
-      $table_data = array();
+      $table_data = [];
 
       foreach ( $_POST['id'] as $table ) {
         $current_table = null;
@@ -128,26 +131,26 @@
       tep_set_time_limit(0);
 
       if ( isset($_POST['dryrun']) ) {
-        $table_headers = array(OSCOM::getDef('table_heading_queries'));
+        $table_headers = [OSCOM::getDef('table_heading_queries')];
       } else {
-        $table_headers = array(OSCOM::getDef('table_heading_table'),
+        $table_headers = [OSCOM::getDef('table_heading_table'),
                                OSCOM::getDef('table_heading_msg'),
-                               HTML::checkboxField('masterblaster'));
+                               HTML::checkboxField('masterblaster')];
       }
 
-      $table_data = array();
+      $table_data = [];
 
       foreach ( $_POST['id'] as $table ) {
         $result = 'OK';
 
-        $queries = array();
+        $queries = [];
 
         $Qcols = $OSCOM_Db->query('show full columns from ' . $table);
 
         while ($Qcols->fetch()) {
           if ( $Qcols->hasValue('Collation') && tep_not_null($Qcols->value('Collation')) ) {
             if ( $_POST['from_charset'] == 'auto' ) {
-              $old_charset = substr($Qcols->value('Collation'), 0, strpos($Qcols->value('Collation'), '_'));
+              $old_charset = substr((string) $Qcols->value('Collation'), 0, strpos((string) $Qcols->value('Collation'), '_'));
             } else {
               $old_charset = $_POST['from_charset'];
             }
@@ -159,10 +162,10 @@
         $query = 'alter table ' . $table . ' convert to character set utf8 collate utf8_unicode_ci';
 
         if ( isset($_POST['dryrun']) ) {
-          $table_data[] = array($query);
+          $table_data[] = [$query];
 
           foreach ( $queries as $q ) {
-            $table_data[] = array($q);
+            $table_data[] = [$q];
           }
         } else {
           if ($OSCOM_Db->exec($query) !== false) {
@@ -178,9 +181,9 @@
         }
 
         if ( !isset($_POST['dryrun']) ) {
-          $table_data[] = array(HTML::outputProtected($table),
+          $table_data[] = [HTML::outputProtected($table),
                                 HTML::outputProtected($result),
-                                HTML::checkboxField('id[]', $table, true));
+                                HTML::checkboxField('id[]', $table, true)];
         }
       }
 

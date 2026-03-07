@@ -61,7 +61,7 @@ class Db extends \PDO
         }
 
         if (!isset($driver_options[\PDO::ATTR_STATEMENT_CLASS])) {
-            $driver_options[\PDO::ATTR_STATEMENT_CLASS] = array('OSC\OM\DbStatement');
+            $driver_options[\PDO::ATTR_STATEMENT_CLASS] = [\OSC\OM\DbStatement::class];
         }
 
         if (!is_array($options)) {
@@ -71,7 +71,7 @@ class Db extends \PDO
         $object = false;
 
         try {
-            $class = 'OSC\OM\Db\MySQL';
+            $class = \OSC\OM\Db\MySQL::class;
             $object = new $class($server, $username, $password, $database, $port, $driver_options, $options);
         } catch (\Exception $e) {
             $message = $e->getMessage();
@@ -112,7 +112,7 @@ class Db extends \PDO
         $args = func_get_args();
 
         if (count($args) > 1) {
-            $DbStatement = call_user_func_array(array($this, 'parent::query'), $args);
+            $DbStatement = call_user_func_array([$this, 'parent::query'], $args);
         } else {
             $DbStatement = parent::query($statement);
         }
@@ -132,8 +132,8 @@ class Db extends \PDO
         }
 
         if (!isset($options['prefix_tables']) || ($options['prefix_tables'] === true)) {
-            array_walk($table, function(&$v, &$k) {
-                if ((strlen($v) < 7) || (substr($v, 0, 7) != ':table_')) {
+            array_walk($table, function(&$v, &$k): void {
+                if ((strlen($v) < 7) || (!str_starts_with($v, ':table_'))) {
                     $v = ':table_' . $v;
                 }
             });
@@ -175,7 +175,7 @@ class Db extends \PDO
             foreach ($it_where as $key => $value) {
                 if (is_array($value)) {
                     if (isset($value['val'])) {
-                        $statement .= $key . ' ' . (isset($value['op']) ? $value['op'] : '=') . ' :cond_' . $counter;
+                        $statement .= $key . ' ' . ($value['op'] ?? '=') . ' :cond_' . $counter;
                     }
 
                     if (isset($value['rel'])) {
@@ -255,7 +255,7 @@ class Db extends \PDO
         }
 
         if (!isset($options['prefix_tables']) || ($options['prefix_tables'] === true)) {
-            if ((strlen($table) < 7) || (substr($table, 0, 7) != ':table_')) {
+            if ((strlen((string) $table) < 7) || (!str_starts_with((string) $table, ':table_'))) {
                 $table = ':table_' . $table;
             }
         }
@@ -298,53 +298,45 @@ class Db extends \PDO
             $Q->execute();
 
             return $Q->rowCount();
-        } else {
-            $is_prepared = false;
-
-            $statement = 'insert into ' . $table . ' (' . implode(', ', array_keys($data)) . ') values (';
-
-            foreach ($data as $c => $v) {
-                if (is_null($v)) {
-                    $v = 'null';
-                }
-
-                if ($v == 'now()' || $v == 'null') {
-                    $statement .= $v . ', ';
-                } else {
-                    if ($is_prepared === false) {
-                        $is_prepared = true;
-                    }
-
-                    $statement .= ':' . $c . ', ';
-                }
+        }
+        $is_prepared = false;
+        $statement = 'insert into ' . $table . ' (' . implode(', ', array_keys($data)) . ') values (';
+        foreach ($data as $c => $v) {
+            if (is_null($v)) {
+                $v = 'null';
             }
 
-            $statement = substr($statement, 0, -2) . ')';
-
-            if ($is_prepared === true) {
-                $Q = $this->prepare($statement);
-
-                foreach ($data as $c => $v) {
-                    if ($v != 'now()' && $v != 'null' && !is_null($v)) {
-                        $Q->bindValue(':' . $c, $v);
-                    }
+            if ($v == 'now()' || $v == 'null') {
+                $statement .= $v . ', ';
+            } else {
+                if ($is_prepared === false) {
+                    $is_prepared = true;
                 }
 
-                $Q->execute();
-
-                return $Q->rowCount();
-            } else {
-                return $this->exec($statement);
+                $statement .= ':' . $c . ', ';
             }
         }
+        $statement = substr($statement, 0, -2) . ')';
+        if ($is_prepared === true) {
+            $Q = $this->prepare($statement);
 
-        return false;
+            foreach ($data as $c => $v) {
+                if ($v != 'now()' && $v != 'null' && !is_null($v)) {
+                    $Q->bindValue(':' . $c, $v);
+                }
+            }
+
+            $Q->execute();
+
+            return $Q->rowCount();
+        }
+        return $this->exec($statement);
     }
 
     public function delete($table, array $where_condition = [], array $options = null)
     {
         if (!isset($options['prefix_tables']) || ($options['prefix_tables'] === true)) {
-            if ((strlen($table) < 7) || (substr($table, 0, 7) != ':table_')) {
+            if ((strlen((string) $table) < 7) || (!str_starts_with((string) $table, ':table_'))) {
                 $table = ':table_' . $table;
             }
         }
@@ -374,7 +366,7 @@ class Db extends \PDO
         return $Q->rowCount();
     }
 
-    public function importSQL($sql_file, $table_prefix = null)
+    public function importSQL(string $sql_file, $table_prefix = null)
     {
         if (is_file($sql_file)) {
             $import_queries = file_get_contents($sql_file);
@@ -386,13 +378,13 @@ class Db extends \PDO
 
         set_time_limit(0);
 
-        $sql_queries = array();
+        $sql_queries = [];
         $sql_length = strlen($import_queries);
         $pos = strpos($import_queries, ';');
 
         for ($i = $pos; $i < $sql_length; $i++) {
 // remove comments
-            if ((substr($import_queries, 0, 1) == '#') || (substr($import_queries, 0, 2) == '--')) {
+            if ((str_starts_with($import_queries, '#')) || (str_starts_with($import_queries, '--'))) {
                 $import_queries = ltrim(substr($import_queries, strpos($import_queries, "\n")));
                 $sql_length = strlen($import_queries);
                 $i = strpos($import_queries, ';') - 1;
@@ -406,7 +398,7 @@ class Db extends \PDO
                     if (!empty(substr($import_queries, $j, 1))) {
                         $next = substr($import_queries, $j, 6);
 
-                        if ((substr($next, 0, 1) == '#') || (substr($next, 0, 2) == '--')) {
+                        if ((str_starts_with($next, '#')) || (str_starts_with($next, '--'))) {
 // find out where the break position is so we can remove this line (#comment line)
                             for ($k = $j; $k < $sql_length; $k++) {
                                 if (substr($import_queries, $k, 1) == "\n") {
@@ -479,9 +471,12 @@ class Db extends \PDO
         return !$error;
     }
 
-    public static function getSchemaFromFile($file)
+    /**
+     * @return mixed[]
+     */
+    public static function getSchemaFromFile($file): array
     {
-        $table = substr(basename($file), 0, strrpos(basename($file), '.'));
+        $table = substr(basename((string) $file), 0, strrpos(basename((string) $file), '.'));
 
         $schema = [
             'name' => $table
@@ -496,37 +491,35 @@ class Db extends \PDO
                 if ($row == '--') {
                     $is_index = true;
                     $is_foreign = $is_property = false;
-
                     continue;
-                } elseif ($row == '==') {
+                }
+                if ($row == '==') {
                     $is_foreign = true;
                     $is_index = $is_property = false;
-
                     continue;
-                } elseif ($row == '##') {
+                }
+                if ($row == '##') {
                     $is_property = true;
                     $is_index = $is_foreign = false;
-
                     continue;
                 }
 
                 $details = str_getcsv($row, ' ');
 
                 $field_name = array_shift($details);
-
                 if ($is_index === true) {
                     $schema['index'][$field_name] = $details;
-
                     continue;
-                } elseif ($is_foreign === true) {
+                }
+                if ($is_foreign === true) {
                     foreach ($details as $d) {
-                        if (strpos($d, '(') === false) {
+                        if (!str_contains((string) $d, '(')) {
                             $schema['foreign'][$field_name]['col'][] = $d;
 
                             continue;
                         }
 
-                        if (preg_match('/(.*)\((.*)\)/', $d, $info)) {
+                        if (preg_match('/(.*)\((.*)\)/', (string) $d, $info)) {
                             switch ($info[1]) {
                                 case 'ref_table':
                                 case 'on_delete':
@@ -542,9 +535,10 @@ class Db extends \PDO
                             }
                         }
                     }
-
                     continue;
-                } elseif ($is_property === true) {
+                }
+
+                if ($is_property === true) {
                     switch ($field_name) {
                         case 'engine':
                             $schema['property']['engine'] = implode(' ', $details);
@@ -558,13 +552,12 @@ class Db extends \PDO
                             $schema['property']['collate'] = implode(' ', $details);
                             break;
                     }
-
                     continue;
                 }
 
                 $field_type = array_shift($details);
 
-                if (preg_match('/(.*)\((.*)\)/', $field_type, $type_details)) {
+                if (preg_match('/(.*)\((.*)\)/', (string) $field_type, $type_details)) {
                     $schema['col'][$field_name]['type'] = $type_details[1];
                     $schema['col'][$field_name]['length'] = $type_details[2];
                 } else {
@@ -615,9 +608,9 @@ class Db extends \PDO
         return $schema;
     }
 
-    public static function getSqlFromSchema($schema, $prefix = null)
+    public static function getSqlFromSchema(array $schema, $prefix = null): string
     {
-        $sql = 'CREATE TABLE ' . (isset($prefix) ? $prefix : '') . $schema['name'] . ' (' . "\n";
+        $sql = 'CREATE TABLE ' . ($prefix ?? '') . $schema['name'] . ' (' . "\n";
 
         $rows = [];
 
@@ -697,37 +690,34 @@ class Db extends \PDO
             }
         }
 
-        $sql .= ';';
-
-        return $sql;
+        return $sql . ';';
     }
 
     public static function prepareInput($string)
     {
         if (is_string($string)) {
             return HTML::sanitize($string);
-        } elseif (is_array($string)) {
+        }
+        if (is_array($string)) {
             foreach ($string as $k => $v) {
                 $string[$k] = static::prepareInput($v);
             }
-
-            return $string;
-        } else {
             return $string;
         }
+        return $string;
     }
 
-    public static function prepareIdentifier($string)
+    public static function prepareIdentifier($string): string
     {
         return '`' . str_replace('`', '``', $string) . '`';
     }
 
-    public function setTablePrefix($prefix)
+    public function setTablePrefix($prefix): void
     {
         $this->table_prefix = $prefix;
     }
 
-    protected function autoPrefixTables($statement)
+    protected function autoPrefixTables($statement): string|array
     {
         $prefix = '';
 
@@ -737,8 +727,6 @@ class Db extends \PDO
             $prefix = OSCOM::getConfig('db_table_prefix');
         }
 
-        $statement = str_replace(':table_', $prefix, $statement);
-
-        return $statement;
+        return str_replace(':table_', $prefix, $statement);
     }
 }

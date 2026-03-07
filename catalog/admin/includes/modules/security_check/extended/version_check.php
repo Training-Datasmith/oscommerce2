@@ -11,8 +11,8 @@
   use OSC\OM\Registry;
 
   class securityCheckExtended_version_check {
-    var $type = 'warning';
-    var $has_doc = true;
+    public $type = 'warning';
+    public $has_doc = true;
 
     protected $lang;
 
@@ -24,13 +24,13 @@
       $this->title = OSCOM::getDef('module_security_check_extended_version_check_title');
     }
 
-    function pass() {
+    function pass(): bool {
       $VersionCache = new Cache('core_version_check');
 
       return $VersionCache->exists() && ($VersionCache->getTime() > strtotime('-30 days'));
     }
 
-    function getMessage() {
+    function getMessage(): string {
       return '<a href="' . OSCOM::link('online_update.php') . '">' . OSCOM::getDef('module_security_check_extended_version_check_error') . '</a>';
     }
   }

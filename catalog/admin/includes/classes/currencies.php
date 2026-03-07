@@ -12,13 +12,13 @@
 // Class to handle currencies
 // TABLES: currencies
   class currencies {
-    var $currencies;
+    public $currencies;
 
 // class constructor
-    function currencies() {
+    function __construct() {
       $OSCOM_Db = Registry::get('Db');
 
-      $this->currencies = array();
+      $this->currencies = [];
       $Qcurrencies = $OSCOM_Db->get('currencies', [
         'code',
         'title',
@@ -44,9 +44,9 @@
     }
 
 // class methods
-    function format($number, $calculate_currency_value = true, $currency_type = DEFAULT_CURRENCY, $currency_value = '') {
+    function format($number, $calculate_currency_value = true, $currency_type = DEFAULT_CURRENCY, $currency_value = ''): string {
       if ($calculate_currency_value) {
-        $rate = ($currency_value) ? $currency_value : $this->currencies[$currency_type]['value'];
+        $rate = $currency_value ?: $this->currencies[$currency_type]['value'];
         $format_string = $this->currencies[$currency_type]['symbol_left'] . number_format($number * $rate, $this->currencies[$currency_type]['decimal_places'], $this->currencies[$currency_type]['decimal_point'], $this->currencies[$currency_type]['thousands_point']) . $this->currencies[$currency_type]['symbol_right'];
 // if the selected currency is in the european euro-conversion and the default currency is euro,
 // the currency will displayed in the national currency and euro currency

@@ -23,21 +23,21 @@
 
 <?php
   // create column list
-  $define_list = array('PRODUCT_LIST_MODEL' => PRODUCT_LIST_MODEL,
+  $define_list = ['PRODUCT_LIST_MODEL' => PRODUCT_LIST_MODEL,
                        'PRODUCT_LIST_NAME' => PRODUCT_LIST_NAME,
                        'PRODUCT_LIST_MANUFACTURER' => PRODUCT_LIST_MANUFACTURER,
                        'PRODUCT_LIST_PRICE' => PRODUCT_LIST_PRICE,
                        'PRODUCT_LIST_QUANTITY' => PRODUCT_LIST_QUANTITY,
                        'PRODUCT_LIST_WEIGHT' => PRODUCT_LIST_WEIGHT,
                        'PRODUCT_LIST_IMAGE' => PRODUCT_LIST_IMAGE,
-                       'PRODUCT_LIST_BUY_NOW' => PRODUCT_LIST_BUY_NOW);
+                       'PRODUCT_LIST_BUY_NOW' => PRODUCT_LIST_BUY_NOW];
 
   asort($define_list);
 
-  $column_list = array();
+  $column_list = [];
   reset($define_list);
-  while (list($key, $value) = each($define_list)) {
-    if ($value > 0) $column_list[] = $key;
+  foreach ($define_list as $key => $value) {
+      if ($value > 0) $column_list[] = $key;
   }
 
   $select_column_list = '';
@@ -67,7 +67,7 @@
 
   $listing_sql = "select SQL_CALC_FOUND_ROWS " . $select_column_list . " p.products_id, SUBSTRING_INDEX(pd.products_description, ' ', 20) as products_description, p.manufacturers_id, p.products_price, p.products_tax_class_id, IF(s.status, s.specials_new_products_price, NULL) as specials_new_products_price, IF(s.status, s.specials_new_products_price, p.products_price) as final_price from :table_products_description pd, :table_products p left join :table_manufacturers m on p.manufacturers_id = m.manufacturers_id left join :table_specials s on p.products_id = s.products_id where p.products_status = '1' and p.products_id = pd.products_id and pd.language_id = :language_id and s.status = '1'";
 
-  if ( (!isset($_GET['sort'])) || (!preg_match('/^[1-8][ad]$/', $_GET['sort'])) || (substr($_GET['sort'], 0, 1) > sizeof($column_list)) ) {
+  if ( (!isset($_GET['sort'])) || (!preg_match('/^[1-8][ad]$/', (string) $_GET['sort'])) || (substr((string) $_GET['sort'], 0, 1) > sizeof($column_list)) ) {
     for ($i=0, $n=sizeof($column_list); $i<$n; $i++) {
       if ($column_list[$i] == 'PRODUCT_LIST_NAME') {
         $_GET['sort'] = $i+1 . 'a';
@@ -76,8 +76,8 @@
       }
     }
   } else {
-    $sort_col = substr($_GET['sort'], 0 , 1);
-    $sort_order = substr($_GET['sort'], 1);
+    $sort_col = substr((string) $_GET['sort'], 0 , 1);
+    $sort_order = substr((string) $_GET['sort'], 1);
 
     switch ($column_list[$sort_col-1]) {
       case 'PRODUCT_LIST_MODEL':

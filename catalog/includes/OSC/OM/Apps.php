@@ -13,7 +13,10 @@ use OSC\OM\Registry;
 
 class Apps
 {
-    public static function getAll()
+    /**
+     * @return mixed[]
+     */
+    public static function getAll(): array
     {
         $result = [];
 
@@ -21,16 +24,26 @@ class Apps
 
         if ($vdir = new \DirectoryIterator($apps_directory)) {
             foreach ($vdir as $vendor) {
-                if (!$vendor->isDot() && $vendor->isDir()) {
-                    if ($adir = new \DirectoryIterator($vendor->getPath() . '/' . $vendor->getFilename())) {
-                        foreach ($adir as $app) {
-                            if (!$app->isDot() && $app->isDir() && static::exists($vendor->getFilename() . '\\' . $app->getFilename())) {
-                                if (($json = static::getInfo($vendor->getFilename() . '\\' . $app->getFilename())) !== false) {
-                                    $result[] = $json;
-                                }
-                            }
-                        }
+                if ($vendor->isDot()) {
+                    continue;
+                }
+                if (!$vendor->isDir()) {
+                    continue;
+                }
+                if (!$adir = new \DirectoryIterator($vendor->getPath() . '/' . $vendor->getFilename())) {
+                    continue;
+                }
+                foreach ($adir as $app) {
+                    if (!(!$app->isDot() && $app->isDir())) {
+                        continue;
                     }
+                    if (!static::exists($vendor->getFilename() . '\\' . $app->getFilename())) {
+                        continue;
+                    }
+                    if ($json = static::getInfo($vendor->getFilename() . '\\' . $app->getFilename()) === false) {
+                        continue;
+                    }
+                    $result[] = $json;
                 }
             }
         }
@@ -38,7 +51,10 @@ class Apps
         return $result;
     }
 
-    public static function getModules($type, $filter_vendor_app = null, $filter = null)
+    /**
+     * @return mixed[]
+     */
+    public static function getModules(string $type, $filter_vendor_app = null, $filter = null): array
     {
         $result = [];
 
@@ -59,8 +75,8 @@ class Apps
         $filter_vendor = $filter_app = null;
 
         if (isset($filter_vendor_app)) {
-            if (strpos($filter_vendor_app, '\\') !== false) {
-                list($filter_vendor, $filter_app) = explode('\\', $filter_vendor_app, 2);
+            if (str_contains($filter_vendor_app, '\\')) {
+                [$filter_vendor, $filter_app] = explode('\\', $filter_vendor_app, 2);
             } else {
                 $filter_vendor = $filter_vendor_app;
             }
@@ -71,23 +87,31 @@ class Apps
         if (is_dir($vendor_directory)) {
             if ($vdir = new \DirectoryIterator($vendor_directory)) {
                 foreach ($vdir as $vendor) {
-                    if (!$vendor->isDot() && $vendor->isDir() && (!isset($filter_vendor) || ($vendor->getFilename() == $filter_vendor))) {
-                        if ($adir = new \DirectoryIterator($vendor->getPath() . '/' . $vendor->getFilename())) {
-                            foreach ($adir as $app) {
-                                if (!$app->isDot() && $app->isDir() && (!isset($filter_app) || ($app->getFilename() == $filter_app)) && static::exists($vendor->getFilename() . '\\' . $app->getFilename()) && (($json = static::getInfo($vendor->getFilename() . '\\' . $app->getFilename())) !== false)) {
-                                    if (isset($json['modules'][$type])) {
-                                        $modules = $json['modules'][$type];
-
-                                        if (isset($filter)) {
-                                            $modules = $OSCOM_Type->filter($modules, $filter);
-                                        }
-
-                                        foreach ($modules as $key => $data) {
-                                            $result = array_merge($result, $OSCOM_Type->getInfo($vendor->getFilename() . '\\' . $app->getFilename(), $key, $data));
-                                        }
-                                    }
-                                }
-                            }
+                    if (!(!$vendor->isDot() && $vendor->isDir())) {
+                        continue;
+                    }
+                    if (!(!isset($filter_vendor) || $vendor->getFilename() == $filter_vendor)) {
+                        continue;
+                    }
+                    if (!$adir = new \DirectoryIterator($vendor->getPath() . '/' . $vendor->getFilename())) {
+                        continue;
+                    }
+                    foreach ($adir as $app) {
+                        if (!(!$app->isDot() && $app->isDir() && (!isset($filter_app) || $app->getFilename() == $filter_app) && static::exists($vendor->getFilename() . '\\' . $app->getFilename()))) {
+                            continue;
+                        }
+                        if (!($json = static::getInfo($vendor->getFilename() . '\\' . $app->getFilename()) !== false)) {
+                            continue;
+                        }
+                        if (!isset($json['modules'][$type])) {
+                            continue;
+                        }
+                        $modules = $json['modules'][$type];
+                        if (isset($filter)) {
+                            $modules = $OSCOM_Type->filter($modules, $filter);
+                        }
+                        foreach ($modules as $key => $data) {
+                            $result = array_merge($result, $OSCOM_Type->getInfo($vendor->getFilename() . '\\' . $app->getFilename(), $key, $data));
                         }
                     }
                 }
@@ -97,17 +121,16 @@ class Apps
         return $result;
     }
 
-    public static function exists($app)
+    public static function exists(string $app): bool
     {
-        if (strpos($app, '\\') !== false) {
-            list($vendor, $app) = explode('\\', $app, 2);
+        if (str_contains($app, '\\')) {
+            [$vendor, $app] = explode('\\', $app, 2);
 
             if (class_exists('OSC\Apps\\' . $vendor . '\\' . $app . '\\' . $app)) {
-                if (is_subclass_of('OSC\Apps\\' . $vendor . '\\' . $app . '\\' . $app, 'OSC\OM\AppAbstract')) {
+                if (is_subclass_of('OSC\Apps\\' . $vendor . '\\' . $app . '\\' . $app, \OSC\OM\AppAbstract::class)) {
                     return true;
-                } else {
-                    trigger_error('OSC\OM\Apps::exists(): ' . $vendor . '\\' . $app . ' - App is not a subclass of OSC\OM\AppAbstract and cannot be loaded.');
                 }
+                trigger_error('OSC\OM\Apps::exists(): ' . $vendor . '\\' . $app . ' - App is not a subclass of OSC\OM\AppAbstract and cannot be loaded.');
             }
         } else {
             trigger_error('OSC\OM\Apps::exists(): ' . $app . ' - Invalid format, must be: Vendor\App.');
@@ -116,7 +139,7 @@ class Apps
         return false;
     }
 
-    public static function getModuleClass($module, $type)
+    public static function getModuleClass($module, string $type)
     {
         if (!Registry::exists('ModuleType' . $type)) {
             $class = 'OSC\OM\Modules\\' . $type;
@@ -135,10 +158,10 @@ class Apps
         return $OSCOM_Type->getClass($module);
     }
 
-    public static function getInfo($app)
+    public static function getInfo(string $app)
     {
-        if (strpos($app, '\\') !== false) {
-            list($vendor, $app) = explode('\\', $app, 2);
+        if (str_contains($app, '\\')) {
+            [$vendor, $app] = explode('\\', $app, 2);
 
             $metafile = OSCOM::BASE_DIR . 'Apps/' . basename($vendor) . '/' . basename($app) . '/oscommerce.json';
 
@@ -169,8 +192,8 @@ class Apps
         $filter_vendor = $filter_app = null;
 
         if (isset($filter_vendor_app)) {
-            if (strpos($filter_vendor_app, '\\') !== false) {
-                list($filter_vendor, $filter_app) = explode('\\', $filter_vendor_app, 2);
+            if (str_contains($filter_vendor_app, '\\')) {
+                [$filter_vendor, $filter_app] = explode('\\', $filter_vendor_app, 2);
             } else {
                 $filter_vendor = $filter_vendor_app;
             }
@@ -181,16 +204,26 @@ class Apps
         if (is_dir($vendor_directory)) {
             if ($vdir = new \DirectoryIterator($vendor_directory)) {
                 foreach ($vdir as $vendor) {
-                    if (!$vendor->isDot() && $vendor->isDir() && (!isset($filter_vendor) || ($vendor->getFilename() == $filter_vendor))) {
-                        if ($adir = new \DirectoryIterator($vendor->getPath() . '/' . $vendor->getFilename())) {
-                            foreach ($adir as $app) {
-                                if (!$app->isDot() && $app->isDir() && (!isset($filter_app) || ($app->getFilename() == $filter_app)) && static::exists($vendor->getFilename() . '\\' . $app->getFilename()) && (($json = static::getInfo($vendor->getFilename() . '\\' . $app->getFilename())) !== false)) {
-                                    if (isset($json['routes'][OSCOM::getSite()])) {
-                                        $routes[$json['vendor'] . '\\' . $json['app']] = $json['routes'][OSCOM::getSite()];
-                                    }
-                                }
-                            }
+                    if (!(!$vendor->isDot() && $vendor->isDir())) {
+                        continue;
+                    }
+                    if (!(!isset($filter_vendor) || $vendor->getFilename() == $filter_vendor)) {
+                        continue;
+                    }
+                    if (!$adir = new \DirectoryIterator($vendor->getPath() . '/' . $vendor->getFilename())) {
+                        continue;
+                    }
+                    foreach ($adir as $app) {
+                        if (!(!$app->isDot() && $app->isDir() && (!isset($filter_app) || $app->getFilename() == $filter_app) && static::exists($vendor->getFilename() . '\\' . $app->getFilename()))) {
+                            continue;
                         }
+                        if (!($json = static::getInfo($vendor->getFilename() . '\\' . $app->getFilename()) !== false)) {
+                            continue;
+                        }
+                        if (!isset($json['routes'][OSCOM::getSite()])) {
+                            continue;
+                        }
+                        $routes[$json['vendor'] . '\\' . $json['app']] = $json['routes'][OSCOM::getSite()];
                     }
                 }
             }

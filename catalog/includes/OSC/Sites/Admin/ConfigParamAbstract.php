@@ -12,9 +12,9 @@ use OSC\OM\HTML;
 
 abstract class ConfigParamAbstract
 {
-    protected $code;
+    protected string $code;
     protected $key_prefix;
-    protected $key;
+    protected string $key;
     public $title;
     public $description;
     public $default;
@@ -33,11 +33,11 @@ abstract class ConfigParamAbstract
 
     protected function getInputValue()
     {
-        $key = strtoupper($this->key);
+        $key = strtoupper((string) $this->key);
         $value = defined($key) ? constant($key) : null;
 
         if (!isset($value) && isset($this->default)) {
-            $value = $this->default;
+            return $this->default;
         }
 
         return $value;
@@ -45,16 +45,14 @@ abstract class ConfigParamAbstract
 
     public function getInputField()
     {
-        $input = HTML::inputField($this->key, $this->getInputValue());
-
-        return $input;
+        return HTML::inputField($this->key, $this->getInputValue());
     }
 
     public function getSetField()
     {
         $input = $this->getInputField();
 
-        $result = <<<EOT
+        return <<<EOT
 <div class="row">
   <h4>{$this->title}</h4>
 
@@ -65,7 +63,5 @@ abstract class ConfigParamAbstract
   </div>
 </div>
 EOT;
-
-        return $result;
     }
 }

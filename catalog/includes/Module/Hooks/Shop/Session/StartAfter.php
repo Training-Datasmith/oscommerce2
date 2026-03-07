@@ -15,7 +15,7 @@ use OSC\OM\Registry;
 
 class StartAfter
 {
-    public function execute() {
+    public function execute(): void {
         $OSCOM_Session = Registry::get('Session');
 
 // initialize a session token

@@ -10,12 +10,18 @@
   use OSC\OM\Registry;
 
   class bm_order_history {
-    var $code = 'bm_order_history';
-    var $group = 'boxes';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    public $code = 'bm_order_history';
+    /**
+     * @var 'boxes_column_left'|'boxes_column_right'
+     */
+    public $group = 'boxes';
+    public $title;
+    public $description;
+    public $sort_order;
+    /**
+     * @var bool
+     */
+    public $enabled = false;
 
     function __construct() {
       $this->title = OSCOM::getDef('module_boxes_order_history_title');
@@ -29,7 +35,7 @@
       }
     }
 
-    function execute() {
+    function execute(): void {
       global $PHP_SELF, $oscTemplate;
 
       $OSCOM_Db = Registry::get('Db');
@@ -56,7 +62,7 @@
           $Qproducts->execute();
 
           while ($Qproducts->fetch()) {
-            $customer_orders_string .= '<li><span class="pull-right"><a href="' . OSCOM::link(basename($PHP_SELF), tep_get_all_get_params(array('action')) . 'action=cust_order&pid=' . $Qproducts->valueInt('products_id')) . '"><span class="fa fa-shopping-cart"></span></a></span><a href="' . OSCOM::link('product_info.php', 'products_id=' . $Qproducts->valueInt('products_id')) . '">' . $Qproducts->value('products_name') . '</a></li>';
+            $customer_orders_string .= '<li><span class="pull-right"><a href="' . OSCOM::link(basename((string) $PHP_SELF), tep_get_all_get_params(['action']) . 'action=cust_order&pid=' . $Qproducts->valueInt('products_id')) . '"><span class="fa fa-shopping-cart"></span></a></span><a href="' . OSCOM::link('product_info.php', 'products_id=' . $Qproducts->valueInt('products_id')) . '">' . $Qproducts->value('products_name') . '</a></li>';
           }
 
           ob_start();
@@ -72,11 +78,11 @@
       return $this->enabled;
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_BOXES_ORDER_HISTORY_STATUS');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -116,8 +122,8 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_BOXES_ORDER_HISTORY_STATUS', 'MODULE_BOXES_ORDER_HISTORY_CONTENT_PLACEMENT', 'MODULE_BOXES_ORDER_HISTORY_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_BOXES_ORDER_HISTORY_STATUS', 'MODULE_BOXES_ORDER_HISTORY_CONTENT_PLACEMENT', 'MODULE_BOXES_ORDER_HISTORY_SORT_ORDER'];
     }
   }
 

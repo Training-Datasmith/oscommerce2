@@ -47,10 +47,7 @@ abstract class AppAbstract
 
         array_unshift($args, 'index.php');
 
-        return forward_static_call_array([
-            'OSC\OM\OSCOM',
-            'link'
-        ], $args);
+        return forward_static_call_array(\OSC\OM\OSCOM::link(...), $args);
     }
 
     final public function redirect()
@@ -67,10 +64,7 @@ abstract class AppAbstract
 
         array_unshift($args, 'index.php');
 
-        return forward_static_call_array([
-            'OSC\OM\OSCOM',
-            'redirect'
-        ], $args);
+        return forward_static_call_array(\OSC\OM\OSCOM::redirect(...), $args);
     }
 
     final public function getCode()
@@ -102,7 +96,7 @@ abstract class AppAbstract
     {
     }
 
-    final private function setInfo()
+    private function setInfo()
     {
         $r = new \ReflectionClass($this);
 
@@ -141,7 +135,7 @@ abstract class AppAbstract
         return call_user_func_array([$this->lang, 'getDef'], $args);
     }
 
-    final public function definitionsExist($group, $language_code = null)
+    final public function definitionsExist(string $group, $language_code = null)
     {
         $language_code = isset($language_code) && $this->lang->exists($language_code) ? $language_code : $this->lang->get('code');
 
@@ -158,7 +152,7 @@ abstract class AppAbstract
         return false;
     }
 
-    final public function loadDefinitions($group, $language_code = null)
+    final public function loadDefinitions($group, $language_code = null): void
     {
         $language_code = isset($language_code) && $this->lang->exists($language_code) ? $language_code : $this->lang->get('code');
 
@@ -175,7 +169,7 @@ abstract class AppAbstract
         $this->lang->injectDefinitions($defs, $this->vendor . '-' . $this->code);
     }
 
-    final public function saveCfgParam($key, $value, $title = null, $description = null, $set_func = null)
+    final public function saveCfgParam($key, $value, $title = null, $description = null, $set_func = null): void
     {
         if (is_null($value)) {
             $value = '';
@@ -216,7 +210,7 @@ abstract class AppAbstract
         }
     }
 
-    final public function deleteCfgParam($key)
+    final public function deleteCfgParam($key): void
     {
         $this->db->delete('configuration', [
             'configuration_key' => $key

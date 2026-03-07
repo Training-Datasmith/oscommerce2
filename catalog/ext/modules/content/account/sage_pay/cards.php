@@ -17,7 +17,7 @@
     OSCOM::redirect('login.php');
   }
 
-  if ( defined('MODULE_PAYMENT_INSTALLED') && tep_not_null(MODULE_PAYMENT_INSTALLED) && in_array('sage_pay_direct.php', explode(';', MODULE_PAYMENT_INSTALLED)) ) {
+  if ( defined('MODULE_PAYMENT_INSTALLED') && tep_not_null(MODULE_PAYMENT_INSTALLED) && in_array('sage_pay_direct.php', explode(';', (string) MODULE_PAYMENT_INSTALLED)) ) {
     if ( !class_exists('sage_pay_direct') ) {
       $OSCOM_Language->loadDefinitions('modules/payment/sage_pay_direct');
 
@@ -42,7 +42,7 @@
   }
 
   if ( isset($_GET['action']) ) {
-    if ( ($_GET['action'] == 'delete') && isset($_GET['id']) && is_numeric($_GET['id']) && isset($_GET['formid']) && ($_GET['formid'] == md5($_SESSION['sessiontoken']))) {
+    if ( ($_GET['action'] == 'delete') && isset($_GET['id']) && is_numeric($_GET['id']) && isset($_GET['formid']) && ($_GET['formid'] == md5((string) $_SESSION['sessiontoken']))) {
       $Qtoken = $OSCOM_Db->get('customers_sagepay_tokens', ['id', 'sagepay_token'], ['id' => $_GET['id'], 'customers_id' => $_SESSION['customer_id']]);
 
       if ($Qtoken->fetch() !== false) {
@@ -84,8 +84,8 @@
 ?>
 
     <div>
-      <span style="float: right;"><?php echo HTML::button(OSCOM::getDef('small_image_button_delete'), 'glyphicon glyphicon-trash', OSCOM::link('ext/modules/content/account/sage_pay/cards.php', 'action=delete&id=' . $Qtokens->valueInt('id') . '&formid=' . md5($_SESSION['sessiontoken']))); ?></span>
-      <p><strong><?php echo $Qtokens->valueProtected('card_type'); ?></strong>&nbsp;&nbsp;****<?php echo $Qtokens->valueProtected('number_filtered') . '&nbsp;&nbsp;' . HTML::outputProtected(substr($Qtokens->value('expiry_date'), 0, 2) . '/' . substr($Qtokens->value('expiry_date'), 2)); ?></p>
+      <span style="float: right;"><?php echo HTML::button(OSCOM::getDef('small_image_button_delete'), 'glyphicon glyphicon-trash', OSCOM::link('ext/modules/content/account/sage_pay/cards.php', 'action=delete&id=' . $Qtokens->valueInt('id') . '&formid=' . md5((string) $_SESSION['sessiontoken']))); ?></span>
+      <p><strong><?php echo $Qtokens->valueProtected('card_type'); ?></strong>&nbsp;&nbsp;****<?php echo $Qtokens->valueProtected('number_filtered') . '&nbsp;&nbsp;' . HTML::outputProtected(substr((string) $Qtokens->value('expiry_date'), 0, 2) . '/' . substr((string) $Qtokens->value('expiry_date'), 2)); ?></p>
     </div>
 
 <?php

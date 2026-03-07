@@ -10,7 +10,7 @@
   use OSC\OM\Registry;
 
   class securityCheck_download_directory {
-    var $type = 'warning';
+    public $type = 'warning';
 
     protected $lang;
 

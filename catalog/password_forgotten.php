@@ -32,9 +32,9 @@
 
         $OSCOM_Db->save('customers_info', ['password_reset_key' => $reset_key, 'password_reset_date' => 'now()'], ['customers_info_id' => $Qcheck->valueInt('customers_id')]);
 
-        $reset_key_url = OSCOM::link('password_reset.php', 'account=' . urlencode($email_address) . '&key=' . $reset_key, false);
+        $reset_key_url = OSCOM::link('password_reset.php', 'account=' . urlencode((string) $email_address) . '&key=' . $reset_key, false);
 
-        if ( strpos($reset_key_url, '&amp;') !== false ) {
+        if ( str_contains($reset_key_url, '&amp;') ) {
           $reset_key_url = str_replace('&amp;', '&', $reset_key_url);
         }
 

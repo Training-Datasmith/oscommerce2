@@ -10,9 +10,9 @@
 
   foreach ( $cl_box_groups as &$group ) {
     if ( $group['heading'] == OSCOM::getDef('box_heading_modules') ) {
-      $group['apps'][] = array('code' => 'modules_hooks.php',
+      $group['apps'][] = ['code' => 'modules_hooks.php',
                                'title' => OSCOM::getDef('modules_admin_menu_modules_hooks'),
-                               'link' => OSCOM::link('modules_hooks.php'));
+                               'link' => OSCOM::link('modules_hooks.php')];
 
       break;
     }

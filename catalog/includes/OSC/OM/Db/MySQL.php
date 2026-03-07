@@ -32,7 +32,7 @@ class MySQL extends \OSC\OM\Db
         return $this->connect();
     }
 
-    public function connect()
+    public function connect(): static
     {
         $dsn_array = [];
 
@@ -40,7 +40,7 @@ class MySQL extends \OSC\OM\Db
             $dsn_array[] = 'dbname=' . $this->database;
         }
 
-        if ((strpos($this->server, '/') !== false) || (strpos($this->server, '\\') !== false)) {
+        if ((str_contains((string) $this->server, '/')) || (str_contains((string) $this->server, '\\'))) {
             $dsn_array[] = 'unix_socket=' . $this->server;
         } else {
             $dsn_array[] = 'host=' . $this->server;
@@ -56,8 +56,6 @@ class MySQL extends \OSC\OM\Db
 
         $this->connected = true;
 
-        $dbh = parent::__construct($dsn, $this->username, $this->password, $this->driver_options);
-
-        return $dbh;
+        return parent::__construct($dsn, $this->username, $this->password, $this->driver_options);
     }
 }

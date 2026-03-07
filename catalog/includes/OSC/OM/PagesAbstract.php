@@ -16,20 +16,18 @@ abstract class PagesAbstract implements \OSC\OM\PagesInterface
 {
     public $data = [];
 
-    protected $code;
+    protected string $code;
     protected $file = 'main.php';
     protected $use_site_template = true;
-    protected $site;
     protected $actions_run = [];
     protected $ignored_actions = [];
     protected $is_rpc = false;
 
     protected $app;
 
-    final public function __construct(\OSC\OM\SitesInterface $site)
+    final public function __construct(protected \OSC\OM\SitesInterface $site)
     {
         $this->code = (new \ReflectionClass($this))->getShortName();
-        $this->site = $site;
 
         $this->init();
     }
@@ -55,7 +53,7 @@ abstract class PagesAbstract implements \OSC\OM\PagesInterface
         return $this->use_site_template;
     }
 
-    public function setFile($file)
+    public function setFile($file): void
     {
         $this->file = $file;
     }
@@ -69,7 +67,7 @@ abstract class PagesAbstract implements \OSC\OM\PagesInterface
         }
 
         if (!empty($furious_pete)) {
-            $action = HTML::sanitize(basename($furious_pete[0]));
+            $action = HTML::sanitize(basename((string) $furious_pete[0]));
 
             if (!in_array($action, $this->ignored_actions) && $this->actionExists($action)) {
                 return true;
@@ -79,7 +77,7 @@ abstract class PagesAbstract implements \OSC\OM\PagesInterface
         return false;
     }
 
-    public function runAction($actions)
+    public function runAction($actions): void
     {
         if (!is_array($actions)) {
             $actions = [
@@ -100,7 +98,7 @@ abstract class PagesAbstract implements \OSC\OM\PagesInterface
                 $ns = explode('\\', $class);
 
                 if ((count($ns) > 2) && ($ns[0] == 'OSC') && ($ns[1] == 'Apps')) {
-                    if (isset($this->app) && is_subclass_of($this->app, 'OSC\OM\AppAbstract')) {
+                    if (isset($this->app) && is_subclass_of($this->app, \OSC\OM\AppAbstract::class)) {
                         if ($this->app->definitionsExist(implode('/', array_slice($ns, 4)))) {
                             $this->app->loadDefinitions(implode('/', array_slice($ns, 4)));
                         }
@@ -120,7 +118,7 @@ abstract class PagesAbstract implements \OSC\OM\PagesInterface
         }
     }
 
-    public function runActions()
+    public function runActions(): void
     {
         $actions = $furious_pete = [];
 
@@ -129,7 +127,7 @@ abstract class PagesAbstract implements \OSC\OM\PagesInterface
         }
 
         foreach ($furious_pete as $action) {
-            $action = HTML::sanitize(basename($action));
+            $action = HTML::sanitize(basename((string) $action));
 
             $actions[] = $action;
 
@@ -156,11 +154,10 @@ abstract class PagesAbstract implements \OSC\OM\PagesInterface
         $class = $this->getActionClassName($action);
 
         if (class_exists($class)) {
-            if (is_subclass_of($class, 'OSC\OM\PagesActionsInterface')) {
+            if (is_subclass_of($class, \OSC\OM\PagesActionsInterface::class)) {
                 return true;
-            } else {
-                trigger_error('OSC\OM\PagesAbstract::actionExists() - ' . implode('\\', $action) . ': Action does not implement OSC\OM\PagesActionInterface and cannot be loaded.');
             }
+            trigger_error('OSC\OM\PagesAbstract::actionExists() - ' . implode('\\', $action) . ': Action does not implement OSC\OM\PagesActionInterface and cannot be loaded.');
         }
 
         return false;

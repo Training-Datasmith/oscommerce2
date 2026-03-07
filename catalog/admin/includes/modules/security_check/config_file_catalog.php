@@ -11,7 +11,7 @@
   use OSC\OM\Registry;
 
   class securityCheck_config_file_catalog {
-    var $type = 'warning';
+    public $type = 'warning';
 
     protected $lang;
 
@@ -21,7 +21,7 @@
       $this->lang->loadDefinitions('modules/security_check/config_file_catalog');
     }
 
-    function pass() {
+    function pass(): bool {
       return !FileSystem::isWritable(OSCOM::getConfig('dir_root', 'Shop') . 'includes/configure.php');
     }
 

@@ -10,7 +10,10 @@ namespace OSC\OM;
 
 class FileSystem
 {
-    public static function getDirectoryContents($base)
+    /**
+     * @return mixed[]
+     */
+    public static function getDirectoryContents($base): array
     {
         $base = str_replace('\\', '/', $base); // Unix style directory separator "/"
 
@@ -25,12 +28,12 @@ class FileSystem
         return $result;
     }
 
-    public static function isWritable($location, $recursive_check = false)
+    public static function isWritable($location, $recursive_check = false): bool
     {
         if ($recursive_check === true) {
             if (!file_exists($location)) {
                 while (true) {
-                    $location = dirname($location);
+                    $location = dirname((string) $location);
 
                     if (file_exists($location)) {
                         break;
@@ -42,7 +45,10 @@ class FileSystem
         return is_writable($location);
     }
 
-    public static function rmdir($dir, $dry_run = false)
+    /**
+     * @return mixed[]
+     */
+    public static function rmdir(string $dir, $dry_run = false): array
     {
         $result = [];
 
@@ -71,7 +77,7 @@ class FileSystem
         return $result;
     }
 
-    public static function displayPath($pathname)
+    public static function displayPath($pathname): string|array
     {
         return str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $pathname);
     }

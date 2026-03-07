@@ -11,13 +11,19 @@
   use OSC\OM\Registry;
 
   class ar_reset_password {
-    var $code = 'ar_reset_password';
-    var $title;
-    var $description;
-    var $sort_order = 0;
-    var $minutes = 5;
-    var $attempts = 1;
-    var $identifier;
+    public $code = 'ar_reset_password';
+    public $title;
+    public $description;
+    public $sort_order = 0;
+    /**
+     * @var int
+     */
+    public $minutes = 5;
+    /**
+     * @var int
+     */
+    public $attempts = 1;
+    public $identifier;
 
     function __construct() {
       $this->title = OSCOM::getDef('module_action_recorder_reset_password_title');
@@ -29,11 +35,11 @@
       }
     }
 
-    function setIdentifier() {
+    function setIdentifier(): void {
       $this->identifier = HTTP::getIpAddress();
     }
 
-    function canPerform($user_id, $user_name) {
+    function canPerform($user_id, $user_name): bool {
       $OSCOM_Db = Registry::get('Db');
 
       $Qcheck = $OSCOM_Db->prepare('select id from :table_action_recorder where module = :module and user_name = :user_name and date_added >= date_sub(now(), interval :limit_minutes minute) and success = 1 limit :limit_attempts');
@@ -59,11 +65,11 @@
       return $Qdel->rowCount();
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_ACTION_RECORDER_RESET_PASSWORD_MINUTES');
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [
@@ -91,8 +97,8 @@
       return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys() {
-      return array('MODULE_ACTION_RECORDER_RESET_PASSWORD_MINUTES', 'MODULE_ACTION_RECORDER_RESET_PASSWORD_ATTEMPTS');
+    function keys(): array {
+      return ['MODULE_ACTION_RECORDER_RESET_PASSWORD_MINUTES', 'MODULE_ACTION_RECORDER_RESET_PASSWORD_ATTEMPTS'];
     }
   }
 ?>

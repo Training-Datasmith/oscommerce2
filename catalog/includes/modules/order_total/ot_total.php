@@ -10,7 +10,7 @@
   use OSC\OM\Registry;
 
   class ot_total {
-    var $title, $output;
+    public $title, $output;
 
     function __construct() {
       $this->code = 'ot_total';
@@ -19,26 +19,26 @@
       $this->enabled = defined('MODULE_ORDER_TOTAL_TOTAL_STATUS') && (MODULE_ORDER_TOTAL_TOTAL_STATUS == 'true') ? true : false;
       $this->sort_order = defined('MODULE_ORDER_TOTAL_TOTAL_SORT_ORDER') && ((int)MODULE_ORDER_TOTAL_TOTAL_SORT_ORDER > 0) ? (int)MODULE_ORDER_TOTAL_TOTAL_SORT_ORDER : 0;
 
-      $this->output = array();
+      $this->output = [];
     }
 
-    function process() {
+    function process(): void {
       global $order, $currencies;
 
-      $this->output[] = array('title' => $this->title . ':',
+      $this->output[] = ['title' => $this->title . ':',
                               'text' => '<strong>' . $currencies->format($order->info['total'], true, $order->info['currency'], $order->info['currency_value']) . '</strong>',
-                              'value' => $order->info['total']);
+                              'value' => $order->info['total']];
     }
 
-    function check() {
+    function check(): bool {
       return defined('MODULE_ORDER_TOTAL_TOTAL_STATUS');
     }
 
-    function keys() {
-      return array('MODULE_ORDER_TOTAL_TOTAL_STATUS', 'MODULE_ORDER_TOTAL_TOTAL_SORT_ORDER');
+    function keys(): array {
+      return ['MODULE_ORDER_TOTAL_TOTAL_STATUS', 'MODULE_ORDER_TOTAL_TOTAL_SORT_ORDER'];
     }
 
-    function install() {
+    function install(): void {
       $OSCOM_Db = Registry::get('Db');
 
       $OSCOM_Db->save('configuration', [

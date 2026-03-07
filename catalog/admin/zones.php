@@ -15,7 +15,7 @@
     $_GET['page'] = 1;
   }
 
-  $action = (isset($_GET['action']) ? $_GET['action'] : '');
+  $action = ($_GET['action'] ?? '');
 
   if (tep_not_null($action)) {
     switch ($action) {
@@ -85,7 +85,7 @@
   $Qzones->execute();
 
   while ($Qzones->fetch()) {
-    if ((!isset($_GET['cID']) || (isset($_GET['cID']) && ((int)$_GET['cID'] === $Qzones->valueInt('zone_id')))) && !isset($cInfo) && (substr($action, 0, 3) != 'new')) {
+    if ((!isset($_GET['cID']) || (isset($_GET['cID']) && ((int)$_GET['cID'] === $Qzones->valueInt('zone_id')))) && !isset($cInfo) && (!str_starts_with($action, 'new'))) {
       $cInfo = new objectInfo($Qzones->toArray());
     }
 
@@ -122,45 +122,45 @@
               </tr>
             </table></td>
 <?php
-  $heading = array();
-  $contents = array();
+  $heading = [];
+  $contents = [];
 
   switch ($action) {
     case 'new':
-      $heading[] = array('text' => '<strong>' . OSCOM::getDef('text_info_heading_new_zone') . '</strong>');
+      $heading[] = ['text' => '<strong>' . OSCOM::getDef('text_info_heading_new_zone') . '</strong>'];
 
-      $contents = array('form' => HTML::form('zones', OSCOM::link(FILENAME_ZONES, 'page=' . $_GET['page'] . '&action=insert')));
-      $contents[] = array('text' => OSCOM::getDef('text_info_insert_intro'));
-      $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_zones_name') . '<br />' . HTML::inputField('zone_name'));
-      $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_zones_code') . '<br />' . HTML::inputField('zone_code'));
-      $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_country_name') . '<br />' . HTML::selectField('zone_country_id', tep_get_countries()));
-      $contents[] = array('align' => 'center', 'text' => '<br />' . HTML::button(OSCOM::getDef('image_save'), 'fa fa-save') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_ZONES, 'page=' . $_GET['page'])));
+      $contents = ['form' => HTML::form('zones', OSCOM::link(FILENAME_ZONES, 'page=' . $_GET['page'] . '&action=insert'))];
+      $contents[] = ['text' => OSCOM::getDef('text_info_insert_intro')];
+      $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_zones_name') . '<br />' . HTML::inputField('zone_name')];
+      $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_zones_code') . '<br />' . HTML::inputField('zone_code')];
+      $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_country_name') . '<br />' . HTML::selectField('zone_country_id', tep_get_countries())];
+      $contents[] = ['align' => 'center', 'text' => '<br />' . HTML::button(OSCOM::getDef('image_save'), 'fa fa-save') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_ZONES, 'page=' . $_GET['page']))];
       break;
     case 'edit':
-      $heading[] = array('text' => '<strong>' . OSCOM::getDef('text_info_heading_edit_zone') . '</strong>');
+      $heading[] = ['text' => '<strong>' . OSCOM::getDef('text_info_heading_edit_zone') . '</strong>'];
 
-      $contents = array('form' => HTML::form('zones', OSCOM::link(FILENAME_ZONES, 'page=' . $_GET['page'] . '&cID=' . $cInfo->zone_id . '&action=save')));
-      $contents[] = array('text' => OSCOM::getDef('text_info_edit_intro'));
-      $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_zones_name') . '<br />' . HTML::inputField('zone_name', $cInfo->zone_name));
-      $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_zones_code') . '<br />' . HTML::inputField('zone_code', $cInfo->zone_code));
-      $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_country_name') . '<br />' . HTML::selectField('zone_country_id', tep_get_countries(), $cInfo->countries_id));
-      $contents[] = array('align' => 'center', 'text' => '<br />' . HTML::button(OSCOM::getDef('image_save'), 'fa fa-save') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_ZONES, 'page=' . $_GET['page'] . '&cID=' . $cInfo->zone_id)));
+      $contents = ['form' => HTML::form('zones', OSCOM::link(FILENAME_ZONES, 'page=' . $_GET['page'] . '&cID=' . $cInfo->zone_id . '&action=save'))];
+      $contents[] = ['text' => OSCOM::getDef('text_info_edit_intro')];
+      $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_zones_name') . '<br />' . HTML::inputField('zone_name', $cInfo->zone_name)];
+      $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_zones_code') . '<br />' . HTML::inputField('zone_code', $cInfo->zone_code)];
+      $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_country_name') . '<br />' . HTML::selectField('zone_country_id', tep_get_countries(), $cInfo->countries_id)];
+      $contents[] = ['align' => 'center', 'text' => '<br />' . HTML::button(OSCOM::getDef('image_save'), 'fa fa-save') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_ZONES, 'page=' . $_GET['page'] . '&cID=' . $cInfo->zone_id))];
       break;
     case 'delete':
-      $heading[] = array('text' => '<strong>' . OSCOM::getDef('text_info_heading_delete_zone') . '</strong>');
+      $heading[] = ['text' => '<strong>' . OSCOM::getDef('text_info_heading_delete_zone') . '</strong>'];
 
-      $contents = array('form' => HTML::form('zones', OSCOM::link(FILENAME_ZONES, 'page=' . $_GET['page'] . '&cID=' . $cInfo->zone_id . '&action=deleteconfirm')));
-      $contents[] = array('text' => OSCOM::getDef('text_info_delete_intro'));
-      $contents[] = array('text' => '<br /><strong>' . $cInfo->zone_name . '</strong>');
-      $contents[] = array('align' => 'center', 'text' => '<br />' . HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_ZONES, 'page=' . $_GET['page'] . '&cID=' . $cInfo->zone_id)));
+      $contents = ['form' => HTML::form('zones', OSCOM::link(FILENAME_ZONES, 'page=' . $_GET['page'] . '&cID=' . $cInfo->zone_id . '&action=deleteconfirm'))];
+      $contents[] = ['text' => OSCOM::getDef('text_info_delete_intro')];
+      $contents[] = ['text' => '<br /><strong>' . $cInfo->zone_name . '</strong>'];
+      $contents[] = ['align' => 'center', 'text' => '<br />' . HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash') . HTML::button(OSCOM::getDef('image_cancel'), 'fa fa-close', OSCOM::link(FILENAME_ZONES, 'page=' . $_GET['page'] . '&cID=' . $cInfo->zone_id))];
       break;
     default:
       if (isset($cInfo) && is_object($cInfo)) {
-        $heading[] = array('text' => '<strong>' . $cInfo->zone_name . '</strong>');
+        $heading[] = ['text' => '<strong>' . $cInfo->zone_name . '</strong>'];
 
-        $contents[] = array('align' => 'center', 'text' => HTML::button(OSCOM::getDef('image_edit'), 'fa fa-edit', OSCOM::link(FILENAME_ZONES, 'page=' . $_GET['page'] . '&cID=' . $cInfo->zone_id . '&action=edit')) . HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash', OSCOM::link(FILENAME_ZONES, 'page=' . $_GET['page'] . '&cID=' . $cInfo->zone_id . '&action=delete')));
-        $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_zones_name') . '<br />' . $cInfo->zone_name . ' (' . $cInfo->zone_code . ')');
-        $contents[] = array('text' => '<br />' . OSCOM::getDef('text_info_country_name') . ' ' . $cInfo->countries_name);
+        $contents[] = ['align' => 'center', 'text' => HTML::button(OSCOM::getDef('image_edit'), 'fa fa-edit', OSCOM::link(FILENAME_ZONES, 'page=' . $_GET['page'] . '&cID=' . $cInfo->zone_id . '&action=edit')) . HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash', OSCOM::link(FILENAME_ZONES, 'page=' . $_GET['page'] . '&cID=' . $cInfo->zone_id . '&action=delete'))];
+        $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_zones_name') . '<br />' . $cInfo->zone_name . ' (' . $cInfo->zone_code . ')'];
+        $contents[] = ['text' => '<br />' . OSCOM::getDef('text_info_country_name') . ' ' . $cInfo->countries_name];
       }
       break;
   }

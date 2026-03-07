@@ -10,9 +10,9 @@
   use OSC\OM\Registry;
 
   class actionRecorder {
-    var $_module;
-    var $_user_id;
-    var $_user_name;
+    public $_module;
+    public $_user_id;
+    public $_user_name;
 
     protected $lang;
 
@@ -24,20 +24,20 @@
       $module = HTML::sanitize(str_replace(' ', '', $module));
 
       if (defined('MODULE_ACTION_RECORDER_INSTALLED') && tep_not_null(MODULE_ACTION_RECORDER_INSTALLED)) {
-        if (tep_not_null($module) && in_array($module . '.' . substr($PHP_SELF, (strrpos($PHP_SELF, '.')+1)), explode(';', MODULE_ACTION_RECORDER_INSTALLED))) {
+        if (tep_not_null($module) && in_array($module . '.' . substr((string) $PHP_SELF, (strrpos((string) $PHP_SELF, '.')+1)), explode(';', (string) MODULE_ACTION_RECORDER_INSTALLED))) {
           if (!class_exists($module)) {
-            if (is_file('includes/modules/action_recorder/' . $module . '.' . substr($PHP_SELF, (strrpos($PHP_SELF, '.')+1)))) {
+            if (is_file('includes/modules/action_recorder/' . $module . '.' . substr((string) $PHP_SELF, (strrpos((string) $PHP_SELF, '.')+1)))) {
               $this->lang->loadDefinitions('modules/action_recorder/' . $module);
-              include('includes/modules/action_recorder/' . $module . '.' . substr($PHP_SELF, (strrpos($PHP_SELF, '.')+1)));
+              include('includes/modules/action_recorder/' . $module . '.' . substr((string) $PHP_SELF, (strrpos((string) $PHP_SELF, '.')+1)));
             } else {
-              return false;
+              return;
             }
           }
         } else {
-          return false;
+          return;
         }
       } else {
-        return false;
+        return;
       }
 
       $this->_module = $module;
@@ -74,7 +74,7 @@
       }
     }
 
-    function record($success = true) {
+    function record($success = true): void {
       $OSCOM_Db = Registry::get('Db');
 
       if (tep_not_null($this->_module)) {

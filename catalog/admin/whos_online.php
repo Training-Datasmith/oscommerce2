@@ -74,7 +74,7 @@
                 <td class="dataTableContent" align="center"><?php echo $Qonline->value('ip_address'); ?></td>
                 <td class="dataTableContent"><?php echo date('H:i:s', $Qonline->value('time_entry')); ?></td>
                 <td class="dataTableContent" align="center"><?php echo date('H:i:s', $Qonline->value('time_last_click')); ?></td>
-                <td class="dataTableContent"><?php if (preg_match('/^(.*)osCsid=[A-Z0-9,-]+[&]*(.*)/i', $Qonline->value('last_page_url'), $array)) { echo $array[1] . $array[2]; } else { echo $Qonline->value('last_page_url'); } ?></td>
+                <td class="dataTableContent"><?php if (preg_match('/^(.*)osCsid=[A-Z0-9,-]+[&]*(.*)/i', (string) $Qonline->value('last_page_url'), $array)) { echo $array[1] . $array[2]; } else { echo $Qonline->value('last_page_url'); } ?></td>
                 <td class="dataTableContent" align="right"><?php if (isset($info) && is_object($info) && ($Qonline->value('session_id') == $info->session_id)) { echo HTML::image(OSCOM::linkImage('icon_arrow_right.gif'), ''); } else { echo '<a href="' . OSCOM::link(FILENAME_WHOS_ONLINE, 'page=' . $_GET['page'] . '&info=' . $Qonline->value('session_id')) . '">' . HTML::image(OSCOM::linkImage('icon_info.gif'), OSCOM::getDef('image_icon_info')) . '</a>'; } ?>&nbsp;</td>
               </tr>
 <?php
@@ -90,11 +90,11 @@
               </tr>
             </table></td>
 <?php
-  $heading = array();
-  $contents = array();
+  $heading = [];
+  $contents = [];
 
   if (isset($info)) {
-    $heading[] = array('text' => '<strong>' . OSCOM::getDef('table_heading_shopping_cart') . '</strong>');
+    $heading[] = ['text' => '<strong>' . OSCOM::getDef('table_heading_shopping_cart') . '</strong>'];
 
     if ( $info->customer_id > 0 ) {
       $Qproducts = $OSCOM_Db->get([
@@ -122,9 +122,9 @@
 
           $attributes = [];
 
-          if (strpos($Qproducts->value('products_id'), '{') !== false) {
+          if (str_contains((string) $Qproducts->value('products_id'), '{')) {
             $combos = [];
-            preg_match_all('/(\{[0-9]+\}[0-9]+){1}/', $Qproducts->value('products_id'), $combos);
+            preg_match_all('/(\{[0-9]+\}[0-9]+){1}/', (string) $Qproducts->value('products_id'), $combos);
 
             foreach ($combos[0] as $combo) {
               $att = [];
@@ -137,12 +137,12 @@
           $shoppingCart->add_cart(tep_get_prid($Qproducts->value('products_id')), $Qproducts->valueInt('customers_basket_quantity'), $attributes);
         } while ($Qproducts->fetch());
 
-        $contents[] = array('align' => 'right', 'text'  => OSCOM::getDef('text_shopping_cart_subtotal') . ' ' . $currencies->format($shoppingCart->show_total()));
+        $contents[] = ['align' => 'right', 'text'  => OSCOM::getDef('text_shopping_cart_subtotal') . ' ' . $currencies->format($shoppingCart->show_total())];
       } else {
-        $contents[] = array('text' => '&nbsp;');
+        $contents[] = ['text' => '&nbsp;'];
       }
     } else {
-      $contents[] = array('text' => 'N/A');
+      $contents[] = ['text' => 'N/A'];
     }
   }
 

@@ -10,7 +10,7 @@
   use OSC\OM\Registry;
 
   class securityCheck_default_currency {
-    var $type = 'error';
+    public $type = 'error';
 
     protected $lang;
 
@@ -20,7 +20,7 @@
       $this->lang->loadDefinitions('modules/security_check/default_currency');
     }
 
-    function pass() {
+    function pass(): bool {
       return defined('DEFAULT_CURRENCY');
     }
 
