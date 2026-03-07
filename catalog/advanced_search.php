@@ -6,16 +6,16 @@
   * @license MIT; https://www.oscommerce.com/license/mit.txt
   */
 
-  use OSC\OM\HTML;
-  use OSC\OM\OSCOM;
+use OSC\OM\HTML;
+use OSC\OM\OSCOM;
 
-  require('includes/application_top.php');
+require('includes/application_top.php');
 
-  $OSCOM_Language->loadDefinitions('advanced_search');
+$OSCOM_Language->loadDefinitions('advanced_search');
 
-  $breadcrumb->add(OSCOM::getDef('navbar_title_1'), OSCOM::link('advanced_search.php'));
+$breadcrumb->add(OSCOM::getDef('navbar_title_1'), OSCOM::link('advanced_search.php'));
 
-  require($oscTemplate->getFile('template_top.php'));
+require($oscTemplate->getFile('template_top.php'));
 ?>
 
 <script src="<?= OSCOM::linkPublic('js/general.js'); ?>"></script>
@@ -108,7 +108,7 @@ function check_form() {
 
 <?php
   if ($messageStack->size('search') > 0) {
-    echo $messageStack->output('search');
+      echo $messageStack->output('search');
   }
 ?>
 
@@ -122,9 +122,9 @@ function check_form() {
       <div class="col-sm-9">
         <?php
         echo HTML::inputField('keywords', '', 'required aria-required="true" id="inputKeywords" placeholder="' . OSCOM::getDef('text_search_placeholder') . '"', 'search');
-        echo OSCOM::getDef('form_required_input');
-        echo HTML::hiddenField('search_in_description', '1');
-        ?>
+echo OSCOM::getDef('form_required_input');
+echo HTML::hiddenField('search_in_description', '1');
+?>
       </div>
     </div>
 
@@ -153,8 +153,8 @@ function check_form() {
       <label for="entryCategories" class="control-label col-sm-3"><?php echo OSCOM::getDef('entry_categories'); ?></label>
       <div class="col-sm-9">
         <?php
-        echo HTML::selectField('categories_id', tep_get_categories([['id' => '', 'text' => OSCOM::getDef('text_all_categories')]]), null, 'id="entryCategories"');
-        ?>
+echo HTML::selectField('categories_id', tep_get_categories([['id' => '', 'text' => OSCOM::getDef('text_all_categories')]]), null, 'id="entryCategories"');
+?>
       </div>
     </div>
     <div class="form-group">
@@ -171,40 +171,40 @@ function check_form() {
       <label for="entryManufacturers" class="control-label col-sm-3"><?php echo OSCOM::getDef('entry_manufacturers'); ?></label>
       <div class="col-sm-9">
         <?php
-        echo HTML::selectField('manufacturers_id', tep_get_manufacturers([['id' => '', 'text' => OSCOM::getDef('text_all_manufacturers')]]), null, 'id="entryManufacturers"');
-        ?>
+echo HTML::selectField('manufacturers_id', tep_get_manufacturers([['id' => '', 'text' => OSCOM::getDef('text_all_manufacturers')]]), null, 'id="entryManufacturers"');
+?>
       </div>
     </div>
     <div class="form-group">
       <label for="PriceFrom" class="control-label col-sm-3"><?php echo OSCOM::getDef('entry_price_from'); ?></label>
       <div class="col-sm-9">
         <?php
-        echo HTML::inputField('pfrom', '', 'id="PriceFrom" placeholder="' . OSCOM::getDef('entry_price_from_text') . '"');
-        ?>
+echo HTML::inputField('pfrom', '', 'id="PriceFrom" placeholder="' . OSCOM::getDef('entry_price_from_text') . '"');
+?>
       </div>
     </div>
     <div class="form-group">
       <label for="PriceTo" class="control-label col-sm-3"><?php echo OSCOM::getDef('entry_price_to'); ?></label>
       <div class="col-sm-9">
         <?php
-        echo HTML::inputField('pto', '', 'id="PriceTo" placeholder="' . OSCOM::getDef('entry_price_to_text') . '"');
-        ?>
+echo HTML::inputField('pto', '', 'id="PriceTo" placeholder="' . OSCOM::getDef('entry_price_to_text') . '"');
+?>
       </div>
     </div>
     <div class="form-group">
       <label for="dfrom" class="control-label col-sm-3"><?php echo OSCOM::getDef('entry_date_from'); ?></label>
       <div class="col-sm-9">
         <?php
-        echo HTML::inputField('dfrom', '', 'id="dfrom" placeholder="' . OSCOM::getDef('entry_date_from_text') . '"');
-        ?>
+echo HTML::inputField('dfrom', '', 'id="dfrom" placeholder="' . OSCOM::getDef('entry_date_from_text') . '"');
+?>
       </div>
     </div>
     <div class="form-group">
       <label for="dto" class="control-label col-sm-3"><?php echo OSCOM::getDef('entry_date_to'); ?></label>
       <div class="col-sm-9">
         <?php
-        echo HTML::inputField('dto', '', 'id="dto" placeholder="' . OSCOM::getDef('entry_date_to_text') . '"');
-        ?>
+echo HTML::inputField('dto', '', 'id="dto" placeholder="' . OSCOM::getDef('entry_date_to_text') . '"');
+?>
       </div>
     </div>
   </div>
@@ -215,5 +215,5 @@ function check_form() {
 
 <?php
   require($oscTemplate->getFile('template_bottom.php'));
-  require('includes/application_bottom.php');
+require('includes/application_bottom.php');
 ?>

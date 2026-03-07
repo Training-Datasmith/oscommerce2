@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -6,15 +8,14 @@
   * @license MIT; https://www.oscommerce.com/license/mit.txt
   */
 
-  use OSC\OM\OSCOM;
+use OSC\OM\OSCOM;
 
-  foreach ( $cl_box_groups as &$group ) {
-    if ( $group['heading'] == OSCOM::getDef('box_heading_modules') ) {
-      $group['apps'][] = ['code' => 'modules_content.php',
-                               'title' => OSCOM::getDef('modules_admin_menu_modules_content'),
-                               'link' => OSCOM::link('modules_content.php')];
+foreach ($cl_box_groups as &$group) {
+    if ($group['heading'] == OSCOM::getDef('box_heading_modules')) {
+        $group['apps'][] = ['code' => 'modules_content.php',
+                                 'title' => OSCOM::getDef('modules_admin_menu_modules_content'),
+                                 'link' => OSCOM::link('modules_content.php')];
 
-      break;
+        break;
     }
-  }
-?>
+}

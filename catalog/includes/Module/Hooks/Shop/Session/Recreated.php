@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -12,8 +14,9 @@ use OSC\OM\Hash;
 
 class Recreated
 {
-    public function execute($parameters): void {
-// reset session token
+    public function execute($parameters): void
+    {
+        // reset session token
         $_SESSION['sessiontoken'] = md5(Hash::getRandomInt() . Hash::getRandomInt() . Hash::getRandomInt() . Hash::getRandomInt());
     }
 }

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -7,13 +9,6 @@
   */
 
 namespace OSC\OM;
-
-use OSC\OM\Cache;
-use OSC\OM\Db;
-use OSC\OM\HTML;
-use OSC\OM\Language;
-use OSC\OM\OSCOM;
-use OSC\OM\Registry;
 
 class DbStatement extends \PDOStatement
 {
@@ -36,17 +31,18 @@ class DbStatement extends \PDOStatement
 
     public function bindInt($parameter, $value)
     {
-// force type to int (see http://bugs.php.net/bug.php?id=44639)
+        // force type to int (see http://bugs.php.net/bug.php?id=44639)
         return $this->bindValue($parameter, (int)$value, \PDO::PARAM_INT);
     }
 
     public function bindBool($parameter, $value)
     {
-// force type to bool (see http://bugs.php.net/bug.php?id=44639)
+        // force type to bool (see http://bugs.php.net/bug.php?id=44639)
         return $this->bindValue($parameter, (bool)$value, \PDO::PARAM_BOOL);
     }
 
-    public function bindDecimal($parameter, $value) {
+    public function bindDecimal($parameter, $value)
+    {
         return $this->bindValue($parameter, (float)$value); // there is no \PDO::PARAM_FLOAT
     }
 
@@ -136,8 +132,8 @@ class DbStatement extends \PDOStatement
         if ($this->cache_read === true) {
             $this->result = $this->cache_data;
         } else {
-// fetchAll() fails if second argument is passed in a fetch style that does not
-// use the optional argument
+            // fetchAll() fails if second argument is passed in a fetch style that does not
+            // use the optional argument
             if (in_array($fetch_style, [\PDO::FETCH_COLUMN, \PDO::FETCH_CLASS, \PDO::FETCH_FUNC])) {
                 $this->result = parent::fetchAll($fetch_style, $fetch_argument, $ctor_args);
             } else {
@@ -223,7 +219,8 @@ class DbStatement extends \PDOStatement
         return $this->valueMixed($column, 'decimal');
     }
 
-    public function hasValue($column): bool {
+    public function hasValue($column): bool
+    {
         if (!isset($this->result)) {
             $this->fetch();
         }
@@ -251,7 +248,8 @@ class DbStatement extends \PDOStatement
         return $this->query_call;
     }
 
-    public function getCurrentPageSet() {
+    public function getCurrentPageSet()
+    {
         return $this->page_set;
     }
 
@@ -287,7 +285,7 @@ class DbStatement extends \PDOStatement
         return '<span class="pagination">' . Language::parseDefinition($text, [
             'listing_from' => $from,
             'listing_to' => $to,
-            'listing_total' => $this->page_set_total_rows
+            'listing_total' => $this->page_set_total_rows,
         ]) . '</span>';
     }
 
@@ -316,7 +314,7 @@ class DbStatement extends \PDOStatement
         for ($i = 1; $i <= $number_of_pages; $i++) {
             $pages[] = [
                 'id' => $i,
-                'text' => $i
+                'text' => $i,
             ];
         }
 
@@ -328,14 +326,14 @@ class DbStatement extends \PDOStatement
             $output .= '<li class="disabled"><a class="text-center" style="width: 80px;">1</a></li>';
         }
 
-// previous button
+        // previous button
         if ($this->page_set > 1) {
             $output .= '<li><a href="' . OSCOM::link($PHP_SELF, $parameters . $this->page_set_keyword . '=' . ($this->page_set - 1)) . '" title="' . OSCOM::getDef('prevnext_title_previous_page') . '" class="text-center" style="width: 80px;"><span class="fa fa-fw fa-chevron-left"></span></a></li>';
         } else {
             $output .= '<li class="disabled"><a class="text-center" style="width: 80px;"><span class="fa fa-fw fa-chevron-left"></span></a></li>';
         }
 
-// next button
+        // next button
         if (($this->page_set < $number_of_pages) && ($number_of_pages != 1)) {
             $output .= '<li><a href="' . OSCOM::link($PHP_SELF, $parameters . $this->page_set_keyword . '=' . ($this->page_set + 1)) . '" title="' . OSCOM::getDef('prevnext_title_next_page') . '" class="text-center" style="width: 80px;"><span class="fa fa-fw fa-chevron-right"></span></a></li>';
         } else {
@@ -345,7 +343,7 @@ class DbStatement extends \PDOStatement
         $output .= '</ul>';
 
         if ($number_of_pages > 1) {
-          $output .= <<<EOD
+            $output .= <<<EOD
 <script>
 $(function() {
   $('select[name="pageset{$this->page_set_keyword}"]').on('change', function() {
@@ -368,7 +366,7 @@ EOD;
                 if (isset($this->page_set_total_rows)) {
                     $cache_data = [
                         'data' => $cache_data,
-                        'total' => $this->page_set_total_rows
+                        'total' => $this->page_set_total_rows,
                     ];
                 }
 

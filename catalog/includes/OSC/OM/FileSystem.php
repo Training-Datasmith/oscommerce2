@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -61,7 +63,7 @@ class FileSystem
                         $result[] = [
                             'type' => 'file',
                             'source' => $dir . '/' . $file,
-                            'result' => ($dry_run === false) ? unlink($dir . '/' . $file) : static::isWritable($dir . '/' . $file)
+                            'result' => ($dry_run === false) ? unlink($dir . '/' . $file) : static::isWritable($dir . '/' . $file),
                         ];
                     }
                 }
@@ -70,7 +72,7 @@ class FileSystem
             $result[] = [
                 'type' => 'directory',
                 'source' => $dir,
-                'result' => ($dry_run === false) ? rmdir($dir) : static::isWritable($dir)
+                'result' => ($dry_run === false) ? rmdir($dir) : static::isWritable($dir),
             ];
         }
 

@@ -6,26 +6,26 @@
   * @license MIT; https://www.oscommerce.com/license/mit.txt
   */
 
-  use OSC\OM\HTML;
-  use OSC\OM\OSCOM;
+use OSC\OM\HTML;
+use OSC\OM\OSCOM;
 
-  $xx_mins_ago = (time() - 900);
+$xx_mins_ago = (time() - 900);
 
-  require('includes/application_top.php');
+require('includes/application_top.php');
 
-  require('includes/classes/currencies.php');
-  $currencies = new currencies();
+require('includes/classes/currencies.php');
+$currencies = new currencies();
 
 // remove entries that have expired
-  $Qclean = $OSCOM_Db->prepare('delete from :table_whos_online where time_last_click < :last_click');
-  $Qclean->bindValue(':last_click', $xx_mins_ago);
-  $Qclean->execute();
+$Qclean = $OSCOM_Db->prepare('delete from :table_whos_online where time_last_click < :last_click');
+$Qclean->bindValue(':last_click', $xx_mins_ago);
+$Qclean->execute();
 
-  if (!isset($_GET['page']) || !is_numeric($_GET['page'])) {
+if (!isset($_GET['page']) || !is_numeric($_GET['page'])) {
     $_GET['page'] = 1;
-  }
+}
 
-  require($oscTemplate->getFile('template_top.php'));
+require($oscTemplate->getFile('template_top.php'));
 ?>
 
     <table border="0" width="100%" cellspacing="0" cellpadding="2">
@@ -52,33 +52,41 @@
               </tr>
 <?php
   $Qonline = $OSCOM_Db->prepare('select SQL_CALC_FOUND_ROWS customer_id, full_name, ip_address, time_entry, time_last_click, last_page_url, session_id from :table_whos_online order by time_last_click desc limit :page_set_offset, :page_set_max_results');
-  $Qonline->setPageSet(MAX_DISPLAY_SEARCH_RESULTS);
-  $Qonline->execute();
+$Qonline->setPageSet(MAX_DISPLAY_SEARCH_RESULTS);
+$Qonline->execute();
 
-  while ($Qonline->fetch()) {
+while ($Qonline->fetch()) {
     $time_online = (time() - $Qonline->value('time_entry'));
 
     if ((!isset($_GET['info']) || (isset($_GET['info']) && ($_GET['info'] == $Qonline->value('session_id')))) && !isset($info)) {
-      $info = new ObjectInfo($Qonline->toArray());
+        $info = new ObjectInfo($Qonline->toArray());
     }
 
     if (isset($info) && ($Qonline->value('session_id') == $info->session_id)) {
-      echo '              <tr id="defaultSelected" class="dataTableRowSelected" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)">' . "\n";
+        echo '              <tr id="defaultSelected" class="dataTableRowSelected" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)">' . "\n";
     } else {
-      echo '              <tr class="dataTableRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" onclick="document.location.href=\'' . OSCOM::link(FILENAME_WHOS_ONLINE, 'page=' . $_GET['page'] . '&info=' . $Qonline->value('session_id')) . '\'">' . "\n";
+        echo '              <tr class="dataTableRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" onclick="document.location.href=\'' . OSCOM::link(FILENAME_WHOS_ONLINE, 'page=' . $_GET['page'] . '&info=' . $Qonline->value('session_id')) . '\'">' . "\n";
     }
-?>
+    ?>
                 <td class="dataTableContent"><?php echo gmdate('H:i:s', $time_online); ?></td>
                 <td class="dataTableContent" align="center"><?php echo $Qonline->valueInt('customer_id'); ?></td>
                 <td class="dataTableContent"><?php echo $Qonline->valueProtected('full_name'); ?></td>
                 <td class="dataTableContent" align="center"><?php echo $Qonline->value('ip_address'); ?></td>
                 <td class="dataTableContent"><?php echo date('H:i:s', $Qonline->value('time_entry')); ?></td>
                 <td class="dataTableContent" align="center"><?php echo date('H:i:s', $Qonline->value('time_last_click')); ?></td>
-                <td class="dataTableContent"><?php if (preg_match('/^(.*)osCsid=[A-Z0-9,-]+[&]*(.*)/i', (string) $Qonline->value('last_page_url'), $array)) { echo $array[1] . $array[2]; } else { echo $Qonline->value('last_page_url'); } ?></td>
-                <td class="dataTableContent" align="right"><?php if (isset($info) && is_object($info) && ($Qonline->value('session_id') == $info->session_id)) { echo HTML::image(OSCOM::linkImage('icon_arrow_right.gif'), ''); } else { echo '<a href="' . OSCOM::link(FILENAME_WHOS_ONLINE, 'page=' . $_GET['page'] . '&info=' . $Qonline->value('session_id')) . '">' . HTML::image(OSCOM::linkImage('icon_info.gif'), OSCOM::getDef('image_icon_info')) . '</a>'; } ?>&nbsp;</td>
+                <td class="dataTableContent"><?php if (preg_match('/^(.*)osCsid=[A-Z0-9,-]+[&]*(.*)/i', (string) $Qonline->value('last_page_url'), $array)) {
+                    echo $array[1] . $array[2];
+                } else {
+                    echo $Qonline->value('last_page_url');
+                } ?></td>
+                <td class="dataTableContent" align="right"><?php if (isset($info) && is_object($info) && ($Qonline->value('session_id') == $info->session_id)) {
+                    echo HTML::image(OSCOM::linkImage('icon_arrow_right.gif'), '');
+                } else {
+                    echo '<a href="' . OSCOM::link(FILENAME_WHOS_ONLINE, 'page=' . $_GET['page'] . '&info=' . $Qonline->value('session_id')) . '">' . HTML::image(OSCOM::linkImage('icon_info.gif'), OSCOM::getDef('image_icon_info')) . '</a>';
+                } ?>&nbsp;</td>
               </tr>
 <?php
-  }
+}
 ?>
               <tr>
                 <td colspan="9"><table border="0" width="100%" cellspacing="0" cellpadding="2">
@@ -91,69 +99,69 @@
             </table></td>
 <?php
   $heading = [];
-  $contents = [];
+$contents = [];
 
-  if (isset($info)) {
+if (isset($info)) {
     $heading[] = ['text' => '<strong>' . OSCOM::getDef('table_heading_shopping_cart') . '</strong>'];
 
-    if ( $info->customer_id > 0 ) {
-      $Qproducts = $OSCOM_Db->get([
-        'customers_basket cb',
-        'products_description pd'
-      ], [
-        'cb.customers_basket_quantity',
-        'cb.products_id',
-        'pd.products_name'
-      ], [
-        'cb.customers_id' => (int)$info->customer_id,
-        'cb.products_id' => [
-          'rel' => 'pd.products_id'
-        ],
-        'pd.language_id' => $OSCOM_Language->getId()
-      ]);
+    if ($info->customer_id > 0) {
+        $Qproducts = $OSCOM_Db->get([
+          'customers_basket cb',
+          'products_description pd',
+        ], [
+          'cb.customers_basket_quantity',
+          'cb.products_id',
+          'pd.products_name',
+        ], [
+          'cb.customers_id' => (int)$info->customer_id,
+          'cb.products_id' => [
+            'rel' => 'pd.products_id',
+          ],
+          'pd.language_id' => $OSCOM_Language->getId(),
+        ]);
 
-      if ($Qproducts->fetch() !== false) {
-        $shoppingCart = new shoppingCart();
+        if ($Qproducts->fetch() !== false) {
+            $shoppingCart = new shoppingCart();
 
-        do {
-          $contents[] = [
-            'text' => $Qproducts->valueInt('customers_basket_quantity') . ' x ' . $Qproducts->value('products_name')
-          ];
+            do {
+                $contents[] = [
+                  'text' => $Qproducts->valueInt('customers_basket_quantity') . ' x ' . $Qproducts->value('products_name'),
+                ];
 
-          $attributes = [];
+                $attributes = [];
 
-          if (str_contains((string) $Qproducts->value('products_id'), '{')) {
-            $combos = [];
-            preg_match_all('/(\{[0-9]+\}[0-9]+){1}/', (string) $Qproducts->value('products_id'), $combos);
+                if (str_contains((string) $Qproducts->value('products_id'), '{')) {
+                    $combos = [];
+                    preg_match_all('/(\{[0-9]+\}[0-9]+){1}/', (string) $Qproducts->value('products_id'), $combos);
 
-            foreach ($combos[0] as $combo) {
-              $att = [];
-              preg_match('/\{([0-9]+)\}([0-9]+)/', $combo, $att);
+                    foreach ($combos[0] as $combo) {
+                        $att = [];
+                        preg_match('/\{([0-9]+)\}([0-9]+)/', $combo, $att);
 
-              $attributes[$att[1]] = $att[2];
-            }
-          }
+                        $attributes[$att[1]] = $att[2];
+                    }
+                }
 
-          $shoppingCart->add_cart(tep_get_prid($Qproducts->value('products_id')), $Qproducts->valueInt('customers_basket_quantity'), $attributes);
-        } while ($Qproducts->fetch());
+                $shoppingCart->add_cart(tep_get_prid($Qproducts->value('products_id')), $Qproducts->valueInt('customers_basket_quantity'), $attributes);
+            } while ($Qproducts->fetch());
 
-        $contents[] = ['align' => 'right', 'text'  => OSCOM::getDef('text_shopping_cart_subtotal') . ' ' . $currencies->format($shoppingCart->show_total())];
-      } else {
-        $contents[] = ['text' => '&nbsp;'];
-      }
+            $contents[] = ['align' => 'right', 'text'  => OSCOM::getDef('text_shopping_cart_subtotal') . ' ' . $currencies->format($shoppingCart->show_total())];
+        } else {
+            $contents[] = ['text' => '&nbsp;'];
+        }
     } else {
-      $contents[] = ['text' => 'N/A'];
+        $contents[] = ['text' => 'N/A'];
     }
-  }
+}
 
-  if ( (tep_not_null($heading)) && (tep_not_null($contents)) ) {
+if ((tep_not_null($heading)) && (tep_not_null($contents))) {
     echo '            <td width="25%" valign="top">' . "\n";
 
-    $box = new box;
+    $box = new box();
     echo $box->infoBox($heading, $contents);
 
     echo '            </td>' . "\n";
-  }
+}
 ?>
           </tr>
         </table></td>
@@ -162,5 +170,5 @@
 
 <?php
   require($oscTemplate->getFile('template_bottom.php'));
-  require('includes/application_bottom.php');
+require('includes/application_bottom.php');
 ?>

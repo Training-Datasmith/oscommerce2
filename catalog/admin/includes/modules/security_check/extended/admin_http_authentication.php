@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -6,29 +8,32 @@
   * @license MIT; https://www.oscommerce.com/license/mit.txt
   */
 
-  use OSC\OM\OSCOM;
-  use OSC\OM\Registry;
+use OSC\OM\OSCOM;
+use OSC\OM\Registry;
 
-  class securityCheckExtended_admin_http_authentication {
+class securityCheckExtended_admin_http_authentication
+{
     public $type = 'warning';
 
     protected $lang;
 
-    function __construct() {
-      $this->lang = Registry::get('Language');
+    public function __construct()
+    {
+        $this->lang = Registry::get('Language');
 
-      $this->lang->loadDefinitions('modules/security_check/extended/admin_http_authentication');
+        $this->lang->loadDefinitions('modules/security_check/extended/admin_http_authentication');
 
-      $this->title = OSCOM::getDef('module_security_check_extended_admin_http_authentication_title');
+        $this->title = OSCOM::getDef('module_security_check_extended_admin_http_authentication_title');
     }
 
-    function pass(): bool {
+    public function pass(): bool
+    {
 
-      return isset($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['PHP_AUTH_PW']);
+        return isset($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['PHP_AUTH_PW']);
     }
 
-    function getMessage() {
-      return OSCOM::getDef('module_security_check_extended_admin_http_authentication_error');
+    public function getMessage()
+    {
+        return OSCOM::getDef('module_security_check_extended_admin_http_authentication_error');
     }
-  }
-?>
+}

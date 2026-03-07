@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -6,67 +8,71 @@
   * @license MIT; https://www.oscommerce.com/license/mit.txt
   */
 
-  use OSC\OM\OSCOM;
-  use OSC\OM\Registry;
+use OSC\OM\OSCOM;
+use OSC\OM\Registry;
 
-  class cfg_modules {
+class cfg_modules
+{
     public $_modules = [];
 
     protected $lang;
 
-    function __construct() {
-      global $PHP_SELF;
+    public function __construct()
+    {
+        global $PHP_SELF;
 
-      $this->lang = Registry::get('Language');
+        $this->lang = Registry::get('Language');
 
-      $file_extension = substr((string) $PHP_SELF, strrpos((string) $PHP_SELF, '.'));
-      $directory = OSCOM::getConfig('dir_root') . 'includes/modules/cfg_modules';
+        $file_extension = substr((string) $PHP_SELF, strrpos((string) $PHP_SELF, '.'));
+        $directory = OSCOM::getConfig('dir_root') . 'includes/modules/cfg_modules';
 
-      if ($dir = @dir($directory)) {
-        while ($file = $dir->read()) {
-          if (!is_dir($directory . $file)) {
-            if (substr($file, strrpos($file, '.')) == $file_extension) {
-              $class = substr($file, 0, strrpos($file, '.'));
+        if ($dir = @dir($directory)) {
+            while ($file = $dir->read()) {
+                if (!is_dir($directory . $file)) {
+                    if (substr($file, strrpos($file, '.')) == $file_extension) {
+                        $class = substr($file, 0, strrpos($file, '.'));
 
-              $this->lang->loadDefinitions('modules/cfg_modules/' . pathinfo($file, PATHINFO_FILENAME));
+                        $this->lang->loadDefinitions('modules/cfg_modules/' . pathinfo($file, PATHINFO_FILENAME));
 
-              include(OSCOM::getConfig('dir_root') . 'includes/modules/cfg_modules/' . $class . '.php');
+                        include(OSCOM::getConfig('dir_root') . 'includes/modules/cfg_modules/' . $class . '.php');
 
-              $m = new $class();
+                        $m = new $class();
 
-              $this->_modules[] = ['code' => $m->code,
-                                        'directory' => $m->directory,
-                                        'language_directory' => $m->language_directory,
-                                        'key' => $m->key,
-                                        'title' => $m->title,
-                                        'template_integration' => $m->template_integration,
-                                        'site' => $m->site];
+                        $this->_modules[] = ['code' => $m->code,
+                                                  'directory' => $m->directory,
+                                                  'language_directory' => $m->language_directory,
+                                                  'key' => $m->key,
+                                                  'title' => $m->title,
+                                                  'template_integration' => $m->template_integration,
+                                                  'site' => $m->site];
+                    }
+                }
             }
-          }
         }
-      }
     }
 
-    function getAll() {
-      return $this->_modules;
+    public function getAll()
+    {
+        return $this->_modules;
     }
 
-    function get($code, $key) {
-      foreach ($this->_modules as $m) {
-        if ($m['code'] == $code) {
-          return $m[$key];
+    public function get($code, $key)
+    {
+        foreach ($this->_modules as $m) {
+            if ($m['code'] == $code) {
+                return $m[$key];
+            }
         }
-      }
     }
 
-    function exists($code): bool {
-      foreach ($this->_modules as $m) {
-        if ($m['code'] == $code) {
-          return true;
+    public function exists($code): bool
+    {
+        foreach ($this->_modules as $m) {
+            if ($m['code'] == $code) {
+                return true;
+            }
         }
-      }
 
-      return false;
+        return false;
     }
-  }
-?>
+}

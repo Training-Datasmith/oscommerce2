@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -6,26 +8,29 @@
   * @license MIT; https://www.oscommerce.com/license/mit.txt
   */
 
-  use OSC\OM\OSCOM;
-  use OSC\OM\Registry;
+use OSC\OM\OSCOM;
+use OSC\OM\Registry;
 
-  class securityCheck_default_currency {
+class securityCheck_default_currency
+{
     public $type = 'error';
 
     protected $lang;
 
-    function __construct() {
-      $this->lang = Registry::get('Language');
+    public function __construct()
+    {
+        $this->lang = Registry::get('Language');
 
-      $this->lang->loadDefinitions('modules/security_check/default_currency');
+        $this->lang->loadDefinitions('modules/security_check/default_currency');
     }
 
-    function pass(): bool {
-      return defined('DEFAULT_CURRENCY');
+    public function pass(): bool
+    {
+        return defined('DEFAULT_CURRENCY');
     }
 
-    function getMessage() {
-      return OSCOM::getDef('error_no_default_currency_defined');
+    public function getMessage()
+    {
+        return OSCOM::getDef('error_no_default_currency_defined');
     }
-  }
-?>
+}

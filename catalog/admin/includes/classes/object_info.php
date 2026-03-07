@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -6,13 +8,13 @@
   * @license MIT; https://www.oscommerce.com/license/mit.txt
   */
 
-  class objectInfo {
-
-// class constructor
-    function __construct($object_array) {
-      foreach ($object_array as $key => $value) {
-        $this->$key = $value;
-      }
+class objectInfo
+{
+    // class constructor
+    public function __construct($object_array)
+    {
+        foreach ($object_array as $key => $value) {
+            $this->$key = $value;
+        }
     }
-  }
-?>
+}

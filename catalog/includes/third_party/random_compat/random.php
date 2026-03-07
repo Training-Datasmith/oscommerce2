@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Random_* Compatibility Library
  * for using the new PHP 7 random_* API in PHP 5 projects

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -6,8 +8,9 @@
   * @license MIT; https://www.oscommerce.com/license/mit.txt
   */
 
-  if (STORE_PAGE_PARSE_TIME == 'true') {
-    if (!is_object($logger)) $logger = new logger;
+if (STORE_PAGE_PARSE_TIME == 'true') {
+    if (!is_object($logger)) {
+        $logger = new logger();
+    }
     echo $logger->timer_stop(DISPLAY_PAGE_PARSE_TIME);
-  }
-?>
+}

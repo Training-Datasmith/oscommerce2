@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -10,19 +12,19 @@ namespace OSC\OM;
 
 class Mail
 {
-    protected $to = [],
-              $from = [],
-              $cc = [],
-              $bcc = [],
-              $subject,
-              $body_plain,
-              $body_html,
-              $attachments = [],
-              $images = [],
-              $headers = ['X-Mailer' => 'osCommerce'],
-              $body,
-              $content_transfer_encoding = '7bit',
-              $charset = 'utf-8';
+    protected $to = [];
+    protected $from = [];
+    protected $cc = [];
+    protected $bcc = [];
+    protected $subject;
+    protected $body_plain;
+    protected $body_html;
+    protected $attachments = [];
+    protected $images = [];
+    protected $headers = ['X-Mailer' => 'osCommerce'];
+    protected $body;
+    protected $content_transfer_encoding = '7bit';
+    protected $charset = 'utf-8';
 
     public function __construct($to_email_address = null, $to = null, $from_email_address = null, $from = null, $subject = null)
     {
@@ -43,7 +45,7 @@ class Mail
     {
         $this->to[] = [
             'name' => $name,
-            'email_address' => $email_address
+            'email_address' => $email_address,
         ];
     }
 
@@ -51,7 +53,7 @@ class Mail
     {
         $this->from = [
             'name' => $name,
-            'email_address' => $email_address
+            'email_address' => $email_address,
         ];
     }
 
@@ -59,7 +61,7 @@ class Mail
     {
         $this->cc[] = [
             'name' => $name,
-            'email_address' => $email_address
+            'email_address' => $email_address,
         ];
     }
 
@@ -67,7 +69,7 @@ class Mail
     {
         $this->bcc[] = [
             'name' => $name,
-            'email_address' => $email_address
+            'email_address' => $email_address,
         ];
     }
 
@@ -148,7 +150,7 @@ class Mail
         $this->attachments[] = [
             'filename' => $filename,
             'mimetype' => $mimetype,
-            'data' => chunk_split(base64_encode($data))
+            'data' => chunk_split(base64_encode($data)),
         ];
     }
 
@@ -164,7 +166,7 @@ class Mail
             'id' => md5(uniqid(time())),
             'filename' => $filename,
             'mimetype' => $mimetype,
-            'data' => chunk_split(base64_encode($data))
+            'data' => chunk_split(base64_encode($data)),
         ];
     }
 
@@ -384,7 +386,7 @@ class Mail
             'png' => 'image/png',
             'tif' => 'image/tiff',
             'tiff' => 'image/tiff',
-            'swf' => 'application/x-shockwave-flash'
+            'swf' => 'application/x-shockwave-flash',
         ];
 
         return $mime_types[$ext] ?? 'application/octet-stream';

@@ -1,16 +1,16 @@
 <?php
-  use OSC\OM\HTML;
-  use OSC\OM\OSCOM;
+use OSC\OM\HTML;
+use OSC\OM\OSCOM;
 
-  $oscTemplate->buildBlocks();
+$oscTemplate->buildBlocks();
 
-  if (!$oscTemplate->hasBlocks('boxes_column_left')) {
+if (!$oscTemplate->hasBlocks('boxes_column_left')) {
     $oscTemplate->setGridContentWidth($oscTemplate->getGridContentWidth() + $oscTemplate->getGridColumnWidth());
-  }
+}
 
-  if (!$oscTemplate->hasBlocks('boxes_column_right')) {
+if (!$oscTemplate->hasBlocks('boxes_column_right')) {
     $oscTemplate->setGridContentWidth($oscTemplate->getGridContentWidth() + $oscTemplate->getGridColumnWidth());
-  }
+}
 ?>
 <!DOCTYPE html>
 <html <?php echo OSCOM::getDef('html_params'); ?>>
@@ -47,4 +47,4 @@
 
       <?php require($oscTemplate->getFile('header.php')); ?>
 
-      <div id="bodyContent" class="col-md-<?php echo $oscTemplate->getGridContentWidth(); ?> <?php echo ($oscTemplate->hasBlocks('boxes_column_left') ? 'col-md-push-' . $oscTemplate->getGridColumnWidth() : ''); ?>">
+      <div id="bodyContent" class="col-md-<?php echo $oscTemplate->getGridContentWidth(); ?> <?php echo($oscTemplate->hasBlocks('boxes_column_left') ? 'col-md-push-' . $oscTemplate->getGridColumnWidth() : ''); ?>">

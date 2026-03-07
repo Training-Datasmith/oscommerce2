@@ -6,49 +6,51 @@
   * @license MIT; https://www.oscommerce.com/license/mit.txt
   */
 
-  use OSC\OM\Cache;
-  use OSC\OM\FileSystem;
-  use OSC\OM\HTML;
-  use OSC\OM\OSCOM;
+use OSC\OM\Cache;
+use OSC\OM\FileSystem;
+use OSC\OM\HTML;
+use OSC\OM\OSCOM;
 
-  require('includes/application_top.php');
+require('includes/application_top.php');
 
-  $action = ($_GET['action'] ?? '');
+$action = ($_GET['action'] ?? '');
 
-  if (tep_not_null($action)) {
+if (tep_not_null($action)) {
     switch ($action) {
-      case 'reset':
-        Cache::clear($_GET['block']);
-        break;
+        case 'reset':
+            Cache::clear($_GET['block']);
+            break;
 
-      case 'resetAll':
-        Cache::clearAll();
-        break;
+        case 'resetAll':
+            Cache::clearAll();
+            break;
     }
 
     OSCOM::redirect(FILENAME_CACHE);
-  }
+}
 
 // check if the cache directory exists
-  if (is_dir(Cache::getPath())) {
-    if (!FileSystem::isWritable(Cache::getPath())) $OSCOM_MessageStack->add(OSCOM::getDef('error_cache_directory_not_writeable'), 'error');
-  } else {
+if (is_dir(Cache::getPath())) {
+    if (!FileSystem::isWritable(Cache::getPath())) {
+        $OSCOM_MessageStack->add(OSCOM::getDef('error_cache_directory_not_writeable'), 'error');
+    }
+} else {
     $OSCOM_MessageStack->add(OSCOM::getDef('error_cache_directory_does_not_exist'), 'error');
-  }
+}
 
-  $cache_files = [];
+$cache_files = [];
 
-  foreach (glob(Cache::getPath() . '*.cache') as $c) {
+foreach (glob(Cache::getPath() . '*.cache') as $c) {
     $key = basename($c, '.cache');
 
     if (($pos = strpos($key, '-')) !== false) {
-      $cache_files[substr($key, 0, $pos)][] = $key;
+        $cache_files[substr($key, 0, $pos)][] = $key;
     } else {
-      $cache_files[$key][] = $key;
+        $cache_files[$key][] = $key;
     }
-  }
+}
 
-  require($oscTemplate->getFile('template_top.php'));
+require($oscTemplate->getFile('template_top.php'));
 ?>
 
 <div class="pull-right">
@@ -69,7 +71,7 @@
 
 <?php
   foreach (array_keys($cache_files) as $key) {
-?>
+      ?>
 
     <tr>
       <td><?= $key; ?></td>
@@ -90,5 +92,5 @@
 
 <?php
   require($oscTemplate->getFile('template_bottom.php'));
-  require('includes/application_bottom.php');
+require('includes/application_bottom.php');
 ?>

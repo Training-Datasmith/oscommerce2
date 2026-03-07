@@ -2,7 +2,7 @@
 use OSC\OM\OSCOM;
 
 if (isset($currencies) && is_object($currencies)) {
-?>
+    ?>
 
 <li class="dropdown">
   <a class="dropdown-toggle" data-toggle="dropdown" href="#">
@@ -13,10 +13,10 @@ if (isset($currencies) && is_object($currencies)) {
   <ul class="dropdown-menu">
 
 <?php
-  foreach ($currencies->currencies as $key => $value) {
-    echo '<li><a href="' . OSCOM::link($PHP_SELF, tep_get_all_get_params(['language', 'currency']) . 'currency=' . $key) . '">' . $value['title'] . '</a></li>';
-  }
-?>
+      foreach ($currencies->currencies as $key => $value) {
+          echo '<li><a href="' . OSCOM::link($PHP_SELF, tep_get_all_get_params(['language', 'currency']) . 'currency=' . $key) . '">' . $value['title'] . '</a></li>';
+      }
+    ?>
 
   </ul>
 </li>

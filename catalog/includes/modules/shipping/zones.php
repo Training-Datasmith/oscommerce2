@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -91,180 +93,194 @@
 
 */
 
-  use OSC\OM\HTML;
-  use OSC\OM\OSCOM;
-  use OSC\OM\Registry;
+use OSC\OM\HTML;
+use OSC\OM\OSCOM;
+use OSC\OM\Registry;
 
-  class zones {
-    public $code, $title, $description, $enabled, $num_zones;
+class zones
+{
+    public $code;
+    public $title;
+    public $description;
+    public $enabled;
+    public $num_zones;
 
-// class constructor
-    function __construct() {
-      $this->code = 'zones';
-      $this->title = OSCOM::getDef('module_shipping_zones_text_title');
-      $this->description = OSCOM::getDef('module_shipping_zones_text_description');
-      $this->sort_order = defined('MODULE_SHIPPING_ZONES_SORT_ORDER') ? (int)MODULE_SHIPPING_ZONES_SORT_ORDER : 0;
-      $this->icon = '';
-      $this->tax_class = defined('MODULE_SHIPPING_ZONES_TAX_CLASS') ? MODULE_SHIPPING_ZONES_TAX_CLASS : 0;
-      $this->enabled = (defined('MODULE_SHIPPING_ZONES_STATUS') && (MODULE_SHIPPING_ZONES_STATUS == 'True') ? true : false);
+    // class constructor
+    public function __construct()
+    {
+        $this->code = 'zones';
+        $this->title = OSCOM::getDef('module_shipping_zones_text_title');
+        $this->description = OSCOM::getDef('module_shipping_zones_text_description');
+        $this->sort_order = defined('MODULE_SHIPPING_ZONES_SORT_ORDER') ? (int)MODULE_SHIPPING_ZONES_SORT_ORDER : 0;
+        $this->icon = '';
+        $this->tax_class = defined('MODULE_SHIPPING_ZONES_TAX_CLASS') ? MODULE_SHIPPING_ZONES_TAX_CLASS : 0;
+        $this->enabled = (defined('MODULE_SHIPPING_ZONES_STATUS') && (MODULE_SHIPPING_ZONES_STATUS == 'True') ? true : false);
 
-      // CUSTOMIZE THIS SETTING FOR THE NUMBER OF ZONES NEEDED
-      $this->num_zones = 1;
+        // CUSTOMIZE THIS SETTING FOR THE NUMBER OF ZONES NEEDED
+        $this->num_zones = 1;
     }
 
-// class methods
-    function quote($method = '') {
-      global $order, $shipping_weight, $shipping_num_boxes;
+    // class methods
+    public function quote($method = '')
+    {
+        global $order, $shipping_weight, $shipping_num_boxes;
 
-      $dest_country = $order->delivery['country']['iso_code_2'];
-      $dest_zone = 0;
-      $error = false;
+        $dest_country = $order->delivery['country']['iso_code_2'];
+        $dest_zone = 0;
+        $error = false;
 
-      for ($i=1; $i<=$this->num_zones; $i++) {
-        $countries_table = constant('MODULE_SHIPPING_ZONES_COUNTRIES_' . $i);
-        $country_zones = preg_split("/[,]/", (string) $countries_table);
-        if (in_array($dest_country, $country_zones)) {
-          $dest_zone = $i;
-          break;
-        }
-      }
-
-      if ($dest_zone == 0) {
-        $error = true;
-      } else {
-        $shipping = -1;
-        $zones_cost = constant('MODULE_SHIPPING_ZONES_COST_' . $dest_zone);
-
-        $zones_table = preg_split("/[:,]/" , (string) $zones_cost);
-        $size = sizeof($zones_table);
-        for ($i=0; $i<$size; $i+=2) {
-          if ($shipping_weight <= $zones_table[$i]) {
-            $shipping = $zones_table[$i+1];
-            $shipping_method = OSCOM::getDef('module_shipping_zones_text_way') . ' ' . $dest_country . ' : ' . $shipping_weight . ' ' . OSCOM::getDef('module_shipping_zones_text_units');
-            break;
-          }
+        for ($i = 1; $i <= $this->num_zones; $i++) {
+            $countries_table = constant('MODULE_SHIPPING_ZONES_COUNTRIES_' . $i);
+            $country_zones = preg_split('/[,]/', (string) $countries_table);
+            if (in_array($dest_country, $country_zones)) {
+                $dest_zone = $i;
+                break;
+            }
         }
 
-        if ($shipping == -1) {
-          $shipping_cost = 0;
-          $shipping_method = OSCOM::getDef('module_shipping_zones_undefined_rate');
+        if ($dest_zone == 0) {
+            $error = true;
         } else {
-          $shipping_cost = ($shipping * $shipping_num_boxes) + constant('MODULE_SHIPPING_ZONES_HANDLING_' . $dest_zone);
+            $shipping = -1;
+            $zones_cost = constant('MODULE_SHIPPING_ZONES_COST_' . $dest_zone);
+
+            $zones_table = preg_split('/[:,]/', (string) $zones_cost);
+            $size = sizeof($zones_table);
+            for ($i = 0; $i < $size; $i += 2) {
+                if ($shipping_weight <= $zones_table[$i]) {
+                    $shipping = $zones_table[$i + 1];
+                    $shipping_method = OSCOM::getDef('module_shipping_zones_text_way') . ' ' . $dest_country . ' : ' . $shipping_weight . ' ' . OSCOM::getDef('module_shipping_zones_text_units');
+                    break;
+                }
+            }
+
+            if ($shipping == -1) {
+                $shipping_cost = 0;
+                $shipping_method = OSCOM::getDef('module_shipping_zones_undefined_rate');
+            } else {
+                $shipping_cost = ($shipping * $shipping_num_boxes) + constant('MODULE_SHIPPING_ZONES_HANDLING_' . $dest_zone);
+            }
         }
-      }
 
-      $this->quotes = ['id' => $this->code,
-                            'module' => OSCOM::getDef('module_shipping_zones_text_title'),
-                            'methods' => [['id' => $this->code,
-                                                     'title' => $shipping_method,
-                                                     'cost' => $shipping_cost]]];
+        $this->quotes = ['id' => $this->code,
+                              'module' => OSCOM::getDef('module_shipping_zones_text_title'),
+                              'methods' => [['id' => $this->code,
+                                                       'title' => $shipping_method,
+                                                       'cost' => $shipping_cost]]];
 
-      if ($this->tax_class > 0) {
-        $this->quotes['tax'] = tep_get_tax_rate($this->tax_class, $order->delivery['country']['id'], $order->delivery['zone_id']);
-      }
+        if ($this->tax_class > 0) {
+            $this->quotes['tax'] = tep_get_tax_rate($this->tax_class, $order->delivery['country']['id'], $order->delivery['zone_id']);
+        }
 
-      if (tep_not_null($this->icon)) $this->quotes['icon'] = HTML::image($this->icon, $this->title);
+        if (tep_not_null($this->icon)) {
+            $this->quotes['icon'] = HTML::image($this->icon, $this->title);
+        }
 
-      if ($error == true) $this->quotes['error'] = OSCOM::getDef('module_shipping_zones_invalid_zone');
+        if ($error == true) {
+            $this->quotes['error'] = OSCOM::getDef('module_shipping_zones_invalid_zone');
+        }
 
-      return $this->quotes;
+        return $this->quotes;
     }
 
-    function check(): bool {
-      return defined('MODULE_SHIPPING_ZONES_STATUS');
+    public function check(): bool
+    {
+        return defined('MODULE_SHIPPING_ZONES_STATUS');
     }
 
-    function install(): void {
-      $OSCOM_Db = Registry::get('Db');
-
-      $OSCOM_Db->save('configuration', [
-        'configuration_title' => 'Enable Zones Method',
-        'configuration_key' => 'MODULE_SHIPPING_ZONES_STATUS',
-        'configuration_value' => 'True',
-        'configuration_description' => 'Do you want to offer zone rate shipping?',
-        'configuration_group_id' => '6',
-        'sort_order' => '1',
-        'set_function' => 'tep_cfg_select_option(array(\'True\', \'False\'), ',
-        'date_added' => 'now()'
-      ]);
-
-      $OSCOM_Db->save('configuration', [
-        'configuration_title' => 'Tax Class',
-        'configuration_key' => 'MODULE_SHIPPING_ZONES_TAX_CLASS',
-        'configuration_value' => '0',
-        'configuration_description' => 'Use the following tax class on the shipping fee.',
-        'configuration_group_id' => '6',
-        'sort_order' => '1',
-        'use_function' => 'tep_get_tax_class_title',
-        'set_function' => 'tep_cfg_pull_down_tax_classes(',
-        'date_added' => 'now()'
-      ]);
-
-      $OSCOM_Db->save('configuration', [
-        'configuration_title' => 'Sort Order',
-        'configuration_key' => 'MODULE_SHIPPING_ZONES_SORT_ORDER',
-        'configuration_value' => '0',
-        'configuration_description' => 'Sort order of display. Lowest is displayed first.',
-        'configuration_group_id' => '6',
-        'sort_order' => '0',
-        'date_added' => 'now()'
-      ]);
-
-      for ($i = 1; $i <= $this->num_zones; $i++) {
-        $default_countries = '';
-        if ($i == 1) {
-          $default_countries = 'US,CA';
-        }
+    public function install(): void
+    {
+        $OSCOM_Db = Registry::get('Db');
 
         $OSCOM_Db->save('configuration', [
-          'configuration_title' => 'Zone ' . $i . ' Countries',
-          'configuration_key' => 'MODULE_SHIPPING_ZONES_COUNTRIES_' . $i,
-          'configuration_value' => $default_countries,
-          'configuration_description' => 'Comma separated list of two character ISO country codes that are part of Zone ' . $i . '.',
+          'configuration_title' => 'Enable Zones Method',
+          'configuration_key' => 'MODULE_SHIPPING_ZONES_STATUS',
+          'configuration_value' => 'True',
+          'configuration_description' => 'Do you want to offer zone rate shipping?',
           'configuration_group_id' => '6',
-          'sort_order' => '0',
-          'date_added' => 'now()'
+          'sort_order' => '1',
+          'set_function' => 'tep_cfg_select_option(array(\'True\', \'False\'), ',
+          'date_added' => 'now()',
         ]);
 
         $OSCOM_Db->save('configuration', [
-          'configuration_title' => 'Zone ' . $i . ' Shipping Table',
-          'configuration_key' => 'MODULE_SHIPPING_ZONES_COST_' . $i,
-          'configuration_value' => '3:8.50,7:10.50,99:20.00',
-          'configuration_description' => 'Shipping rates to Zone ' . $i . ' destinations based on a group of maximum order weights. Example: 3:8.50,7:10.50,... Weights less than or equal to 3 would cost 8.50 for Zone ' . $i . ' destinations.',
-          'configuration_group_id' => '6',
-          'sort_order' => '0',
-          'date_added' => 'now()'
-        ]);
-
-        $OSCOM_Db->save('configuration', [
-          'configuration_title' => 'Zone ' . $i . ' Handling Fee',
-          'configuration_key' => 'MODULE_SHIPPING_ZONES_HANDLING_' . $i,
+          'configuration_title' => 'Tax Class',
+          'configuration_key' => 'MODULE_SHIPPING_ZONES_TAX_CLASS',
           'configuration_value' => '0',
-          'configuration_description' => 'Handling Fee for this shipping zone',
+          'configuration_description' => 'Use the following tax class on the shipping fee.',
+          'configuration_group_id' => '6',
+          'sort_order' => '1',
+          'use_function' => 'tep_get_tax_class_title',
+          'set_function' => 'tep_cfg_pull_down_tax_classes(',
+          'date_added' => 'now()',
+        ]);
+
+        $OSCOM_Db->save('configuration', [
+          'configuration_title' => 'Sort Order',
+          'configuration_key' => 'MODULE_SHIPPING_ZONES_SORT_ORDER',
+          'configuration_value' => '0',
+          'configuration_description' => 'Sort order of display. Lowest is displayed first.',
           'configuration_group_id' => '6',
           'sort_order' => '0',
-          'date_added' => 'now()'
+          'date_added' => 'now()',
         ]);
-      }
+
+        for ($i = 1; $i <= $this->num_zones; $i++) {
+            $default_countries = '';
+            if ($i == 1) {
+                $default_countries = 'US,CA';
+            }
+
+            $OSCOM_Db->save('configuration', [
+              'configuration_title' => 'Zone ' . $i . ' Countries',
+              'configuration_key' => 'MODULE_SHIPPING_ZONES_COUNTRIES_' . $i,
+              'configuration_value' => $default_countries,
+              'configuration_description' => 'Comma separated list of two character ISO country codes that are part of Zone ' . $i . '.',
+              'configuration_group_id' => '6',
+              'sort_order' => '0',
+              'date_added' => 'now()',
+            ]);
+
+            $OSCOM_Db->save('configuration', [
+              'configuration_title' => 'Zone ' . $i . ' Shipping Table',
+              'configuration_key' => 'MODULE_SHIPPING_ZONES_COST_' . $i,
+              'configuration_value' => '3:8.50,7:10.50,99:20.00',
+              'configuration_description' => 'Shipping rates to Zone ' . $i . ' destinations based on a group of maximum order weights. Example: 3:8.50,7:10.50,... Weights less than or equal to 3 would cost 8.50 for Zone ' . $i . ' destinations.',
+              'configuration_group_id' => '6',
+              'sort_order' => '0',
+              'date_added' => 'now()',
+            ]);
+
+            $OSCOM_Db->save('configuration', [
+              'configuration_title' => 'Zone ' . $i . ' Handling Fee',
+              'configuration_key' => 'MODULE_SHIPPING_ZONES_HANDLING_' . $i,
+              'configuration_value' => '0',
+              'configuration_description' => 'Handling Fee for this shipping zone',
+              'configuration_group_id' => '6',
+              'sort_order' => '0',
+              'date_added' => 'now()',
+            ]);
+        }
     }
 
-    function remove() {
-      return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
+    public function remove()
+    {
+        return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
     /**
      * @return string[]
      */
-    function keys(): array {
-      $keys = ['MODULE_SHIPPING_ZONES_STATUS', 'MODULE_SHIPPING_ZONES_TAX_CLASS', 'MODULE_SHIPPING_ZONES_SORT_ORDER'];
+    public function keys(): array
+    {
+        $keys = ['MODULE_SHIPPING_ZONES_STATUS', 'MODULE_SHIPPING_ZONES_TAX_CLASS', 'MODULE_SHIPPING_ZONES_SORT_ORDER'];
 
-      for ($i=1; $i<=$this->num_zones; $i++) {
-        $keys[] = 'MODULE_SHIPPING_ZONES_COUNTRIES_' . $i;
-        $keys[] = 'MODULE_SHIPPING_ZONES_COST_' . $i;
-        $keys[] = 'MODULE_SHIPPING_ZONES_HANDLING_' . $i;
-      }
+        for ($i = 1; $i <= $this->num_zones; $i++) {
+            $keys[] = 'MODULE_SHIPPING_ZONES_COUNTRIES_' . $i;
+            $keys[] = 'MODULE_SHIPPING_ZONES_COST_' . $i;
+            $keys[] = 'MODULE_SHIPPING_ZONES_HANDLING_' . $i;
+        }
 
-      return $keys;
+        return $keys;
     }
-  }
-?>
+}

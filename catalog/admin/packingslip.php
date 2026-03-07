@@ -6,18 +6,18 @@
   * @license MIT; https://www.oscommerce.com/license/mit.txt
   */
 
-  use OSC\OM\HTML;
-  use OSC\OM\OSCOM;
+use OSC\OM\HTML;
+use OSC\OM\OSCOM;
 
-  require('includes/application_top.php');
+require('includes/application_top.php');
 
-  require('includes/classes/currencies.php');
-  $currencies = new currencies();
+require('includes/classes/currencies.php');
+$currencies = new currencies();
 
-  $oID = HTML::sanitize($_GET['oID']);
+$oID = HTML::sanitize($_GET['oID']);
 
-  include('includes/classes/order.php');
-  $order = new order($oID);
+include('includes/classes/order.php');
+$order = new order($oID);
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html <?php echo OSCOM::getDef('html_params'); ?>>
@@ -83,21 +83,21 @@
         <td class="dataTableHeadingContent"><?php echo OSCOM::getDef('table_heading_products_model'); ?></td>
       </tr>
 <?php
-    for ($i=0, $n=sizeof($order->products); $i<$n; $i++) {
-      echo '      <tr class="dataTableRow">' . "\n" .
-           '        <td class="dataTableContent" valign="top" align="right">' . $order->products[$i]['qty'] . '&nbsp;x</td>' . "\n" .
-           '        <td class="dataTableContent" valign="top">' . $order->products[$i]['name'];
+    for ($i = 0, $n = sizeof($order->products); $i < $n; $i++) {
+        echo '      <tr class="dataTableRow">' . "\n" .
+             '        <td class="dataTableContent" valign="top" align="right">' . $order->products[$i]['qty'] . '&nbsp;x</td>' . "\n" .
+             '        <td class="dataTableContent" valign="top">' . $order->products[$i]['name'];
 
-      if (isset($order->products[$i]['attributes']) && (sizeof($order->products[$i]['attributes']) > 0)) {
-        for ($j=0, $k=sizeof($order->products[$i]['attributes']); $j<$k; $j++) {
-          echo '<br /><nobr><small>&nbsp;<i> - ' . $order->products[$i]['attributes'][$j]['option'] . ': ' . $order->products[$i]['attributes'][$j]['value'];
-          echo '</i></small></nobr>';
+        if (isset($order->products[$i]['attributes']) && (sizeof($order->products[$i]['attributes']) > 0)) {
+            for ($j = 0, $k = sizeof($order->products[$i]['attributes']); $j < $k; $j++) {
+                echo '<br /><nobr><small>&nbsp;<i> - ' . $order->products[$i]['attributes'][$j]['option'] . ': ' . $order->products[$i]['attributes'][$j]['value'];
+                echo '</i></small></nobr>';
+            }
         }
-      }
 
-      echo '        </td>' . "\n" .
-           '        <td class="dataTableContent" valign="top">' . $order->products[$i]['model'] . '</td>' . "\n" .
-           '      </tr>' . "\n";
+        echo '        </td>' . "\n" .
+             '        <td class="dataTableContent" valign="top">' . $order->products[$i]['model'] . '</td>' . "\n" .
+             '      </tr>' . "\n";
     }
 ?>
     </table></td>

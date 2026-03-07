@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -7,9 +9,6 @@
   */
 
 namespace OSC\OM;
-
-use OSC\OM\Apps;
-use OSC\OM\OSCOM;
 
 class Hooks
 {
@@ -111,7 +110,7 @@ class Hooks
         $filter = [
             'site' => $this->site,
             'group' => $group,
-            'hook' => $hook
+            'hook' => $hook,
         ];
 
         foreach (Apps::getModules('Hooks', null, $filter) as $k => $class) {

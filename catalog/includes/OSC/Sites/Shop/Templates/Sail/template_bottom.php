@@ -2,7 +2,7 @@
 
 <?php
   if ($oscTemplate->hasBlocks('boxes_column_left')) {
-?>
+      ?>
 
       <div id="columnLeft" class="col-md-<?php echo $oscTemplate->getGridColumnWidth(); ?>  col-md-pull-<?php echo $oscTemplate->getGridContentWidth(); ?>">
         <?php echo $oscTemplate->getBlocks('boxes_column_left'); ?>
@@ -11,15 +11,15 @@
 <?php
   }
 
-  if ($oscTemplate->hasBlocks('boxes_column_right')) {
-?>
+if ($oscTemplate->hasBlocks('boxes_column_right')) {
+    ?>
 
       <div id="columnRight" class="col-md-<?php echo $oscTemplate->getGridColumnWidth(); ?>">
         <?php echo $oscTemplate->getBlocks('boxes_column_right'); ?>
       </div>
 
 <?php
-  }
+}
 ?>
 
     </div> <!-- row -->

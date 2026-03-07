@@ -28,8 +28,8 @@ switch ($action) {
         $response = HTTP::getResponse([
             'url' => 'https://www.oscommerce.com/index.php?RPC&Website&Index&SaveUserServerInfo&v=2',
             'parameters' => [
-                'info' => json_encode($info)
-            ]
+                'info' => json_encode($info),
+            ],
         ]);
 
         if ($response != 'OK') {
@@ -55,7 +55,7 @@ switch ($action) {
 require($oscTemplate->getFile('template_top.php'));
 
 if (!isset($_GET['action'])) {
-?>
+    ?>
 
 <div class="pull-right">
   <?= HTML::button(OSCOM::getDef('image_export'), 'fa fa-upload', OSCOM::link('server_info.php', 'action=export'), null, 'btn-info'); ?>
@@ -70,15 +70,15 @@ if (!isset($_GET['action'])) {
 
 <?php
 if ($action == 'export') {
-?>
+    ?>
 
 <p>
   <?=
-    OSCOM::getDef('text_export_intro', [
-        'button_submit_to_oscommerce' => OSCOM::getDef('button_submit_to_oscommerce'),
-        'button_save' => OSCOM::getDef('image_save')
-    ]);
-  ?>
+        OSCOM::getDef('text_export_intro', [
+            'button_submit_to_oscommerce' => OSCOM::getDef('button_submit_to_oscommerce'),
+            'button_save' => OSCOM::getDef('image_save'),
+        ]);
+    ?>
 </p>
 
 <p>
@@ -91,7 +91,7 @@ if ($action == 'export') {
 
 <?php
 } else {
-?>
+    ?>
 
 <table class="table table-hover">
   <tbody>

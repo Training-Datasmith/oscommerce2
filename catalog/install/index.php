@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -6,9 +8,8 @@
   * @license MIT; https://www.oscommerce.com/license/mit.txt
   */
 
-  require('includes/application.php');
+require('includes/application.php');
 
-  $page_contents = 'index.php';
+$page_contents = 'index.php';
 
-  require('templates/main_page.php');
-?>
+require('templates/main_page.php');

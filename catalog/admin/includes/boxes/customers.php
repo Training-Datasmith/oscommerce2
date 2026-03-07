@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -6,16 +8,15 @@
   * @license MIT; https://www.oscommerce.com/license/mit.txt
   */
 
-  use OSC\OM\OSCOM;
+use OSC\OM\OSCOM;
 
-  $cl_box_groups[] = [
-    'heading' => OSCOM::getDef('box_heading_customers'),
-    'apps' => [
-      [
-        'code' => FILENAME_CUSTOMERS,
-        'title' => OSCOM::getDef('box_customers_customers'),
-        'link' => OSCOM::link(FILENAME_CUSTOMERS)
-      ]
-    ]
-  ];
-?>
+$cl_box_groups[] = [
+  'heading' => OSCOM::getDef('box_heading_customers'),
+  'apps' => [
+    [
+      'code' => FILENAME_CUSTOMERS,
+      'title' => OSCOM::getDef('box_customers_customers'),
+      'link' => OSCOM::link(FILENAME_CUSTOMERS),
+    ],
+  ],
+];

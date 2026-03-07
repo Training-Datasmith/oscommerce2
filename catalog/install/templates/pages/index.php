@@ -5,7 +5,7 @@ use OSC\OM\OSCOM;
 $configfile_array = [
     OSCOM::BASE_DIR . 'Conf/global.php',
     OSCOM::BASE_DIR . 'Sites/Shop/site_conf.php',
-    OSCOM::BASE_DIR . 'Sites/Admin/site_conf.php'
+    OSCOM::BASE_DIR . 'Sites/Admin/site_conf.php',
 ];
 
 foreach ($configfile_array as $key => $f) {
@@ -20,7 +20,7 @@ foreach ($configfile_array as $key => $f) {
         }
     }
 
-// file exists and is writable
+    // file exists and is writable
     unset($configfile_array[$key]);
 }
 
@@ -66,7 +66,7 @@ if (isset($_SERVER['REQUEST_URI']) && !empty($_SERVER['REQUEST_URI'])) {
 
 <?php
 if (!empty($warning_array)) {
-?>
+    ?>
 
     <div class="alert alert-danger">
       <p>Please correct the following errors and try the installation procedure again with the changes in place.</p>
@@ -74,10 +74,10 @@ if (!empty($warning_array)) {
       <ul style="margin-top: 20px; margin-bottom: 20px;">
 
 <?php
-    foreach ($warning_array as $value) {
-        echo '<li>' . $value . '</li>';
-    }
-?>
+        foreach ($warning_array as $value) {
+            echo '<li>' . $value . '</li>';
+        }
+    ?>
 
       </ul>
 
@@ -88,7 +88,7 @@ if (!empty($warning_array)) {
 }
 
 if (!empty($configfile_array)) {
-?>
+    ?>
 
     <div class="alert alert-danger">
       <p>The webserver is not able to save to the following installation configuration files. Please update the file permissions of the following files to world-writable (chmod 777) and try the installation procedure again:</p>
@@ -96,10 +96,10 @@ if (!empty($configfile_array)) {
       <ul style="margin-top: 20px;">
 
 <?php
-    foreach ($configfile_array as $file) {
-        echo '<li>' . FileSystem::displayPath($file) . '</li>';
-    }
-?>
+        foreach ($configfile_array as $file) {
+            echo '<li>' . FileSystem::displayPath($file) . '</li>';
+        }
+    ?>
 
       </ul>
     </div>
@@ -108,13 +108,13 @@ if (!empty($configfile_array)) {
 }
 
 if (!empty($configfile_array) || !empty($warning_array)) {
-?>
+    ?>
 
     <p><a href="index.php" class="btn btn-danger" role="button">Retry Installation</a></p>
 
 <?php
 } else {
-?>
+    ?>
 
     <div id="detectHttps" class="alert alert-info">
       <p><i class="fa fa-spinner fa-spin fa-fw"></i> Please wait, detecting web server environment..</p>
@@ -191,14 +191,14 @@ $(function() {
         <tbody>
           <tr>
             <td><?php echo PHP_VERSION; ?></td>
-            <td class="text-right" width="25"><?php echo ((PHP_VERSION >= 5.5) ? '<i class="fa fa-thumbs-up text-success"></i>' : '<i class="fa fa-exclamation-circle text-danger"></i>'); ?></td>
+            <td class="text-right" width="25"><?php echo((PHP_VERSION >= 5.5) ? '<i class="fa fa-thumbs-up text-success"></i>' : '<i class="fa fa-exclamation-circle text-danger"></i>'); ?></td>
           </tr>
         </tbody>
       </table>
 
 <?php
 if (function_exists('ini_get')) {
-?>
+    ?>
 
       <p style="margin: 5px;"><strong>PHP Settings</strong></p>
 
@@ -206,8 +206,8 @@ if (function_exists('ini_get')) {
         <tbody>
           <tr>
             <td>file_uploads</td>
-            <td class="text-right"><?php echo (((int)ini_get('file_uploads') === 0) ? 'Off' : 'On'); ?></td>
-            <td class="text-right"><?php echo (((int)ini_get('file_uploads') === 1) ? '<i class="fa fa-thumbs-up text-success"></i>' : '<i class="fa fa-exclamation-circle text-danger"></i>'); ?></td>
+            <td class="text-right"><?php echo(((int)ini_get('file_uploads') === 0) ? 'Off' : 'On'); ?></td>
+            <td class="text-right"><?php echo(((int)ini_get('file_uploads') === 1) ? '<i class="fa fa-thumbs-up text-success"></i>' : '<i class="fa fa-exclamation-circle text-danger"></i>'); ?></td>
           </tr>
         </tbody>
       </table>

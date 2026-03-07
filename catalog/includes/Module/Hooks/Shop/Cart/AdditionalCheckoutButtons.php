@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -10,7 +12,8 @@ namespace OSC\OM\Module\Hooks\Shop\Cart;
 
 class AdditionalCheckoutButtons
 {
-    public function display(): string {
+    public function display(): string
+    {
         global $payment_modules;
 
         return implode('', $payment_modules->checkout_initialization_method());

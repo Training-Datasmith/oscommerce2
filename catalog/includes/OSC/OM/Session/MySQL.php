@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -58,15 +60,15 @@ class MySQL extends \OSC\OM\SessionAbstract implements \SessionHandlerInterface
         if ($this->exists($session_id)) {
             $result = $this->db->save('sessions', [
                 'expiry' => time(),
-                'value' => $session_data
+                'value' => $session_data,
             ], [
-                'sesskey' => $session_id
+                'sesskey' => $session_id,
             ]);
         } else {
             $result = $this->db->save('sessions', [
                 'sesskey' => $session_id,
                 'expiry' => time(),
-                'value' => $session_data
+                'value' => $session_data,
             ]);
         }
 
@@ -76,7 +78,7 @@ class MySQL extends \OSC\OM\SessionAbstract implements \SessionHandlerInterface
     public function destroy($session_id)
     {
         $result = $this->db->delete('sessions', [
-            'sesskey' => $session_id
+            'sesskey' => $session_id,
         ]);
 
         return $result !== false;

@@ -1,5 +1,6 @@
 <?php
 use OSC\OM\HTML;
+
 ?>
 
 <div class="row">
@@ -73,7 +74,7 @@ use OSC\OM\HTML;
         <?=
           HTML::button('Continue to Step 2', 'triangle-1-e', null, ['params' => 'id="buttonDoImport"'], 'btn-success') . '&nbsp;' .
           HTML::button('or continue and skip database import', null, null, ['params' => 'id="buttonSkipImport"'], 'btn-link');
-        ?>
+?>
       </p>
     </form>
   </div>

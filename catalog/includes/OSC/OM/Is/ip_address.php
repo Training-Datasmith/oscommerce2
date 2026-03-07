@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -15,7 +17,7 @@ class ip_address
         $ip = trim((string) $ip);
 
         return !empty($ip) && filter_var($ip, FILTER_VALIDATE_IP, [
-            'flags' => FILTER_FLAG_IPV4
+            'flags' => FILTER_FLAG_IPV4,
         ]);
     }
 }

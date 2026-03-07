@@ -6,44 +6,45 @@
   * @license MIT; https://www.oscommerce.com/license/mit.txt
   */
 
-  use OSC\OM\HTML;
-  use OSC\OM\OSCOM;	
+use OSC\OM\HTML;
+use OSC\OM\OSCOM;
 
-  if (!isset($process)) $process = false;
+if (!isset($process)) {
+    $process = false;
+}
 ?>
 
   <p class="text-right"><?php echo OSCOM::getDef('form_required_information'); ?></p>
 
   <?php
   if (isset($_GET['edit']) && is_numeric($_GET['edit'])) {
-    ?>
+      ?>
     <div class="page-header">
       <h4><?php echo OSCOM::getDef('edit_address_title'); ?></h4>
     </div>
     <?php
-  }
-  else {
-    ?>
+  } else {
+      ?>
     <div class="page-header">
       <h4><?php echo OSCOM::getDef('new_address_title'); ?></h4>
     </div>
     <?php
   }
-  ?>
+?>
 
   <div class="contentText">
 
 <?php
-  if (ACCOUNT_GENDER == 'true') {
+if (ACCOUNT_GENDER == 'true') {
     $male = $female = false;
     if (isset($gender)) {
-      $male = ($gender == 'm') ? true : false;
-      $female = !$male;
+        $male = ($gender == 'm') ? true : false;
+        $female = !$male;
     } elseif (isset($entry['entry_gender'])) {
-      $male = ($entry['entry_gender'] == 'm') ? true : false;
-      $female = !$male;
+        $male = ($entry['entry_gender'] == 'm') ? true : false;
+        $female = !$male;
     }
-?>
+    ?>
 
       <div class="form-group has-feedback">
         <label class="control-label col-sm-3"><?php echo OSCOM::getDef('entry_gender'); ?></label>
@@ -55,12 +56,14 @@
             <?php echo HTML::radioField('gender', 'f', $female) . ' ' . OSCOM::getDef('female'); ?>
           </label>
           <?php echo OSCOM::getDef('form_required_input'); ?>
-          <?php if (tep_not_null(OSCOM::getDef('entry_gender_text'))) echo '<span id="atGender" class="help-block">' . OSCOM::getDef('entry_gender_text') . '</span>'; ?>
+          <?php if (tep_not_null(OSCOM::getDef('entry_gender_text'))) {
+              echo '<span id="atGender" class="help-block">' . OSCOM::getDef('entry_gender_text') . '</span>';
+          } ?>
         </div>
       </div>
 
 <?php
-  }
+}
 ?>
 
       <div class="form-group has-feedback">
@@ -80,14 +83,14 @@
 
 <?php
   if (ACCOUNT_COMPANY == 'true') {
-?>
+      ?>
 
       <div class="form-group">
         <label for="inputCompany" class="control-label col-sm-3"><?php echo OSCOM::getDef('entry_company'); ?></label>
         <div class="col-sm-9">
           <?php
-          echo HTML::inputField('company', ($entry['entry_company'] ?? ''), 'id="inputCompany" placeholder="' . OSCOM::getDef('entry_company_text') . '"');
-          ?>
+                echo HTML::inputField('company', ($entry['entry_company'] ?? ''), 'id="inputCompany" placeholder="' . OSCOM::getDef('entry_company_text') . '"');
+      ?>
         </div>
       </div>
 
@@ -100,21 +103,21 @@
         <div class="col-sm-9">
           <?php
           echo HTML::inputField('street_address', ($entry['entry_street_address'] ?? ''), 'id="inputStreet" placeholder="' . OSCOM::getDef('entry_street_address_text') . '"');
-          echo OSCOM::getDef('form_required_input');
-          ?>
+echo OSCOM::getDef('form_required_input');
+?>
         </div>
       </div>
 
 <?php
   if (ACCOUNT_SUBURB == 'true') {
-?>
+      ?>
 
       <div class="form-group">
         <label for="inputSuburb" class="control-label col-sm-3"><?php echo OSCOM::getDef('entry_suburb'); ?></label>
         <div class="col-sm-9">
           <?php
-          echo HTML::inputField('suburb', ($entry['entry_suburb'] ?? ''), 'id="inputSuburb" placeholder="' . OSCOM::getDef('entry_suburb_text') . '"');
-          ?>
+                echo HTML::inputField('suburb', ($entry['entry_suburb'] ?? ''), 'id="inputSuburb" placeholder="' . OSCOM::getDef('entry_suburb_text') . '"');
+      ?>
         </div>
       </div>
 
@@ -127,50 +130,52 @@
         <div class="col-sm-9">
           <?php
           echo HTML::inputField('city', ($entry['entry_city'] ?? ''), 'id="inputCity" placeholder="' . OSCOM::getDef('entry_city_text') . '"');
-          echo OSCOM::getDef('form_required_input');
-          ?>
+echo OSCOM::getDef('form_required_input');
+?>
         </div>
       </div>
       <div class="form-group has-feedback">
         <label for="inputZip" class="control-label col-sm-3"><?php echo OSCOM::getDef('entry_post_code'); ?></label>
         <div class="col-sm-9">
           <?php
-          echo HTML::inputField('postcode', ($entry['entry_postcode'] ?? ''), 'id="inputZip" placeholder="' . OSCOM::getDef('entry_post_code_text') . '"');
-          echo OSCOM::getDef('form_required_input');
-          ?>
+echo HTML::inputField('postcode', ($entry['entry_postcode'] ?? ''), 'id="inputZip" placeholder="' . OSCOM::getDef('entry_post_code_text') . '"');
+echo OSCOM::getDef('form_required_input');
+?>
         </div>
       </div>
 
 <?php
   if (ACCOUNT_STATE == 'true') {
-?>
+      ?>
 
       <div class="form-group">
         <label for="inputState" class="control-label col-sm-3"><?php echo OSCOM::getDef('entry_state'); ?></label>
         <div class="col-sm-9">
           <?php
 
-          if ($process == true) {
-            if ($entry_state_has_zones == true) {
-              $zones_array = [];
+                if ($process == true) {
+                    if ($entry_state_has_zones == true) {
+                        $zones_array = [];
 
-              $Qzones = $OSCOM_Db->prepare('select zone_name from :table_zones where zone_country_id = :zone_country_id order by zone_name');
-              $Qzones->bindInt(':zone_country_id', $country);
-              $Qzones->execute();
+                        $Qzones = $OSCOM_Db->prepare('select zone_name from :table_zones where zone_country_id = :zone_country_id order by zone_name');
+                        $Qzones->bindInt(':zone_country_id', $country);
+                        $Qzones->execute();
 
-              while ($Qzones->fetch()) {
-                $zones_array[] = ['id' => $Qzones->value('zone_name'), 'text' => $Qzones->value('zone_name')];
-              }
-              echo HTML::selectField('state', $zones_array, 0, 'id="inputState" aria-describedby="atState"');
-            } else {
-              echo HTML::inputField('state', NULL, 'id="inputState" placeholder="' . OSCOM::getDef('entry_state_text') . '"');
-            }
-          } else {
-            echo HTML::inputField('state', (isset($entry['entry_country_id']) ? tep_get_zone_name($entry['entry_country_id'], $entry['entry_zone_id'], $entry['entry_state']) : ''), 'id="inputState" placeholder="' . OSCOM::getDef('entry_state_text') . '"');
-          }
+                        while ($Qzones->fetch()) {
+                            $zones_array[] = ['id' => $Qzones->value('zone_name'), 'text' => $Qzones->value('zone_name')];
+                        }
+                        echo HTML::selectField('state', $zones_array, 0, 'id="inputState" aria-describedby="atState"');
+                    } else {
+                        echo HTML::inputField('state', null, 'id="inputState" placeholder="' . OSCOM::getDef('entry_state_text') . '"');
+                    }
+                } else {
+                    echo HTML::inputField('state', (isset($entry['entry_country_id']) ? tep_get_zone_name($entry['entry_country_id'], $entry['entry_zone_id'], $entry['entry_state']) : ''), 'id="inputState" placeholder="' . OSCOM::getDef('entry_state_text') . '"');
+                }
 
-          if (tep_not_null(OSCOM::getDef('entry_state_text'))) echo '<span id="atState" class="help-block">' . OSCOM::getDef('entry_state_text') . '</span>';
-          ?>
+      if (tep_not_null(OSCOM::getDef('entry_state_text'))) {
+          echo '<span id="atState" class="help-block">' . OSCOM::getDef('entry_state_text') . '</span>';
+      }
+      ?>
         </div>
       </div>
 
@@ -183,15 +188,17 @@
         <div class="col-sm-9">
           <?php
           echo tep_get_country_list('country', ($entry['entry_country_id'] ?? STORE_COUNTRY), 'aria-describedby="atCountry" id="inputCountry"');
-          echo OSCOM::getDef('form_required_input');
-          if (tep_not_null(OSCOM::getDef('entry_country_text'))) echo '<span id="atCountry" class="help-block">' . OSCOM::getDef('entry_country_text') . '</span>';
-          ?>
+echo OSCOM::getDef('form_required_input');
+if (tep_not_null(OSCOM::getDef('entry_country_text'))) {
+    echo '<span id="atCountry" class="help-block">' . OSCOM::getDef('entry_country_text') . '</span>';
+}
+?>
         </div>
       </div>
 
 <?php
-  if ((isset($_GET['edit']) && ($_SESSION['customer_default_address_id'] != $_GET['edit'])) || (isset($_GET['edit']) == false) ) {
-?>
+  if ((isset($_GET['edit']) && ($_SESSION['customer_default_address_id'] != $_GET['edit'])) || (isset($_GET['edit']) == false)) {
+      ?>
 
       <div class="form-group">
         <label for="primary" class="control-label col-sm-3"><?php echo OSCOM::getDef('set_as_primary'); ?></label>

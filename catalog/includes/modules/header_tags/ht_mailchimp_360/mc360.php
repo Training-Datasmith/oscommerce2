@@ -1,10 +1,13 @@
 <?php
+
+declare(strict_types=1);
 use OSC\OM\Mail;
 use OSC\OM\Registry;
 
-class mc360 {
-    public $system = "osc";
-    public $version = "1.1";
+class mc360
+{
+    public $system = 'osc';
+    public $version = '1.1';
 
     /**
      * @var true
@@ -18,68 +21,73 @@ class mc360 {
     public $key_valid = false;
     public $store_id = '';
 
-    function __construct() {
+    public function __construct()
+    {
         $this->apikey = MODULE_HEADER_TAGS_MAILCHIMP_360_API_KEY;
         $this->store_id = MODULE_HEADER_TAGS_MAILCHIMP_360_STORE_ID;
         $this->key_valid = ((MODULE_HEADER_TAGS_MAILCHIMP_360_KEY_VALID == 'true') ? true : false);
 
         if (tep_not_null(MODULE_HEADER_TAGS_MAILCHIMP_360_DEBUG_EMAIL)) {
-          $this->debug = true;
+            $this->debug = true;
         }
 
         $this->validate_cfg();
     }
 
-    function complain(string $msg): void{
-            echo '<div style="position:absolute;left:0;top:0;width:100%;font-size:24px;text-align:center;background:#CCCCCC;color:#660000">MC360 Module: '.$msg.'</div><br />';
+    public function complain(string $msg): void
+    {
+        echo '<div style="position:absolute;left:0;top:0;width:100%;font-size:24px;text-align:center;background:#CCCCCC;color:#660000">MC360 Module: '.$msg.'</div><br />';
     }
 
-    function validate_cfg(): void{
+    public function validate_cfg(): void
+    {
         $OSCOM_Db = Registry::get('Db');
 
         $this->valid_cfg = false;
-        if (empty($this->apikey)){
+        if (empty($this->apikey)) {
             $this->complain('You have not entered your API key. Please read the installation instructions.');
             return;
         }
 
-        if (!$this->key_valid){
-            $GLOBALS["mc_api_key"] = $this->apikey;
-            $api = new MCAPI('notused','notused');
+        if (!$this->key_valid) {
+            $GLOBALS['mc_api_key'] = $this->apikey;
+            $api = new MCAPI('notused', 'notused');
             $res = $api->ping();
-            if ($api->errorMessage!=''){
+            if ($api->errorMessage != '') {
                 $this->complain('Server said: "'.$api->errorMessage.'". Your API key is likely invalid. Please read the installation instructions.');
                 return;
             }
             $this->key_valid = true;
             $OSCOM_Db->save('configuration', ['configuration_value' => 'true'], ['configuration_key' => 'MODULE_HEADER_TAGS_MAILCHIMP_360_KEY_VALID']);
-            if (empty($this->store_id)){
+            if (empty($this->store_id)) {
                 $this->store_id = md5(uniqid(random_int(0, mt_getrandmax()), true));
                 $OSCOM_Db->save('configuration', ['configuration_value' => $this->store_id], ['configuration_key' => 'MODULE_HEADER_TAGS_MAILCHIMP_360_STORE_ID']);
             }
         }
 
-        if (empty($this->store_id)){
+        if (empty($this->store_id)) {
             $this->complain('Your Store ID has not been set. This is not good. Contact support.');
         } else {
             $this->valid_cfg = true;
         }
     }
-    function set_cookies(): void{
-        if (!$this->valid_cfg){
+    public function set_cookies(): void
+    {
+        if (!$this->valid_cfg) {
             return;
         }
-        $thirty_days = time()+60*60*24*30;
-        if (isset($_REQUEST['mc_cid'])){
-            setcookie('mailchimp_campaign_id',trim((string) $_REQUEST['mc_cid']), ['expires' => $thirty_days]);
+        $thirty_days = time() + 60 * 60 * 24 * 30;
+        if (isset($_REQUEST['mc_cid'])) {
+            setcookie('mailchimp_campaign_id', trim((string) $_REQUEST['mc_cid']), ['expires' => $thirty_days]);
         }
-        if (isset($_REQUEST['mc_eid'])){
-            setcookie('mailchimp_email_id',trim((string) $_REQUEST['mc_eid']), ['expires' => $thirty_days]);
+        if (isset($_REQUEST['mc_eid'])) {
+            setcookie('mailchimp_email_id', trim((string) $_REQUEST['mc_eid']), ['expires' => $thirty_days]);
         }
     }
 
-    function process(): void {
-        if (!$this->valid_cfg){
+    public function process(): void
+    {
+        if (!$this->valid_cfg) {
             return;
         }
 
@@ -91,7 +99,7 @@ class mc360 {
 
         $debug_email = '';
 
-        if ($this->debug){
+        if ($this->debug) {
             $debug_email .= '------------[New Order ' . $orderId . ']-----------------' . "\n" .
                             '$order =' . "\n" .
                             print_r($order, true) .
@@ -99,11 +107,11 @@ class mc360 {
                             print_r($_COOKIE, true);
         }
 
-        if (!isset($_COOKIE['mailchimp_campaign_id']) || !isset($_COOKIE['mailchimp_email_id'])){
+        if (!isset($_COOKIE['mailchimp_campaign_id']) || !isset($_COOKIE['mailchimp_email_id'])) {
             return;
         }
 
-        if ($this->debug){
+        if ($this->debug) {
             $debug_email .= date('Y-m-d H:i:s') . ' current ids:' . "\n" .
                             date('Y-m-d H:i:s') . ' eid =' . $_COOKIE['mailchimp_email_id'] . "\n" .
                             date('Y-m-d H:i:s') . ' cid =' . $_COOKIE['mailchimp_campaign_id'] . "\n";
@@ -131,18 +139,18 @@ class mc360 {
 
         $mcorder = [
                 'id' => $Qorder->valueInt('orders_id'),
-                'total'=>$totals_array['ot_total'],
-                'shipping'=>$totals_array['ot_shipping'],
-                'tax'  =>$totals_array['ot_tax'],
-                'items'=>[],
-                'store_id'=>$this->store_id,
+                'total' => $totals_array['ot_total'],
+                'shipping' => $totals_array['ot_shipping'],
+                'tax'  => $totals_array['ot_tax'],
+                'items' => [],
+                'store_id' => $this->store_id,
                 'store_name' => $_SERVER['SERVER_NAME'],
-                'campaign_id'=>$_COOKIE['mailchimp_campaign_id'],
-                'email_id'=>$_COOKIE['mailchimp_email_id'],
-                'plugin_id'=>1216
+                'campaign_id' => $_COOKIE['mailchimp_campaign_id'],
+                'email_id' => $_COOKIE['mailchimp_email_id'],
+                'plugin_id' => 1216,
                 ];
 
-        foreach($products_array as $product){
+        foreach ($products_array as $product) {
             $item = [];
             $item['line_num'] = $line;
             $item['product_id'] = $product['id'];
@@ -158,19 +166,19 @@ class mc360 {
 
             $item['category_id'] = $cat_id;
             $continue = true;
-            while($continue){
-            //now recurse up the categories tree...
+            while ($continue) {
+                //now recurse up the categories tree...
                 $Qcat = $OSCOM_Db->prepare('select c.categories_id, c.parent_id, cd.categories_name from :table_categories c inner join :table_categories_description cd on c.categories_id = cd.categories_id where c.categories_id = :categories_id');
                 $Qcat->bindInt(':categories_id', $cat_id);
                 $Qcat->execute();
 
-                if ($cat_name == ''){
+                if ($cat_name == '') {
                     $cat_name = $Qcat->value('categories_name');
                 } else {
                     $cat_name = $Qcat->value('categories_name') .' - '.$cat_name;
                 }
                 $cat_id = $Qcat->valueInt('parent_id');
-                if ($cat_id==0){
+                if ($cat_id == 0) {
                     $continue = false;
                 }
             }
@@ -179,13 +187,13 @@ class mc360 {
             $mcorder['items'][] = $item;
         }
 
-        $GLOBALS["mc_api_key"] = $this->apikey;
-        $api = new MCAPI('notused','notused');
+        $GLOBALS['mc_api_key'] = $this->apikey;
+        $api = new MCAPI('notused', 'notused');
         $api->campaignEcommAddOrder($mcorder);
-        if ($api->errorMessage!=''){
+        if ($api->errorMessage != '') {
             if ($this->debug) {
-              $debug_email .= 'Error:' . "\n" .
-                               $api->errorMessage . "\n";
+                $debug_email .= 'Error:' . "\n" .
+                                 $api->errorMessage . "\n";
             }
         } else {
             //nothing
@@ -197,7 +205,5 @@ class mc360 {
             $debugEmail->setBody($debug_email);
             $debugEmail->send();
         }
-  }//update
+    }//update
 }//mc360 class
-
-?>

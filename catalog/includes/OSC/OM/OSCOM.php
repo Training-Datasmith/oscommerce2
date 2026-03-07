@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -8,16 +10,9 @@
 
 namespace OSC\OM;
 
-use OSC\OM\DateTime;
-use OSC\OM\ErrorHandler;
-use OSC\OM\FileSystem;
-use OSC\OM\HTML;
-use OSC\OM\HTTP;
-use OSC\OM\Registry;
-
 class OSCOM
 {
-    const BASE_DIR = OSCOM_BASE_DIR;
+    public const BASE_DIR = OSCOM_BASE_DIR;
 
     protected static $version;
     protected static $site = 'Shop';
@@ -51,7 +46,8 @@ class OSCOM
         return static::$version;
     }
 
-    public static function siteExists(string $site, $strict = true): bool {
+    public static function siteExists(string $site, $strict = true): bool
+    {
         $class = 'OSC\Sites\\' . $site . '\\' . $site;
 
         if (class_exists($class)) {
@@ -147,13 +143,13 @@ class OSCOM
             $p = HTML::sanitize($parameters);
 
             $p = str_replace([
-                "\\", // apps
+                '\\', // apps
                 '{', // product attributes
-                '}' // product attributes
+                '}', // product attributes
             ], [
                 '%5C',
                 '%7B',
-                '%7D'
+                '%7D',
             ], $p);
 
             $link .= '?' . $p;
@@ -166,7 +162,7 @@ class OSCOM
             $link = substr($link, 0, -1);
         }
 
-// Add the session ID when moving from different HTTP and HTTPS servers, or when SID is defined
+        // Add the session ID when moving from different HTTP and HTTPS servers, or when SID is defined
         if (($add_session_id == true) && Registry::exists('Session')) {
             $OSCOM_Session = Registry::get('Session');
 
@@ -345,11 +341,11 @@ class OSCOM
         }
 
         if (strncmp($prefix . 'OM\Module\\', $class, strlen($prefix . 'OM\Module\\')) === 0) { // TODO remove and fix namespace
-          $file = dirname(OSCOM_BASE_DIR) . '/' . str_replace(['OSC\OM\\', '\\'], ['', '/'], $class) . '.php';
-          $custom = dirname(OSCOM_BASE_DIR) . '/' . str_replace(['OSC\OM\\', '\\'], ['OSC\Custom\OM\\', '/'], $class) . '.php';
+            $file = dirname(OSCOM_BASE_DIR) . '/' . str_replace(['OSC\OM\\', '\\'], ['', '/'], $class) . '.php';
+            $custom = dirname(OSCOM_BASE_DIR) . '/' . str_replace(['OSC\OM\\', '\\'], ['OSC\Custom\OM\\', '/'], $class) . '.php';
         } else {
-          $file = dirname(OSCOM_BASE_DIR) . '/' . str_replace('\\', '/', $class) . '.php';
-          $custom = str_replace('OSC/OM/', 'OSC/Custom/OM/', $file);
+            $file = dirname(OSCOM_BASE_DIR) . '/' . str_replace('\\', '/', $class) . '.php';
+            $custom = str_replace('OSC/OM/', 'OSC/Custom/OM/', $file);
         }
 
         if (is_file($custom)) {

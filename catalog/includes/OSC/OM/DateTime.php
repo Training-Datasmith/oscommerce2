@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -7,8 +9,6 @@
   */
 
 namespace OSC\OM;
-
-use OSC\OM\OSCOM;
 
 class DateTime
 {
@@ -145,7 +145,7 @@ class DateTime
                 $result[] = [
                     'id' => $key,
                     'text' => $value,
-                    'group' => $zone
+                    'group' => $zone,
                 ];
             }
         }

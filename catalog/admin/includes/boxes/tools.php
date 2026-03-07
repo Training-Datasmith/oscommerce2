@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -15,34 +17,33 @@ $admin_menu['shop']['tools']['cache'] = OSCOM::link('cache.php');
 $admin_menu['shop']['tools']['online_update'] = OSCOM::link('online_update.php');
 $admin_menu['shop']['tools']['server_info'] = OSCOM::link('server_info.php');
 
-  $cl_box_groups[] = [
-    'heading' => OSCOM::getDef('box_heading_tools'),
-    'apps' => [
-      [
-        'code' => FILENAME_DEFINE_LANGUAGE,
-        'title' => OSCOM::getDef('box_tools_define_language'),
-        'link' => OSCOM::link(FILENAME_DEFINE_LANGUAGE)
-      ],
-      [
-        'code' => FILENAME_MAIL,
-        'title' => OSCOM::getDef('box_tools_mail'),
-        'link' => OSCOM::link(FILENAME_MAIL)
-      ],
-      [
-        'code' => FILENAME_NEWSLETTERS,
-        'title' => OSCOM::getDef('box_tools_newsletter_manager'),
-        'link' => OSCOM::link(FILENAME_NEWSLETTERS)
-      ],
-      [
-        'code' => FILENAME_SEC_DIR_PERMISSIONS,
-        'title' => OSCOM::getDef('box_tools_sec_dir_permissions'),
-        'link' => OSCOM::link(FILENAME_SEC_DIR_PERMISSIONS)
-      ],
-      [
-        'code' => FILENAME_WHOS_ONLINE,
-        'title' => OSCOM::getDef('box_tools_whos_online'),
-        'link' => OSCOM::link(FILENAME_WHOS_ONLINE)
-      ]
-    ]
-  ];
-?>
+$cl_box_groups[] = [
+  'heading' => OSCOM::getDef('box_heading_tools'),
+  'apps' => [
+    [
+      'code' => FILENAME_DEFINE_LANGUAGE,
+      'title' => OSCOM::getDef('box_tools_define_language'),
+      'link' => OSCOM::link(FILENAME_DEFINE_LANGUAGE),
+    ],
+    [
+      'code' => FILENAME_MAIL,
+      'title' => OSCOM::getDef('box_tools_mail'),
+      'link' => OSCOM::link(FILENAME_MAIL),
+    ],
+    [
+      'code' => FILENAME_NEWSLETTERS,
+      'title' => OSCOM::getDef('box_tools_newsletter_manager'),
+      'link' => OSCOM::link(FILENAME_NEWSLETTERS),
+    ],
+    [
+      'code' => FILENAME_SEC_DIR_PERMISSIONS,
+      'title' => OSCOM::getDef('box_tools_sec_dir_permissions'),
+      'link' => OSCOM::link(FILENAME_SEC_DIR_PERMISSIONS),
+    ],
+    [
+      'code' => FILENAME_WHOS_ONLINE,
+      'title' => OSCOM::getDef('box_tools_whos_online'),
+      'link' => OSCOM::link(FILENAME_WHOS_ONLINE),
+    ],
+  ],
+];

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -6,63 +8,67 @@
   * @license MIT; https://www.oscommerce.com/license/mit.txt
   */
 
-  use OSC\OM\OSCOM;
-  use OSC\OM\Registry;
+use OSC\OM\OSCOM;
+use OSC\OM\Registry;
 
-  class securityCheckExtended_ext_directory_listing {
+class securityCheckExtended_ext_directory_listing
+{
     public $type = 'warning';
     public $has_doc = true;
 
     protected $lang;
 
-    function __construct() {
-      $this->lang = Registry::get('Language');
+    public function __construct()
+    {
+        $this->lang = Registry::get('Language');
 
-      $this->lang->loadDefinitions('modules/security_check/extended/ext_directory_listing');
+        $this->lang->loadDefinitions('modules/security_check/extended/ext_directory_listing');
 
-      $this->title = OSCOM::getDef('module_security_check_extended_ext_directory_listing_title');
+        $this->title = OSCOM::getDef('module_security_check_extended_ext_directory_listing_title');
     }
 
-    function pass(): bool {
-      $request = $this->getHttpRequest(OSCOM::link('Shop/ext/'));
+    public function pass(): bool
+    {
+        $request = $this->getHttpRequest(OSCOM::link('Shop/ext/'));
 
-      return $request['http_code'] != 200;
+        return $request['http_code'] != 200;
     }
 
-    function getMessage() {
-      return OSCOM::getDef('module_security_check_extended_ext_directory_listing_http_200', [
-        'ext_url' => OSCOM::link('Shop/ext/'),
-        'ext_path' => OSCOM::getConfig('http_path', 'Shop') . 'ext/'
-      ]);
+    public function getMessage()
+    {
+        return OSCOM::getDef('module_security_check_extended_ext_directory_listing_http_200', [
+          'ext_url' => OSCOM::link('Shop/ext/'),
+          'ext_path' => OSCOM::getConfig('http_path', 'Shop') . 'ext/',
+        ]);
     }
 
-    function getHttpRequest($url) {
-      $server = parse_url((string) $url);
+    public function getHttpRequest($url)
+    {
+        $server = parse_url((string) $url);
 
-      if (isset($server['port']) === false) {
-        $server['port'] = ($server['scheme'] == 'https') ? 443 : 80;
-      }
+        if (isset($server['port']) === false) {
+            $server['port'] = ($server['scheme'] == 'https') ? 443 : 80;
+        }
 
-      if (isset($server['path']) === false) {
-        $server['path'] = '/';
-      }
+        if (isset($server['path']) === false) {
+            $server['path'] = '/';
+        }
 
-      $curl = curl_init($server['scheme'] . '://' . $server['host'] . $server['path'] . (isset($server['query']) ? '?' . $server['query'] : ''));
-      curl_setopt($curl, CURLOPT_PORT, $server['port']);
-      curl_setopt($curl, CURLOPT_HEADER, false);
-      curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-      curl_setopt($curl, CURLOPT_FORBID_REUSE, true);
-      curl_setopt($curl, CURLOPT_FRESH_CONNECT, true);
-      curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'HEAD');
-      curl_setopt($curl, CURLOPT_NOBODY, true);
+        $curl = curl_init($server['scheme'] . '://' . $server['host'] . $server['path'] . (isset($server['query']) ? '?' . $server['query'] : ''));
+        curl_setopt($curl, CURLOPT_PORT, $server['port']);
+        curl_setopt($curl, CURLOPT_HEADER, false);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_FORBID_REUSE, true);
+        curl_setopt($curl, CURLOPT_FRESH_CONNECT, true);
+        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'HEAD');
+        curl_setopt($curl, CURLOPT_NOBODY, true);
 
-      curl_exec($curl);
+        curl_exec($curl);
 
-      $info = curl_getinfo($curl);
+        $info = curl_getinfo($curl);
 
-      curl_close($curl);
+        curl_close($curl);
 
-      return $info;
+        return $info;
     }
-  }
-?>
+}

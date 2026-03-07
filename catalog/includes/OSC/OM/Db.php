@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -7,9 +9,6 @@
   */
 
 namespace OSC\OM;
-
-use OSC\OM\HTML;
-use OSC\OM\OSCOM;
 
 class Db extends \PDO
 {
@@ -132,7 +131,7 @@ class Db extends \PDO
         }
 
         if (!isset($options['prefix_tables']) || ($options['prefix_tables'] === true)) {
-            array_walk($table, function(&$v, &$k): void {
+            array_walk($table, function (&$v, &$k): void {
                 if ((strlen($v) < 7) || (!str_starts_with($v, ':table_'))) {
                     $v = ':table_' . $v;
                 }
@@ -383,7 +382,7 @@ class Db extends \PDO
         $pos = strpos($import_queries, ';');
 
         for ($i = $pos; $i < $sql_length; $i++) {
-// remove comments
+            // remove comments
             if ((str_starts_with($import_queries, '#')) || (str_starts_with($import_queries, '--'))) {
                 $import_queries = ltrim(substr($import_queries, strpos($import_queries, "\n")));
                 $sql_length = strlen($import_queries);
@@ -394,12 +393,12 @@ class Db extends \PDO
             if (substr($import_queries, $i + 1, 1) == "\n") {
                 $next = '';
 
-                for ($j = ($i+2); $j < $sql_length; $j++) {
+                for ($j = ($i + 2); $j < $sql_length; $j++) {
                     if (!empty(substr($import_queries, $j, 1))) {
                         $next = substr($import_queries, $j, 6);
 
                         if ((str_starts_with($next, '#')) || (str_starts_with($next, '--'))) {
-// find out where the break position is so we can remove this line (#comment line)
+                            // find out where the break position is so we can remove this line (#comment line)
                             for ($k = $j; $k < $sql_length; $k++) {
                                 if (substr($import_queries, $k, 1) == "\n") {
                                     break;
@@ -410,7 +409,7 @@ class Db extends \PDO
 
                             $import_queries = substr($import_queries, $k);
 
-// join the query before the comment appeared, with the rest of the dump
+                            // join the query before the comment appeared, with the rest of the dump
                             $import_queries = $query . $import_queries;
                             $sql_length = strlen($import_queries);
                             $i = strpos($import_queries, ';') - 1;
@@ -451,9 +450,9 @@ class Db extends \PDO
 
                     $sql_queries[] = trim($sql_query);
 
-                    $import_queries = ltrim(substr($import_queries, $i+1));
+                    $import_queries = ltrim(substr($import_queries, $i + 1));
                     $sql_length = strlen($import_queries);
-                    $i = strpos($import_queries, ';')-1;
+                    $i = strpos($import_queries, ';') - 1;
                 }
             }
         }
@@ -479,7 +478,7 @@ class Db extends \PDO
         $table = substr(basename((string) $file), 0, strrpos(basename((string) $file), '.'));
 
         $schema = [
-            'name' => $table
+            'name' => $table,
         ];
 
         $is_index = $is_foreign = $is_property = false;

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -8,33 +10,30 @@
 
 namespace OSC\OM;
 
-use OSC\OM\OSCOM;
-use OSC\OM\Registry;
-
 abstract class SessionAbstract
 {
     protected $name;
     protected $force_cookies = true;
 
-/**
- * Checks if a session exists
- *
- * @param string $session_id The ID of the session
- */
+    /**
+     * Checks if a session exists
+     *
+     * @param string $session_id The ID of the session
+     */
 
     abstract public function exists($session_id);
 
-/**
- * Verify an existing session ID and create or resume the session if the existing session ID is valid
- *
- * @return boolean
- */
+    /**
+     * Verify an existing session ID and create or resume the session if the existing session ID is valid
+     *
+     * @return boolean
+     */
 
     public function start()
     {
         $OSCOM_Cookies = Registry::get('Cookies');
 
-// this class handles session.use_strict_mode already
+        // this class handles session.use_strict_mode already
         if ((int)ini_get('session.use_strict_mode') === 1) {
             ini_set('session.use_strict_mode', 0);
         }
@@ -56,7 +55,7 @@ abstract class SessionAbstract
         $session_can_start = true;
 
         Registry::get('Hooks')->call('Session', 'StartBefore', [
-            'can_start' => &$session_can_start
+            'can_start' => &$session_can_start,
         ]);
 
         session_set_cookie_params(0, $OSCOM_Cookies->getPath(), $OSCOM_Cookies->getDomain(), (bool)ini_get('session.cookie_secure'), (bool)ini_get('session.cookie_httponly'));
@@ -100,19 +99,20 @@ abstract class SessionAbstract
         return $this->force_cookies;
     }
 
-/**
- * Checks if the session has been started or not
- *
- * @return boolean
- */
+    /**
+     * Checks if the session has been started or not
+     *
+     * @return boolean
+     */
 
-    public function hasStarted() {
-      return session_status() === PHP_SESSION_ACTIVE;
+    public function hasStarted()
+    {
+        return session_status() === PHP_SESSION_ACTIVE;
     }
 
-/**
- * Deletes an existing session
- */
+    /**
+     * Deletes an existing session
+     */
 
     public function kill()
     {
@@ -133,9 +133,9 @@ abstract class SessionAbstract
         return $result;
     }
 
-/**
- * Delete an existing session and move the session data to a new session with a new session ID
- */
+    /**
+     * Delete an existing session and move the session data to a new session with a new session ID
+     */
 
     public function recreate()
     {
@@ -151,7 +151,7 @@ abstract class SessionAbstract
 
         if ($result === true) {
             Registry::get('Hooks')->call('Session', 'Recreated', [
-                'old_id' => $session_old_id
+                'old_id' => $session_old_id,
             ]);
 
             return true;
@@ -160,22 +160,22 @@ abstract class SessionAbstract
         return false;
     }
 
-/**
- * Sets the name of the session
- *
- * @param string $name The name of the session
- */
+    /**
+     * Sets the name of the session
+     *
+     * @param string $name The name of the session
+     */
 
     public function setName($name)
     {
         return session_name($name);
     }
 
-/**
- * Sets the life time of the session (in seconds)
- *
- * @param int $time The life time of the session (in seconds)
- */
+    /**
+     * Sets the life time of the session (in seconds)
+     *
+     * @param int $time The life time of the session (in seconds)
+     */
 
     public function setLifeTime($time)
     {

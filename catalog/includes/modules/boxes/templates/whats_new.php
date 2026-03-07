@@ -1,6 +1,7 @@
 <?php
 use OSC\OM\HTML;
 use OSC\OM\OSCOM;
+
 ?>
 <div class="panel panel-default">
   <div class="panel-heading"><a href="<?php echo OSCOM::link('products_new.php'); ?>"><?php echo OSCOM::getDef('module_boxes_whats_new_box_title'); ?></a></div>

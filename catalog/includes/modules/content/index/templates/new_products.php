@@ -1,6 +1,7 @@
 <?php
 use OSC\OM\HTML;
 use OSC\OM\OSCOM;
+
 ?>
 <div class="col-sm-<?php echo $content_width; ?> new-products">
 
@@ -10,7 +11,7 @@ use OSC\OM\OSCOM;
     <meta itemprop="numberOfItems" content="<?php echo (int)$num_new_products; ?>" />
     <?php
     foreach ($new_products as $new_product) {
-      ?>
+        ?>
     <div class="col-sm-<?php echo $product_width; ?>" itemprop="itemListElement" itemscope="" itemtype="http://schema.org/Product">
       <div class="thumbnail equal-height">
         <a href="<?php echo OSCOM::link('product_info.php', 'products_id=' . (int)$new_product['products_id']); ?>"><?php echo HTML::image(OSCOM::linkImage($new_product['products_image']), $new_product['products_name'], SMALL_IMAGE_WIDTH, SMALL_IMAGE_HEIGHT, 'itemprop="image"'); ?></a>
@@ -28,8 +29,8 @@ use OSC\OM\OSCOM;
       </div>
     </div>
     <?php
-  }
-  ?>
+    }
+?>
   </div>
 
 </div>

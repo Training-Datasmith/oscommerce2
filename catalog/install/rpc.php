@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -6,117 +8,116 @@
   * @license MIT; https://www.oscommerce.com/license/mit.txt
   */
 
-  use OSC\OM\Db;
-  use OSC\OM\HTTP;
-  use OSC\OM\OSCOM;
+use OSC\OM\Db;
+use OSC\OM\HTTP;
+use OSC\OM\OSCOM;
 
-  header('Cache-Control: no-cache, must-revalidate');
-  header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+header('Cache-Control: no-cache, must-revalidate');
+header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
 
-  require('includes/application.php');
+require('includes/application.php');
 
-  $dir_fs_www_root = __DIR__;
+$dir_fs_www_root = __DIR__;
 
-  $result = [
-    'status' => '-100',
-    'message' => 'noActionError'
-  ];
+$result = [
+  'status' => '-100',
+  'message' => 'noActionError',
+];
 
-  if (isset($_GET['action']) && !empty($_GET['action'])) {
+if (isset($_GET['action']) && !empty($_GET['action'])) {
     switch ($_GET['action']) {
-      case 'httpsCheck':
-        if (isset($_GET['subaction']) && ($_GET['subaction'] == 'do')) {
-          if ((isset($_SERVER['HTTPS']) && (strtolower((string) $_SERVER['HTTPS']) == 'on')) || (isset($_SERVER['SERVER_PORT']) && ($_SERVER['SERVER_PORT'] == 443))) {
-            $result['status'] = '1';
-            $result['message'] = 'success';
-          }
-        } else {
-          $url = 'https://' . $_SERVER['HTTP_HOST'];
+        case 'httpsCheck':
+            if (isset($_GET['subaction']) && ($_GET['subaction'] == 'do')) {
+                if ((isset($_SERVER['HTTPS']) && (strtolower((string) $_SERVER['HTTPS']) == 'on')) || (isset($_SERVER['SERVER_PORT']) && ($_SERVER['SERVER_PORT'] == 443))) {
+                    $result['status'] = '1';
+                    $result['message'] = 'success';
+                }
+            } else {
+                $url = 'https://' . $_SERVER['HTTP_HOST'];
 
-          if (isset($_SERVER['REQUEST_URI']) && !empty($_SERVER['REQUEST_URI'])) {
-            $url .= $_SERVER['REQUEST_URI'];
-          } else {
-            $url .= $_SERVER['SCRIPT_FILENAME'];
-          }
+                if (isset($_SERVER['REQUEST_URI']) && !empty($_SERVER['REQUEST_URI'])) {
+                    $url .= $_SERVER['REQUEST_URI'];
+                } else {
+                    $url .= $_SERVER['SCRIPT_FILENAME'];
+                }
 
-          $url .= '&subaction=do';
+                $url .= '&subaction=do';
 
-          // errors are silenced to not log failed connection checks
-          $response = @HTTP::getResponse([
-            'url' => $url,
-            'verify_ssl' => false
-          ]);
+                // errors are silenced to not log failed connection checks
+                $response = @HTTP::getResponse([
+                  'url' => $url,
+                  'verify_ssl' => false,
+                ]);
 
-          if (!empty($response)) {
-            $response = json_decode((string) $response, true);
+                if (!empty($response)) {
+                    $response = json_decode((string) $response, true);
 
-            if (is_array($response) && isset($response['status']) && ($response['status'] == '1')) {
-              $result['status'] = '1';
-              $result['message'] = 'success';
+                    if (is_array($response) && isset($response['status']) && ($response['status'] == '1')) {
+                        $result['status'] = '1';
+                        $result['message'] = 'success';
+                    }
+                }
             }
-          }
-        }
 
-        break;
+            break;
 
-      case 'dbCheck':
-        try {
-          $OSCOM_Db = Db::initialize($_POST['server'] ?? '', $_POST['username'] ?? '', $_POST['password'] ?? '', $_POST['name'] ?? '', null, null, ['log_errors' => false]);
-
-          $result['status'] = '1';
-          $result['message'] = 'success';
-        } catch (\Exception $e) {
-          $result['status'] = $e->getCode();
-          $result['message'] = $e->getMessage();
-
-          if (($e->getCode() == '1049') && isset($_GET['createDb']) && ($_GET['createDb'] == 'true')) {
+        case 'dbCheck':
             try {
-              $OSCOM_Db = Db::initialize($_POST['server'], $_POST['username'], $_POST['password'], '', null, null, ['log_errors' => false]);
+                $OSCOM_Db = Db::initialize($_POST['server'] ?? '', $_POST['username'] ?? '', $_POST['password'] ?? '', $_POST['name'] ?? '', null, null, ['log_errors' => false]);
 
-              $OSCOM_Db->exec('create database ' . Db::prepareIdentifier($_POST['name']) . ' character set utf8 collate utf8_unicode_ci');
+                $result['status'] = '1';
+                $result['message'] = 'success';
+            } catch (\Exception $e) {
+                $result['status'] = $e->getCode();
+                $result['message'] = $e->getMessage();
 
-              $result['status'] = '1';
-              $result['message'] = 'success';
-            } catch (\Exception $e2) {
-              $result['status'] = $e2->getCode();
-              $result['message'] = $e2->getMessage();
+                if (($e->getCode() == '1049') && isset($_GET['createDb']) && ($_GET['createDb'] == 'true')) {
+                    try {
+                        $OSCOM_Db = Db::initialize($_POST['server'], $_POST['username'], $_POST['password'], '', null, null, ['log_errors' => false]);
+
+                        $OSCOM_Db->exec('create database ' . Db::prepareIdentifier($_POST['name']) . ' character set utf8 collate utf8_unicode_ci');
+
+                        $result['status'] = '1';
+                        $result['message'] = 'success';
+                    } catch (\Exception $e2) {
+                        $result['status'] = $e2->getCode();
+                        $result['message'] = $e2->getMessage();
+                    }
+                }
             }
-          }
-        }
 
-        break;
+            break;
 
-      case 'dbImport':
-        try {
-          $OSCOM_Db = Db::initialize($_POST['server'] ?? '', $_POST['username'] ?? '', $_POST['password'] ?? '', $_POST['name'] ?? '');
-          $OSCOM_Db->setTablePrefix('');
+        case 'dbImport':
+            try {
+                $OSCOM_Db = Db::initialize($_POST['server'] ?? '', $_POST['username'] ?? '', $_POST['password'] ?? '', $_POST['name'] ?? '');
+                $OSCOM_Db->setTablePrefix('');
 
-          $OSCOM_Db->exec('SET FOREIGN_KEY_CHECKS = 0');
+                $OSCOM_Db->exec('SET FOREIGN_KEY_CHECKS = 0');
 
-          foreach (glob(OSCOM::BASE_DIR . 'Schema/*.txt') as $f) {
-              $schema = $OSCOM_Db->getSchemaFromFile($f);
+                foreach (glob(OSCOM::BASE_DIR . 'Schema/*.txt') as $f) {
+                    $schema = $OSCOM_Db->getSchemaFromFile($f);
 
-              $sql = $OSCOM_Db->getSqlFromSchema($schema, $_POST['prefix']);
+                    $sql = $OSCOM_Db->getSqlFromSchema($schema, $_POST['prefix']);
 
-              $OSCOM_Db->exec('DROP TABLE IF EXISTS ' . $_POST['prefix'] . basename($f, '.txt'));
+                    $OSCOM_Db->exec('DROP TABLE IF EXISTS ' . $_POST['prefix'] . basename($f, '.txt'));
 
-              $OSCOM_Db->exec($sql);
-          }
+                    $OSCOM_Db->exec($sql);
+                }
 
-          $OSCOM_Db->importSQL($dir_fs_www_root . '/oscommerce.sql', $_POST['prefix']);
+                $OSCOM_Db->importSQL($dir_fs_www_root . '/oscommerce.sql', $_POST['prefix']);
 
-          $OSCOM_Db->exec('SET FOREIGN_KEY_CHECKS = 1');
+                $OSCOM_Db->exec('SET FOREIGN_KEY_CHECKS = 1');
 
-          $result['status'] = '1';
-          $result['message'] = 'success';
-        } catch (\Exception $e) {
-          $result['status'] = $e->getCode();
-          $result['message'] = $e->getMessage();
-        }
+                $result['status'] = '1';
+                $result['message'] = 'success';
+            } catch (\Exception $e) {
+                $result['status'] = $e->getCode();
+                $result['message'] = $e->getMessage();
+            }
 
-        break;
+            break;
     }
-  }
+}
 
-  echo json_encode($result);
-?>
+echo json_encode($result);

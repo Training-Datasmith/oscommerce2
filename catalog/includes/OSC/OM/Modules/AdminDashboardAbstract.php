@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -37,15 +39,18 @@ abstract class AdminDashboardAbstract implements \OSC\OM\Modules\AdminDashboardI
         $this->init();
     }
 
-    public function isEnabled() {
+    public function isEnabled()
+    {
         return $this->enabled;
     }
 
-    public function check() {
+    public function check()
+    {
         return isset($this->sort_order);
     }
 
-    public function remove() {
+    public function remove()
+    {
         return $this->db->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 }

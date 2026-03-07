@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -7,9 +9,6 @@
   */
 
 namespace OSC\OM;
-
-use OSC\OM\OSCOM;
-use OSC\OM\Registry;
 
 abstract class AppAbstract
 {
@@ -24,7 +23,8 @@ abstract class AppAbstract
 
     abstract protected function init();
 
-    final public function __construct() {
+    final public function __construct()
+    {
         $this->setInfo();
 
         $this->db = Registry::get('Db');
@@ -191,7 +191,7 @@ abstract class AppAbstract
                 'configuration_description' => $description,
                 'configuration_group_id' => '6',
                 'sort_order' => '0',
-                'date_added' => 'now()'
+                'date_added' => 'now()',
             ];
 
             if (isset($set_func)) {
@@ -203,9 +203,9 @@ abstract class AppAbstract
             define($key, $value);
         } else {
             $this->db->save('configuration', [
-                'configuration_value' => $value
+                'configuration_value' => $value,
             ], [
-                'configuration_key' => $key
+                'configuration_key' => $key,
             ]);
         }
     }
@@ -213,7 +213,7 @@ abstract class AppAbstract
     final public function deleteCfgParam($key): void
     {
         $this->db->delete('configuration', [
-            'configuration_key' => $key
+            'configuration_key' => $key,
         ]);
     }
 }

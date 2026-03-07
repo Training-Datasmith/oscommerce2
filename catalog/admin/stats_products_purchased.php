@@ -6,15 +6,15 @@
   * @license MIT; https://www.oscommerce.com/license/mit.txt
   */
 
-  use OSC\OM\OSCOM;
+use OSC\OM\OSCOM;
 
-  require('includes/application_top.php');
+require('includes/application_top.php');
 
-  if (!isset($_GET['page']) || !is_numeric($_GET['page'])) {
+if (!isset($_GET['page']) || !is_numeric($_GET['page'])) {
     $_GET['page'] = 1;
-  }
+}
 
-  require($oscTemplate->getFile('template_top.php'));
+require($oscTemplate->getFile('template_top.php'));
 ?>
 
     <table border="0" width="100%" cellspacing="0" cellpadding="2">
@@ -37,25 +37,25 @@
 <?php
   $rows = 0;
 
-  $Qproducts = $OSCOM_Db->prepare('select SQL_CALC_FOUND_ROWS p.products_id, p.products_ordered, pd.products_name from :table_products p, :table_products_description pd where pd.products_id = p.products_id and pd.language_id = :language_id and p.products_ordered > 0 group by pd.products_id order by p.products_ordered desc, pd.products_name limit :page_set_offset, :page_set_max_results');
-  $Qproducts->bindInt(':language_id', $OSCOM_Language->getId());
-  $Qproducts->setPageSet(MAX_DISPLAY_SEARCH_RESULTS);
-  $Qproducts->execute();
+$Qproducts = $OSCOM_Db->prepare('select SQL_CALC_FOUND_ROWS p.products_id, p.products_ordered, pd.products_name from :table_products p, :table_products_description pd where pd.products_id = p.products_id and pd.language_id = :language_id and p.products_ordered > 0 group by pd.products_id order by p.products_ordered desc, pd.products_name limit :page_set_offset, :page_set_max_results');
+$Qproducts->bindInt(':language_id', $OSCOM_Language->getId());
+$Qproducts->setPageSet(MAX_DISPLAY_SEARCH_RESULTS);
+$Qproducts->execute();
 
-  while ($Qproducts->fetch()) {
+while ($Qproducts->fetch()) {
     $rows++;
 
     if (strlen($rows) < 2) {
-      $rows = '0' . $rows;
+        $rows = '0' . $rows;
     }
-?>
+    ?>
               <tr class="dataTableRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" onclick="document.location.href='<?php echo OSCOM::link(FILENAME_CATEGORIES, 'action=new_product_preview&read=only&pID=' . $Qproducts->valueInt('products_id') . '&origin=' . FILENAME_STATS_PRODUCTS_PURCHASED . '&page=' . $_GET['page']); ?>'">
                 <td class="dataTableContent"><?php echo $rows; ?>.</td>
                 <td class="dataTableContent"><?php echo '<a href="' . OSCOM::link(FILENAME_CATEGORIES, 'action=new_product_preview&read=only&pID=' . $Qproducts->valueInt('products_id') . '&origin=' . FILENAME_STATS_PRODUCTS_PURCHASED . '&page=' . $_GET['page']) . '">' . $Qproducts->value('products_name') . '</a>'; ?></td>
                 <td class="dataTableContent" align="center"><?php echo $Qproducts->valueInt('products_ordered'); ?>&nbsp;</td>
               </tr>
 <?php
-  }
+}
 ?>
             </table></td>
           </tr>
@@ -73,5 +73,5 @@
 
 <?php
   require($oscTemplate->getFile('template_bottom.php'));
-  require('includes/application_bottom.php');
+require('includes/application_bottom.php');
 ?>

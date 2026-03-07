@@ -6,41 +6,41 @@
   * @license MIT; https://www.oscommerce.com/license/mit.txt
   */
 
-  use OSC\OM\HTML;
-  use OSC\OM\OSCOM;
+use OSC\OM\HTML;
+use OSC\OM\OSCOM;
 
-  require('includes/application_top.php');
+require('includes/application_top.php');
 
 // if the customer is not logged on, redirect them to the shopping cart page
-  if (!isset($_SESSION['customer_id'])) {
+if (!isset($_SESSION['customer_id'])) {
     OSCOM::redirect('shopping_cart.php');
-  }
+}
 
-  $Qorders = $OSCOM_Db->prepare('select orders_id from :table_orders where customers_id = :customers_id order by date_purchased desc limit 1');
-  $Qorders->bindInt(':customers_id', $_SESSION['customer_id']);
-  $Qorders->execute();
+$Qorders = $OSCOM_Db->prepare('select orders_id from :table_orders where customers_id = :customers_id order by date_purchased desc limit 1');
+$Qorders->bindInt(':customers_id', $_SESSION['customer_id']);
+$Qorders->execute();
 
 // redirect to shopping cart page if no orders exist
-  if ($Qorders->fetch() === false) {
+if ($Qorders->fetch() === false) {
     OSCOM::redirect('shopping_cart.php');
-  }
+}
 
-  $orders = $Qorders->toArray(); // TODO replace $orders used in template content modules with $Qorders
+$orders = $Qorders->toArray(); // TODO replace $orders used in template content modules with $Qorders
 
-  $order_id = $orders['orders_id'];
+$order_id = $orders['orders_id'];
 
-  $page_content = $oscTemplate->getContent('checkout_success');
+$page_content = $oscTemplate->getContent('checkout_success');
 
-  if ( isset($_GET['action']) && ($_GET['action'] == 'update') ) {
+if (isset($_GET['action']) && ($_GET['action'] == 'update')) {
     OSCOM::redirect('index.php');
-  }
+}
 
-  $OSCOM_Language->loadDefinitions('checkout_success');
+$OSCOM_Language->loadDefinitions('checkout_success');
 
-  $breadcrumb->add(OSCOM::getDef('navbar_title_1'));
-  $breadcrumb->add(OSCOM::getDef('navbar_title_2'));
+$breadcrumb->add(OSCOM::getDef('navbar_title_1'));
+$breadcrumb->add(OSCOM::getDef('navbar_title_2'));
 
-  require($oscTemplate->getFile('template_top.php'));
+require($oscTemplate->getFile('template_top.php'));
 ?>
 
 <div class="page-header">
@@ -63,5 +63,5 @@
 
 <?php
   require($oscTemplate->getFile('template_bottom.php'));
-  require('includes/application_bottom.php');
+require('includes/application_bottom.php');
 ?>

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -6,12 +8,12 @@
   * @license MIT; https://www.oscommerce.com/license/mit.txt
   */
 
-  use OSC\OM\DateTime;
-  use OSC\OM\HTML;
-  use OSC\OM\OSCOM;
-  use OSC\OM\Registry;
+use OSC\OM\DateTime;
+use OSC\OM\OSCOM;
+use OSC\OM\Registry;
 
-  class d_admin_logins {
+class d_admin_logins
+{
     public $code = 'd_admin_logins';
     public $title;
     public $description;
@@ -21,20 +23,22 @@
      */
     public $enabled = false;
 
-    function __construct() {
-      $this->title = OSCOM::getDef('module_admin_dashboard_admin_logins_title');
-      $this->description = OSCOM::getDef('module_admin_dashboard_admin_logins_description');
+    public function __construct()
+    {
+        $this->title = OSCOM::getDef('module_admin_dashboard_admin_logins_title');
+        $this->description = OSCOM::getDef('module_admin_dashboard_admin_logins_description');
 
-      if ( defined('MODULE_ADMIN_DASHBOARD_ADMIN_LOGINS_STATUS') ) {
-        $this->sort_order = MODULE_ADMIN_DASHBOARD_ADMIN_LOGINS_SORT_ORDER;
-        $this->enabled = (MODULE_ADMIN_DASHBOARD_ADMIN_LOGINS_STATUS == 'True');
-      }
+        if (defined('MODULE_ADMIN_DASHBOARD_ADMIN_LOGINS_STATUS')) {
+            $this->sort_order = MODULE_ADMIN_DASHBOARD_ADMIN_LOGINS_SORT_ORDER;
+            $this->enabled = (MODULE_ADMIN_DASHBOARD_ADMIN_LOGINS_STATUS == 'True');
+        }
     }
 
-    function getOutput(): string {
-      $OSCOM_Db = Registry::get('Db');
+    public function getOutput(): string
+    {
+        $OSCOM_Db = Registry::get('Db');
 
-      $output = '<table class="table table-hover">
+        $output = '<table class="table table-hover">
                    <thead>
                      <tr class="info">
                        <th>' . OSCOM::getDef('module_admin_dashboard_admin_logins_title') . '</th>
@@ -43,65 +47,69 @@
                    </thead>
                    <tbody>';
 
-      $Qlogins = $OSCOM_Db->get('action_recorder', [
-        'id',
-        'user_name',
-        'success',
-        'date_added'
-      ], [
-        'module' => 'ar_admin_login'
-      ], 'date_added desc', 6);
+        $Qlogins = $OSCOM_Db->get('action_recorder', [
+          'id',
+          'user_name',
+          'success',
+          'date_added',
+        ], [
+          'module' => 'ar_admin_login',
+        ], 'date_added desc', 6);
 
-      while ($Qlogins->fetch()) {
-        $output .= '    <tr>
+        while ($Qlogins->fetch()) {
+            $output .= '    <tr>
                           <td><i class="fa fa-' . (($Qlogins->valueInt('success') === 1) ? 'check text-success' : 'times text-danger') . '"></i>&nbsp;<a href="' . OSCOM::link(FILENAME_ACTION_RECORDER, 'module=ar_admin_login&aID=' . $Qlogins->valueInt('id')) . '">' . $Qlogins->valueProtected('user_name') . '</a></td>
                           <td class="text-right">' . DateTime::toShort($Qlogins->value('date_added')) . '</td>
                         </tr>';
-      }
+        }
 
-      return $output . '  </tbody>
+        return $output . '  </tbody>
                   </table>';
     }
 
-    function isEnabled() {
-      return $this->enabled;
+    public function isEnabled()
+    {
+        return $this->enabled;
     }
 
-    function check(): bool {
-      return defined('MODULE_ADMIN_DASHBOARD_ADMIN_LOGINS_STATUS');
+    public function check(): bool
+    {
+        return defined('MODULE_ADMIN_DASHBOARD_ADMIN_LOGINS_STATUS');
     }
 
-    function install(): void {
-      $OSCOM_Db = Registry::get('Db');
+    public function install(): void
+    {
+        $OSCOM_Db = Registry::get('Db');
 
-      $OSCOM_Db->save('configuration', [
-        'configuration_title' => 'Enable Administrator Logins Module',
-        'configuration_key' => 'MODULE_ADMIN_DASHBOARD_ADMIN_LOGINS_STATUS',
-        'configuration_value' => 'True',
-        'configuration_description' => 'Do you want to show the latest administrator logins on the dashboard?',
-        'configuration_group_id' => '6',
-        'sort_order' => '1',
-        'set_function' => 'tep_cfg_select_option(array(\'True\', \'False\'), ',
-        'date_added' => 'now()'
-      ]);
+        $OSCOM_Db->save('configuration', [
+          'configuration_title' => 'Enable Administrator Logins Module',
+          'configuration_key' => 'MODULE_ADMIN_DASHBOARD_ADMIN_LOGINS_STATUS',
+          'configuration_value' => 'True',
+          'configuration_description' => 'Do you want to show the latest administrator logins on the dashboard?',
+          'configuration_group_id' => '6',
+          'sort_order' => '1',
+          'set_function' => 'tep_cfg_select_option(array(\'True\', \'False\'), ',
+          'date_added' => 'now()',
+        ]);
 
-      $OSCOM_Db->save('configuration', [
-        'configuration_title' => 'Sort Order',
-        'configuration_key' => 'MODULE_ADMIN_DASHBOARD_ADMIN_LOGINS_SORT_ORDER',
-        'configuration_value' => '0',
-        'configuration_description' => 'Sort order of display. Lowest is displayed first.',
-        'configuration_group_id' => '6',
-        'sort_order' => '0',
-        'date_added' => 'now()'
-      ]);
+        $OSCOM_Db->save('configuration', [
+          'configuration_title' => 'Sort Order',
+          'configuration_key' => 'MODULE_ADMIN_DASHBOARD_ADMIN_LOGINS_SORT_ORDER',
+          'configuration_value' => '0',
+          'configuration_description' => 'Sort order of display. Lowest is displayed first.',
+          'configuration_group_id' => '6',
+          'sort_order' => '0',
+          'date_added' => 'now()',
+        ]);
     }
 
-    function remove() {
-      return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
+    public function remove()
+    {
+        return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys(): array {
-      return ['MODULE_ADMIN_DASHBOARD_ADMIN_LOGINS_STATUS', 'MODULE_ADMIN_DASHBOARD_ADMIN_LOGINS_SORT_ORDER'];
+    public function keys(): array
+    {
+        return ['MODULE_ADMIN_DASHBOARD_ADMIN_LOGINS_STATUS', 'MODULE_ADMIN_DASHBOARD_ADMIN_LOGINS_SORT_ORDER'];
     }
-  }
-?>
+}

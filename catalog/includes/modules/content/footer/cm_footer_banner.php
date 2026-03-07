@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -6,11 +8,12 @@
   * @license MIT; https://www.oscommerce.com/license/mit.txt
   */
 
-  use OSC\OM\HTML;
-  use OSC\OM\OSCOM;
-  use OSC\OM\Registry;
+use OSC\OM\HTML;
+use OSC\OM\OSCOM;
+use OSC\OM\Registry;
 
-  class cm_footer_banner {
+class cm_footer_banner
+{
     /**
      * @var class-string<\cm_footer_banner>
      */
@@ -27,125 +30,134 @@
      */
     public $enabled = false;
 
-    function __construct() {
-      $this->code = static::class;
-      $this->group = basename(__DIR__);
+    public function __construct()
+    {
+        $this->code = static::class;
+        $this->group = basename(__DIR__);
 
-      $this->title = OSCOM::getDef('module_content_footer_banner_title');
-      $this->description = OSCOM::getDef('module_content_footer_banner_description');
-      $this->description .= '<div class="secWarning">' . OSCOM::getDef('module_content_bootstrap_row_description') . '</div>';
+        $this->title = OSCOM::getDef('module_content_footer_banner_title');
+        $this->description = OSCOM::getDef('module_content_footer_banner_description');
+        $this->description .= '<div class="secWarning">' . OSCOM::getDef('module_content_bootstrap_row_description') . '</div>';
 
-      if ( defined('MODULE_CONTENT_FOOTER_BANNER_STATUS') ) {
-        $this->sort_order = MODULE_CONTENT_FOOTER_BANNER_SORT_ORDER;
-        $this->enabled = (MODULE_CONTENT_FOOTER_BANNER_STATUS == 'True');
-      }
-    }
-
-    function execute(): void {
-      global $oscTemplate;
-
-      if (!empty(MODULE_CONTENT_FOOTER_BANNER_GROUP)) {
-        $content_width = (int)MODULE_CONTENT_FOOTER_BANNER_CONTENT_WIDTH;
-
-        if ($banner = tep_banner_exists('dynamic', MODULE_CONTENT_FOOTER_BANNER_GROUP)) {
-          ob_start();
-          include('includes/modules/content/' . $this->group . '/templates/banner.php');
-          $template = ob_get_clean();
-
-          $oscTemplate->addContent($template, $this->group);
+        if (defined('MODULE_CONTENT_FOOTER_BANNER_STATUS')) {
+            $this->sort_order = MODULE_CONTENT_FOOTER_BANNER_SORT_ORDER;
+            $this->enabled = (MODULE_CONTENT_FOOTER_BANNER_STATUS == 'True');
         }
-      }
     }
 
-    function isEnabled() {
-      return $this->enabled;
+    public function execute(): void
+    {
+        global $oscTemplate;
+
+        if (!empty(MODULE_CONTENT_FOOTER_BANNER_GROUP)) {
+            $content_width = (int)MODULE_CONTENT_FOOTER_BANNER_CONTENT_WIDTH;
+
+            if ($banner = tep_banner_exists('dynamic', MODULE_CONTENT_FOOTER_BANNER_GROUP)) {
+                ob_start();
+                include('includes/modules/content/' . $this->group . '/templates/banner.php');
+                $template = ob_get_clean();
+
+                $oscTemplate->addContent($template, $this->group);
+            }
+        }
     }
 
-    function check(): bool {
-      return defined('MODULE_CONTENT_FOOTER_BANNER_STATUS');
+    public function isEnabled()
+    {
+        return $this->enabled;
     }
 
-    function install(): void {
-      $OSCOM_Db = Registry::get('Db');
-
-      $OSCOM_Db->save('configuration', [
-        'configuration_title' => 'Enable Banner Footer Module',
-        'configuration_key' => 'MODULE_CONTENT_FOOTER_BANNER_STATUS',
-        'configuration_value' => 'True',
-        'configuration_description' => 'Do you want to enable the Banner content module?',
-        'configuration_group_id' => '6',
-        'sort_order' => '1',
-        'set_function' => 'tep_cfg_select_option(array(\'True\', \'False\'), ',
-        'date_added' => 'now()'
-      ]);
-
-      $OSCOM_Db->save('configuration', [
-        'configuration_title' => 'Banner Group',
-        'configuration_key' => 'MODULE_CONTENT_FOOTER_BANNER_GROUP',
-        'configuration_value' => '',
-        'configuration_description' => 'Which group should the banner be displayed from?',
-        'configuration_group_id' => '6',
-        'sort_order' => '1',
-        'use_function' => 'cm_footer_banner::showBannerGroupSelection',
-        'set_function' => 'cm_footer_banner::getBannerGroupSelection(',
-        'date_added' => 'now()'
-      ]);
-
-      $OSCOM_Db->save('configuration', [
-        'configuration_title' => 'Content Width',
-        'configuration_key' => 'MODULE_CONTENT_FOOTER_BANNER_CONTENT_WIDTH',
-        'configuration_value' => '3',
-        'configuration_description' => 'What width container should the content be shown in? (12 = full width, 6 = half width).',
-        'configuration_group_id' => '6',
-        'sort_order' => '1',
-        'set_function' => 'tep_cfg_select_option(array(\'12\', \'11\', \'10\', \'9\', \'8\', \'7\', \'6\', \'5\', \'4\', \'3\', \'2\', \'1\'), ',
-        'date_added' => 'now()'
-      ]);
-
-      $OSCOM_Db->save('configuration', [
-        'configuration_title' => 'Sort Order',
-        'configuration_key' => 'MODULE_CONTENT_FOOTER_BANNER_SORT_ORDER',
-        'configuration_value' => '0',
-        'configuration_description' => 'Sort order of display. Lowest is displayed first.',
-        'configuration_group_id' => '6',
-        'sort_order' => '0',
-        'date_added' => 'now()'
-      ]);
+    public function check(): bool
+    {
+        return defined('MODULE_CONTENT_FOOTER_BANNER_STATUS');
     }
 
-    function remove() {
-      return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
+    public function install(): void
+    {
+        $OSCOM_Db = Registry::get('Db');
+
+        $OSCOM_Db->save('configuration', [
+          'configuration_title' => 'Enable Banner Footer Module',
+          'configuration_key' => 'MODULE_CONTENT_FOOTER_BANNER_STATUS',
+          'configuration_value' => 'True',
+          'configuration_description' => 'Do you want to enable the Banner content module?',
+          'configuration_group_id' => '6',
+          'sort_order' => '1',
+          'set_function' => 'tep_cfg_select_option(array(\'True\', \'False\'), ',
+          'date_added' => 'now()',
+        ]);
+
+        $OSCOM_Db->save('configuration', [
+          'configuration_title' => 'Banner Group',
+          'configuration_key' => 'MODULE_CONTENT_FOOTER_BANNER_GROUP',
+          'configuration_value' => '',
+          'configuration_description' => 'Which group should the banner be displayed from?',
+          'configuration_group_id' => '6',
+          'sort_order' => '1',
+          'use_function' => 'cm_footer_banner::showBannerGroupSelection',
+          'set_function' => 'cm_footer_banner::getBannerGroupSelection(',
+          'date_added' => 'now()',
+        ]);
+
+        $OSCOM_Db->save('configuration', [
+          'configuration_title' => 'Content Width',
+          'configuration_key' => 'MODULE_CONTENT_FOOTER_BANNER_CONTENT_WIDTH',
+          'configuration_value' => '3',
+          'configuration_description' => 'What width container should the content be shown in? (12 = full width, 6 = half width).',
+          'configuration_group_id' => '6',
+          'sort_order' => '1',
+          'set_function' => 'tep_cfg_select_option(array(\'12\', \'11\', \'10\', \'9\', \'8\', \'7\', \'6\', \'5\', \'4\', \'3\', \'2\', \'1\'), ',
+          'date_added' => 'now()',
+        ]);
+
+        $OSCOM_Db->save('configuration', [
+          'configuration_title' => 'Sort Order',
+          'configuration_key' => 'MODULE_CONTENT_FOOTER_BANNER_SORT_ORDER',
+          'configuration_value' => '0',
+          'configuration_description' => 'Sort order of display. Lowest is displayed first.',
+          'configuration_group_id' => '6',
+          'sort_order' => '0',
+          'date_added' => 'now()',
+        ]);
     }
 
-    function keys(): array {
-      return ['MODULE_CONTENT_FOOTER_BANNER_STATUS', 'MODULE_CONTENT_FOOTER_BANNER_GROUP', 'MODULE_CONTENT_FOOTER_BANNER_CONTENT_WIDTH', 'MODULE_CONTENT_FOOTER_BANNER_SORT_ORDER'];
+    public function remove()
+    {
+        return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    public static function showBannerGroupSelection($value) {
-      return empty($value) ? '--None--' : $value;
+    public function keys(): array
+    {
+        return ['MODULE_CONTENT_FOOTER_BANNER_STATUS', 'MODULE_CONTENT_FOOTER_BANNER_GROUP', 'MODULE_CONTENT_FOOTER_BANNER_CONTENT_WIDTH', 'MODULE_CONTENT_FOOTER_BANNER_SORT_ORDER'];
     }
 
-    public static function getBannerGroupSelection($value, ?string $key = '') {
-      $OSCOM_Db = Registry::get('Db');
+    public static function showBannerGroupSelection($value)
+    {
+        return empty($value) ? '--None--' : $value;
+    }
 
-      $name = !empty($key) ? 'configuration[' . $key . ']' : 'configuration_value';
+    public static function getBannerGroupSelection($value, ?string $key = '')
+    {
+        $OSCOM_Db = Registry::get('Db');
 
-      $groups = [
-        [
-          'id' => '',
-          'text' => '--None--'
-        ]
-      ];
+        $name = !empty($key) ? 'configuration[' . $key . ']' : 'configuration_value';
 
-      $Qgroups = $OSCOM_Db->query('select distinct banners_group from :table_banners order by banners_group');
-
-      while ($Qgroups->fetch()) {
-        $groups[] = [
-          'id' => $Qgroups->value('banners_group'),
-          'text' => $Qgroups->value('banners_group')
+        $groups = [
+          [
+            'id' => '',
+            'text' => '--None--',
+          ],
         ];
-      }
 
-      return HTML::selectField($name, $groups, $value);
+        $Qgroups = $OSCOM_Db->query('select distinct banners_group from :table_banners order by banners_group');
+
+        while ($Qgroups->fetch()) {
+            $groups[] = [
+              'id' => $Qgroups->value('banners_group'),
+              'text' => $Qgroups->value('banners_group'),
+            ];
+        }
+
+        return HTML::selectField($name, $groups, $value);
     }
-  }
+}

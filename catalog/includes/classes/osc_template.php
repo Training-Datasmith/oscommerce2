@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -6,11 +8,12 @@
   * @license MIT; https://www.oscommerce.com/license/mit.txt
   */
 
-  use OSC\OM\Apps;
-  use OSC\OM\OSCOM;
-  use OSC\OM\Registry;
+use OSC\OM\Apps;
+use OSC\OM\OSCOM;
+use OSC\OM\Registry;
 
-  class oscTemplate {
+class oscTemplate
+{
     public $_title;
     public $_code = 'Sail';
     public $_blocks = [];
@@ -22,193 +25,213 @@
 
     protected $lang;
 
-    function __construct() {
-      $this->lang = Registry::get('Language');
+    public function __construct()
+    {
+        $this->lang = Registry::get('Language');
 
-      $this->_title = OSCOM::getDef('title', ['store_name' => STORE_NAME]);
+        $this->_title = OSCOM::getDef('title', ['store_name' => STORE_NAME]);
 
-      $this->addBlock('<meta name="generator" content="osCommerce Online Merchant" />', 'header_tags');
+        $this->addBlock('<meta name="generator" content="osCommerce Online Merchant" />', 'header_tags');
     }
 
-    function setGridContainerWidth($width): void {
-      $this->_grid_container_width = $width;
+    public function setGridContainerWidth($width): void
+    {
+        $this->_grid_container_width = $width;
     }
 
-    function getGridContainerWidth() {
-      return $this->_grid_container_width;
+    public function getGridContainerWidth()
+    {
+        return $this->_grid_container_width;
     }
 
-    function setGridContentWidth($width): void {
-      $this->_grid_content_width = $width;
+    public function setGridContentWidth($width): void
+    {
+        $this->_grid_content_width = $width;
     }
 
-    function getGridContentWidth() {
-      return $this->_grid_content_width;
+    public function getGridContentWidth()
+    {
+        return $this->_grid_content_width;
     }
 
-    function setGridColumnWidth($width): void {
-      $this->_grid_column_width = $width;
+    public function setGridColumnWidth($width): void
+    {
+        $this->_grid_column_width = $width;
     }
 
-    function getGridColumnWidth(): int|float {
-      return (12 - BOOTSTRAP_CONTENT) / 2;
+    public function getGridColumnWidth(): int|float
+    {
+        return (12 - BOOTSTRAP_CONTENT) / 2;
     }
 
-    function setTitle($title): void {
-      $this->_title = $title;
+    public function setTitle($title): void
+    {
+        $this->_title = $title;
     }
 
-    function getTitle() {
-      return $this->_title;
+    public function getTitle()
+    {
+        return $this->_title;
     }
 
-    function setCode($code): void {
-      $this->_code = $code;
+    public function setCode($code): void
+    {
+        $this->_code = $code;
     }
 
-    function getCode() {
-      return $this->_code;
+    public function getCode()
+    {
+        return $this->_code;
     }
 
-    function addBlock($block, $group): void {
-      $this->_blocks[$group][] = $block;
+    public function addBlock($block, $group): void
+    {
+        $this->_blocks[$group][] = $block;
     }
 
-    function hasBlocks($group): bool {
-      return (isset($this->_blocks[$group]) && !empty($this->_blocks[$group]));
+    public function hasBlocks($group): bool
+    {
+        return (isset($this->_blocks[$group]) && !empty($this->_blocks[$group]));
     }
 
-    function getBlocks($group) {
-      if ($this->hasBlocks($group)) {
-        return implode("\n", $this->_blocks[$group]);
-      }
+    public function getBlocks($group)
+    {
+        if ($this->hasBlocks($group)) {
+            return implode("\n", $this->_blocks[$group]);
+        }
     }
 
-    function buildBlocks(): void {
-      if ( defined('TEMPLATE_BLOCK_GROUPS') && tep_not_null(TEMPLATE_BLOCK_GROUPS) ) {
-        $tbgroups_array = explode(';', (string) TEMPLATE_BLOCK_GROUPS);
+    public function buildBlocks(): void
+    {
+        if (defined('TEMPLATE_BLOCK_GROUPS') && tep_not_null(TEMPLATE_BLOCK_GROUPS)) {
+            $tbgroups_array = explode(';', (string) TEMPLATE_BLOCK_GROUPS);
 
-        foreach ($tbgroups_array as $group) {
-          $module_key = 'MODULE_' . strtoupper($group) . '_INSTALLED';
+            foreach ($tbgroups_array as $group) {
+                $module_key = 'MODULE_' . strtoupper($group) . '_INSTALLED';
 
-          if ( defined($module_key) && tep_not_null(constant($module_key)) ) {
-            $modules_array = explode(';', (string) constant($module_key));
+                if (defined($module_key) && tep_not_null(constant($module_key))) {
+                    $modules_array = explode(';', (string) constant($module_key));
 
-            foreach ( $modules_array as $module ) {
-              $class = basename($module, '.php');
+                    foreach ($modules_array as $module) {
+                        $class = basename($module, '.php');
 
-              if ( !class_exists($class) ) {
-                if ($this->lang->definitionsExist('modules/' . $group . '/' . pathinfo($module, PATHINFO_FILENAME))) {
-                  $this->lang->loadDefinitions('modules/' . $group . '/' . pathinfo($module, PATHINFO_FILENAME));
+                        if (!class_exists($class)) {
+                            if ($this->lang->definitionsExist('modules/' . $group . '/' . pathinfo($module, PATHINFO_FILENAME))) {
+                                $this->lang->loadDefinitions('modules/' . $group . '/' . pathinfo($module, PATHINFO_FILENAME));
+                            }
+
+                            if (is_file('includes/modules/' . $group . '/' . $class . '.php')) {
+                                include('includes/modules/' . $group . '/' . $class . '.php');
+                            }
+                        }
+
+                        if (class_exists($class)) {
+                            $mb = new $class();
+
+                            if ($mb->isEnabled()) {
+                                $mb->execute();
+                            }
+                        }
+                    }
                 }
+            }
+        }
+    }
 
-                if ( is_file('includes/modules/' . $group . '/' . $class . '.php') ) {
-                  include('includes/modules/' . $group . '/' . $class . '.php');
-                }
-              }
+    public function addContent($content, $group): void
+    {
+        $this->_content[$group][] = $content;
+    }
 
-              if ( class_exists($class) ) {
+    public function hasContent($group): bool
+    {
+        return (isset($this->_content[$group]) && !empty($this->_content[$group]));
+    }
+
+    public function getContent(string $group)
+    {
+        if (!class_exists('tp_' . $group) && is_file('includes/modules/pages/tp_' . $group . '.php')) {
+            include('includes/modules/pages/tp_' . $group . '.php');
+        }
+
+        if (class_exists('tp_' . $group)) {
+            $template_page_class = 'tp_' . $group;
+            $template_page = new $template_page_class();
+            $template_page->prepare();
+        }
+
+        foreach ($this->getContentModules($group) as $module) {
+            if (str_contains((string) $module, '\\')) {
+                $class = Apps::getModuleClass($group . '/' . $module, 'Content');
+
                 $mb = new $class();
 
-                if ( $mb->isEnabled() ) {
-                  $mb->execute();
+                if ($mb->isEnabled()) {
+                    $mb->execute();
                 }
-              }
+            } else {
+                if (!class_exists($module)) {
+                    if (is_file('includes/modules/content/' . $group . '/' . $module . '.php')) {
+                        if ($this->lang->definitionsExist('modules/content/' . $group . '/' . $module)) {
+                            $this->lang->loadDefinitions('modules/content/' . $group . '/' . $module);
+                        }
+
+                        include('includes/modules/content/' . $group . '/' . $module . '.php');
+                    }
+                }
+
+                if (class_exists($module)) {
+                    $mb = new $module();
+
+                    if ($mb->isEnabled()) {
+                        $mb->execute();
+                    }
+                }
             }
-          }
         }
-      }
-    }
 
-    function addContent($content, $group): void {
-      $this->_content[$group][] = $content;
-    }
-
-    function hasContent($group): bool {
-      return (isset($this->_content[$group]) && !empty($this->_content[$group]));
-    }
-
-    function getContent(string $group) {
-      if ( !class_exists('tp_' . $group) && is_file('includes/modules/pages/tp_' . $group . '.php') ) {
-        include('includes/modules/pages/tp_' . $group . '.php');
-      }
-
-      if ( class_exists('tp_' . $group) ) {
-        $template_page_class = 'tp_' . $group;
-        $template_page = new $template_page_class();
-        $template_page->prepare();
-      }
-
-      foreach ( $this->getContentModules($group) as $module ) {
-        if (str_contains((string) $module, '\\')) {
-          $class = Apps::getModuleClass($group . '/' . $module, 'Content');
-
-          $mb = new $class();
-
-          if ( $mb->isEnabled() ) {
-            $mb->execute();
-          }
-        } else {
-          if ( !class_exists($module) ) {
-            if ( is_file('includes/modules/content/' . $group . '/' . $module . '.php') ) {
-              if ($this->lang->definitionsExist('modules/content/' . $group . '/' . $module)) {
-                $this->lang->loadDefinitions('modules/content/' . $group . '/' . $module);
-              }
-
-              include('includes/modules/content/' . $group . '/' . $module . '.php');
-            }
-          }
-
-          if ( class_exists($module) ) {
-            $mb = new $module();
-
-            if ( $mb->isEnabled() ) {
-              $mb->execute();
-            }
-          }
+        if (class_exists('tp_' . $group)) {
+            $template_page->build();
         }
-      }
 
-      if ( class_exists('tp_' . $group) ) {
-        $template_page->build();
-      }
-
-      if ($this->hasContent($group)) {
-        return implode("\n", $this->_content[$group]);
-      }
+        if ($this->hasContent($group)) {
+            return implode("\n", $this->_content[$group]);
+        }
     }
 
     /**
      * @return string[]
      */
-    function getContentModules($group): array {
-      $result = [];
+    public function getContentModules($group): array
+    {
+        $result = [];
 
-      foreach ( explode(';', MODULE_CONTENT_INSTALLED) as $m ) {
-        $module = explode('/', $m, 2);
+        foreach (explode(';', MODULE_CONTENT_INSTALLED) as $m) {
+            $module = explode('/', $m, 2);
 
-        if ( $module[0] == $group ) {
-          $result[] = $module[1];
+            if ($module[0] == $group) {
+                $result[] = $module[1];
+            }
         }
-      }
 
-      return $result;
+        return $result;
     }
 
-    function getFile(string $file, $template = null): string {
-      if (!isset($template)) {
-        $template = $this->getCode();
-      }
+    public function getFile(string $file, $template = null): string
+    {
+        if (!isset($template)) {
+            $template = $this->getCode();
+        }
 
-      return OSCOM::BASE_DIR . 'Sites/' . OSCOM::getSite() . '/Templates/' . $template . '/' . $file;
+        return OSCOM::BASE_DIR . 'Sites/' . OSCOM::getSite() . '/Templates/' . $template . '/' . $file;
     }
 
-    function getPublicFile(string $file, $template = null) {
-      if (!isset($template)) {
-        $template = $this->getCode();
-      }
+    public function getPublicFile(string $file, $template = null)
+    {
+        if (!isset($template)) {
+            $template = $this->getCode();
+        }
 
-      return OSCOM::linkPublic('Templates/' . $template . '/' . $file);
+        return OSCOM::linkPublic('Templates/' . $template . '/' . $file);
     }
-  }
-?>
+}

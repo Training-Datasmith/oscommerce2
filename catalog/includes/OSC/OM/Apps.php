@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -7,9 +9,6 @@
   */
 
 namespace OSC\OM;
-
-use OSC\OM\OSCOM;
-use OSC\OM\Registry;
 
 class Apps
 {
@@ -231,7 +230,7 @@ class Apps
 
         return call_user_func([
             'OSC\Sites\\' . OSCOM::getSite() . '\\' . OSCOM::getSite(),
-            'resolveRoute'
+            'resolveRoute',
         ], $route, $routes);
     }
 }

@@ -1,6 +1,7 @@
 <?php
 use OSC\OM\HTML;
 use OSC\OM\OSCOM;
+
 ?>
 <div class="create-account-link <?php echo (MODULE_CONTENT_CREATE_ACCOUNT_LINK_CONTENT_WIDTH == 'Half') ? 'col-sm-6' : 'col-sm-12'; ?>">
   <div class="panel panel-info">

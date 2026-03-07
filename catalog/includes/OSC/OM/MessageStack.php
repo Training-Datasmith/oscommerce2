@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -8,23 +10,19 @@
 
 namespace OSC\OM;
 
-use OSC\OM\HTML;
-use OSC\OM\OSCOM;
-use OSC\OM\Registry;
-
 class MessageStack
 {
     protected $data = [];
 
     public function __construct()
     {
-        register_shutdown_function(function(): void {
+        register_shutdown_function(function (): void {
             if (!empty($this->data)) {
                 $_SESSION['MessageStack_Data'] = $this->data;
             }
         });
 
-        Registry::get('Hooks')->watch('Session', 'StartAfter', 'execute', function(): void {
+        Registry::get('Hooks')->watch('Session', 'StartAfter', 'execute', function (): void {
             if (isset($_SESSION['MessageStack_Data']) && !empty($_SESSION['MessageStack_Data'])) {
                 foreach ($_SESSION['MessageStack_Data'] as $group => $messages) {
                     foreach ($messages as $message) {
@@ -36,8 +34,8 @@ class MessageStack
             }
         });
 
-        Registry::get('Hooks')->watch('Account', 'LogoutAfter', 'execute', function(): void {
-          $this->reset('main');
+        Registry::get('Hooks')->watch('Account', 'LogoutAfter', 'execute', function (): void {
+            $this->reset('main');
         });
     }
 
@@ -51,7 +49,7 @@ class MessageStack
 
         $stack = [
             'text' => $message,
-            'type' => $type
+            'type' => $type,
         ];
 
         if (!$this->exists($group) || !in_array($stack, $this->data[$group])) {

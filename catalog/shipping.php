@@ -6,16 +6,16 @@
   * @license MIT; https://www.oscommerce.com/license/mit.txt
   */
 
-  use OSC\OM\HTML;
-  use OSC\OM\OSCOM;
+use OSC\OM\HTML;
+use OSC\OM\OSCOM;
 
-  require('includes/application_top.php');
+require('includes/application_top.php');
 
-  $OSCOM_Language->loadDefinitions('shipping');
+$OSCOM_Language->loadDefinitions('shipping');
 
-  $breadcrumb->add(OSCOM::getDef('navbar_title'), OSCOM::link('shipping.php'));
+$breadcrumb->add(OSCOM::getDef('navbar_title'), OSCOM::link('shipping.php'));
 
-  require($oscTemplate->getFile('template_top.php'));
+require($oscTemplate->getFile('template_top.php'));
 ?>
 
 <div class="page-header">
@@ -34,5 +34,5 @@
 
 <?php
   require($oscTemplate->getFile('template_bottom.php'));
-  require('includes/application_bottom.php');
+require('includes/application_bottom.php');
 ?>

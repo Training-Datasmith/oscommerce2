@@ -1,6 +1,7 @@
 <?php
 use OSC\OM\HTML;
 use OSC\OM\OSCOM;
+
 ?>
 <div class="login-form <?php echo (MODULE_CONTENT_LOGIN_FORM_CONTENT_WIDTH == 'Half') ? 'col-sm-6' : 'col-sm-12'; ?>">
   <div class="panel panel-success">
@@ -12,11 +13,11 @@ use OSC\OM\OSCOM;
       <?php echo HTML::form('login', OSCOM::link('login.php', 'action=process'), 'post', '', ['tokenize' => true]); ?>
 
       <div class="form-group">
-        <?php echo HTML::inputField('email_address', NULL, 'autofocus="autofocus" required id="inputEmail" placeholder="' . OSCOM::getDef('entry_email_address_text') . '"', 'email'); ?>
+        <?php echo HTML::inputField('email_address', null, 'autofocus="autofocus" required id="inputEmail" placeholder="' . OSCOM::getDef('entry_email_address_text') . '"', 'email'); ?>
       </div>
 
       <div class="form-group">
-        <?php echo HTML::passwordField('password', NULL, 'required aria-required="true" id="inputPassword" autocomplete="new-password" placeholder="' . OSCOM::getDef('entry_password_text') . '"'); ?>
+        <?php echo HTML::passwordField('password', null, 'required aria-required="true" id="inputPassword" autocomplete="new-password" placeholder="' . OSCOM::getDef('entry_password_text') . '"'); ?>
       </div>
 
       <p class="text-right"><?php echo HTML::button(OSCOM::getDef('image_button_login'), 'fa fa-sign-in', null, null, 'btn-success btn-block'); ?></p>

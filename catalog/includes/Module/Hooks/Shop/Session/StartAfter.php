@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -15,15 +17,16 @@ use OSC\OM\Registry;
 
 class StartAfter
 {
-    public function execute(): void {
+    public function execute(): void
+    {
         $OSCOM_Session = Registry::get('Session');
 
-// initialize a session token
+        // initialize a session token
         if (!isset($_SESSION['sessiontoken'])) {
             $_SESSION['sessiontoken'] = md5(Hash::getRandomInt() . Hash::getRandomInt() . Hash::getRandomInt() . Hash::getRandomInt());
         }
 
-// verify the ssl_session_id if the feature is enabled
+        // verify the ssl_session_id if the feature is enabled
         if ((HTTP::getRequestType() === 'SSL') && (SESSION_CHECK_SSL_SESSION_ID == 'True') && $OSCOM_Session->hasStarted()) {
             if (!isset($_SESSION['SSL_SESSION_ID'])) {
                 $_SESSION['SESSION_SSL_ID'] = $_SERVER['SSL_SESSION_ID'];
@@ -36,7 +39,7 @@ class StartAfter
             }
         }
 
-// verify the browser user agent if the feature is enabled
+        // verify the browser user agent if the feature is enabled
         if (SESSION_CHECK_USER_AGENT == 'True') {
             if (!isset($_SESSION['SESSION_USER_AGENT'])) {
                 $_SESSION['SESSION_USER_AGENT'] = $_SERVER['HTTP_USER_AGENT'];
@@ -49,7 +52,7 @@ class StartAfter
             }
         }
 
-// verify the IP address if the feature is enabled
+        // verify the IP address if the feature is enabled
         if (SESSION_CHECK_IP_ADDRESS == 'True') {
             if (!isset($_SESSION['SESSION_IP_ADDRESS'])) {
                 $_SESSION['SESSION_IP_ADDRESS'] = HTTP::getIpAddress();

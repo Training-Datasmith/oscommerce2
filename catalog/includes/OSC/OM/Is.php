@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -15,7 +17,7 @@ class Is
         if (class_exists(__NAMESPACE__ . '\\Is\\' . $name)) {
             return (bool)call_user_func_array([
                 __NAMESPACE__ . '\\Is\\' . $name,
-                'execute'
+                'execute',
             ], $arguments);
         }
 

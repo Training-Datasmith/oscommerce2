@@ -6,532 +6,531 @@
   * @license MIT; https://www.oscommerce.com/license/mit.txt
   */
 
-  use OSC\OM\Cache;
-  use OSC\OM\DateTime;
-  use OSC\OM\FileSystem;
-  use OSC\OM\HTML;
-  use OSC\OM\HTTP;
-  use OSC\OM\OnlineUpdate;
-  use OSC\OM\OSCOM;
-  use OSC\OM\Registry;
+use OSC\OM\Cache;
+use OSC\OM\DateTime;
+use OSC\OM\FileSystem;
+use OSC\OM\HTML;
+use OSC\OM\HTTP;
+use OSC\OM\OnlineUpdate;
+use OSC\OM\OSCOM;
 
-  require('includes/application_top.php');
+require('includes/application_top.php');
 
-  $current_version = OSCOM::getVersion();
+$current_version = OSCOM::getVersion();
 
-  preg_match('/^(\d+\.)?(\d+\.)?(\d+)$/', (string) $current_version, $version);
+preg_match('/^(\d+\.)?(\d+\.)?(\d+)$/', (string) $current_version, $version);
 
-  $major_version = (int)$version[1];
-  $minor_version = (int)$version[2];
-  $inc_version = (int)$version[3];
+$major_version = (int)$version[1];
+$minor_version = (int)$version[2];
+$inc_version = (int)$version[3];
 
-  $VersionCache = new Cache('core_version_check');
+$VersionCache = new Cache('core_version_check');
 
-  if ($VersionCache->exists(360)) {
+if ($VersionCache->exists(360)) {
     $releases = $VersionCache->get();
-  } else {
+} else {
     $releases = HTTP::getResponse([
-      'url' => 'https://www.oscommerce.com/version/online_merchant/' . $major_version . $minor_version
+      'url' => 'https://www.oscommerce.com/version/online_merchant/' . $major_version . $minor_version,
     ]);
 
     if (!empty($releases)) {
-      $releases = explode("\n", trim($releases));
+        $releases = explode("\n", trim($releases));
 
-      if (preg_match('/^(\d+\.)?(\d+\.)?(\d+)\|[0-9]{8}$/', $releases[0]) === 1) {
-        usort($releases, function($a, $b): bool {
-          $aa = explode('|', (string) $a);
-          $ba = explode('|', (string) $b);
+        if (preg_match('/^(\d+\.)?(\d+\.)?(\d+)\|[0-9]{8}$/', $releases[0]) === 1) {
+            usort($releases, function ($a, $b): bool {
+                $aa = explode('|', (string) $a);
+                $ba = explode('|', (string) $b);
 
-          return version_compare($aa[0], $ba[0], '>');
-        });
+                return version_compare($aa[0], $ba[0], '>');
+            });
 
-        $VersionCache->save($releases);
-      } else {
-        $releases = -1;
-      }
+            $VersionCache->save($releases);
+        } else {
+            $releases = -1;
+        }
     }
-  }
+}
 
-  $versions = [];
+$versions = [];
 
-  if (is_array($releases) && !empty($releases)) {
+if (is_array($releases) && !empty($releases)) {
     foreach ($releases as $version) {
-      $version_array = explode('|', (string) $version);
+        $version_array = explode('|', (string) $version);
 
-      if (version_compare($current_version, $version_array[0], '<')) {
-        $versions[] = [
-          'version' => $version_array[0],
-          'date' => DateTime::toLong(substr($version_array[1], 0, 4) . '-' . substr($version_array[1], 4, 2) . '-' . substr($version_array[1], 6, 2))
-        ];
-      }
+        if (version_compare($current_version, $version_array[0], '<')) {
+            $versions[] = [
+              'version' => $version_array[0],
+              'date' => DateTime::toLong(substr($version_array[1], 0, 4) . '-' . substr($version_array[1], 4, 2) . '-' . substr($version_array[1], 6, 2)),
+            ];
+        }
     }
-  }
+}
 
-  $action = ($_GET['action'] ?? '');
+$action = ($_GET['action'] ?? '');
 
-  if (tep_not_null($action)) {
+if (tep_not_null($action)) {
     switch ($action) {
-      case 'getUpdateLog':
-        $check = false;
-
-        if (isset($_POST['version']) && preg_match('/^(\d+\.)?(\d+\.)?(\d+)$/', (string) $_POST['version'])) {
-          foreach ($versions as $v) {
-            if ($v['version'] == $_POST['version']) {
-              $check = true;
-
-              break;
-            }
-          }
-        }
-
-        if ($check !== true) {
-          trigger_error('Online Update: Retrievel of update log for requested v' . $_POST['version'] . ' is not valid.');
-
-          http_response_code(404);
-          exit;
-        }
-
-        $result = [
-          'result' => -1
-        ];
-
-        if (OnlineUpdate::logExists($_POST['version'])) {
-          $result['result'] = 1;
-          $result['log'] = OnlineUpdate::getLog($_POST['version']);
-          $result['path'] = OnlineUpdate::getLogPath($_POST['version']);
-        }
-
-        echo json_encode($result);
-
-        exit;
-
-      case 'getReleaseNotes':
-        $check = false;
-
-        if (isset($_POST['version']) && preg_match('/^(\d+\.)?(\d+\.)?(\d+)$/', (string) $_POST['version'])) {
-          foreach ($versions as $v) {
-            if ($v['version'] == $_POST['version']) {
-              $check = true;
-
-              break;
-            }
-          }
-        }
-
-        if ($check !== true) {
-          trigger_error('Online Update: Retrievel of Release Notes for requested v' . $_POST['version'] . ' is not valid.');
-
-          http_response_code(404);
-          exit;
-        }
-
-        $version = str_replace('.', '_', $_POST['version']);
-
-        $ReleaseNotesCache = new Cache('online_update-rel_notes-' . $version);
-
-        if ($ReleaseNotesCache->exists()) {
-          $notes = $ReleaseNotesCache->get();
-        } else {
-          $notes = HTTP::getResponse([
-            'url' => 'https://www.oscommerce.com/version/online_merchant/notes/' . $_POST['version'] . '.txt'
-          ]);
-
-          $notes = trim($notes);
-
-          if (!empty($notes)) {
-            $ReleaseNotesCache->save($notes);
-          }
-        }
-
-        echo $notes;
-
-        exit;
-
-      case 'downloadRelease':
-        $check = false;
-
-        if (isset($_POST['version']) && preg_match('/^(\d+\.)?(\d+\.)?(\d+)$/', (string) $_POST['version'])) {
-          foreach ($versions as $v) {
-            if ($v['version'] == $_POST['version']) {
-              $check = true;
-
-              break;
-            }
-          }
-        }
-
-        if ($check !== true) {
-          trigger_error('Online Update: Download for requested v' . $_POST['version'] . ' update package is not valid.');
-
-          http_response_code(404);
-          exit;
-        }
-
-        $result = [
-          'result' => -1
-        ];
-
-        if (FileSystem::isWritable(OSCOM::BASE_DIR . 'Work/OnlineUpdates', true)) {
-          if (!is_dir(OSCOM::BASE_DIR . 'Work/OnlineUpdates')) {
-            mkdir(OSCOM::BASE_DIR . 'Work/OnlineUpdates', 0777, true);
-          }
-
-          $filepath = OSCOM::BASE_DIR . 'Work/OnlineUpdates/' . $_POST['version'] . '-update.zip';
-
-          if (FileSystem::isWritable($filepath)) {
-            unlink($filepath);
-          }
-
-          $downloadFile = HTTP::getResponse([
-            'url' => 'https://www.oscommerce.com/?Products&Download=oscom-' . $_POST['version'] . '-ou',
-            'method' => 'post'
-          ]);
-
-          $save_result = file_put_contents($filepath, $downloadFile);
-
-          if (($save_result !== false) && ($save_result > 0)) {
-            $result['result'] = 1;
-          } else {
-            $result['result'] = -3;
-            $result['path'] = FileSystem::displayPath($filepath);
-          }
-        } else {
-          $result['result'] = -2;
-          $result['path'] = FileSystem::displayPath(OSCOM::BASE_DIR . 'Work/OnlineUpdates');
-        }
-
-        echo json_encode($result);
-
-        exit;
-
-      case 'applyRelease':
-        $check = false;
-
-        if (isset($_POST['version']) && preg_match('/^(\d+\.)?(\d+\.)?(\d+)$/', (string) $_POST['version'])) {
-          foreach ($versions as $v) {
-            if ($v['version'] == $_POST['version']) {
-              $check = true;
-
-              break;
-            }
-          }
-        }
-
-        if ($check !== true) {
-          trigger_error('Online Update: Processing for requested v' . $_POST['version'] . ' update package is not valid.');
-
-          http_response_code(404);
-          exit;
-        }
-
-        $result = [
-          'result' => -1
-        ];
-
-        // reset the log
-        OnlineUpdate::resetLog($_POST['version']);
-
-        OnlineUpdate::log('Starting update', $_POST['version']);
-
-        try {
-          if (!is_file(OSCOM::BASE_DIR . 'Work/Keys/oscommerce.pubkey')) {
-            throw new \Exception('### ERROR ###' . "\n" . 'The following required public key cannot be found:' . "\n\n" . FileSystem::displayPath(OSCOM::BASE_DIR . 'Work/Keys/oscommerce.pubkey'));
-          }
-
-          if (!FileSystem::isWritable(OSCOM::BASE_DIR . 'version.txt')) {
-            throw new \Exception('### ERROR ###' . "\n" . 'The following file cannot be written to - please check the file permissions: ' . "\n\n" . FileSystem::displayPath(OSCOM::BASE_DIR . 'version.txt'));
-          }
-
-          $update_zip = OSCOM::BASE_DIR . 'Work/OnlineUpdates/' . $_POST['version'] . '-update.zip';
-
-          if (!is_file($update_zip)) {
-            throw new \Exception('### ERROR ###' . "\n" . 'The following downloaded update package could not be found:' . "\n\n" . FileSystem::displayPath($update_zip));
-          }
-
-          $work_dir = OSCOM::BASE_DIR . 'Work/OnlineUpdates/update_contents';
-
-          if (is_dir($work_dir)) {
-            OnlineUpdate::log('Cleaning work directory', $_POST['version']);
-
-            $errors = [];
-
-            foreach (FileSystem::rmdir($work_dir) as $wd) {
-              if ($wd['result'] !== true) {
-                $errors[] = FileSystem::displayPath($wd['source']);
-              }
-            }
-
-            if (!empty($errors)) {
-              throw new \Exception('### ERROR ###' . "\n" . 'Could not clean the following files and directories from the work directory:' . "\n\n" . implode("\n", $errors));
-            }
-          }
-
-          if (!mkdir($work_dir, 0777, true)) {
-            throw new \Exception('### ERROR ###' . "\n" . 'Could not create the following work directory:' . "\n\n" . FileSystem::displayPath($work_dir));
-          }
-
-          if (!FileSystem::isWritable($work_dir)) {
-            throw new \Exception('### ERROR ###' . "\n" . 'Could not write to the following work directory:' . "\n\n" . FileSystem::displayPath($work_dir));
-          }
-
-          OnlineUpdate::log('Extracting downloaded update package', $_POST['version']);
-
-          try {
-            $zip = new \ZipArchive();
-
-            if ($zip->open($update_zip) === true) {
-              $zip->extractTo($work_dir);
-              $zip->close();
-            }
-          } catch (\Exception $e) {
-            throw new \Exception('### ERROR ###' . "\n" . 'Could not extract the following downloaded update package:' . "\n\n" . FileSystem::displayPath($update_zip) . "\n\n" . 'to the following work directory:' . "\n\n" . FileSystem::displayPath($work_dir));
-          }
-
-          unset($zip);
-
-          OnlineUpdate::log('Verifying downloaded update package', $_POST['version']);
-
-          $update_pkg = $work_dir . '/' . $_POST['version'] . '.zip';
-
-          if (!is_file($update_pkg) || !is_file($update_pkg . '.sig')) {
-            throw new \Exception('### ERROR ###' . "\n" . 'The following downloaded update package does not seem to be a valid update package:' . "\n\n" . FileSystem::displayPath($update_zip));
-          }
-
-          $public = openssl_get_publickey(file_get_contents(OSCOM::BASE_DIR . 'Work/Keys/oscommerce.pubkey'));
-
-          if (openssl_verify(sha1_file($update_pkg), file_get_contents($update_pkg . '.sig'), $public) !== 1) {
-            throw new \Exception('### ERROR ###' . "\n" . 'Could not verify the following downloaded update package:' . "\n\n" . FileSystem::displayPath($update_zip));
-          }
-
-          if (!unlink($update_zip)) {
-            throw new \Exception('### ERROR ###' . "\n" . 'Could not delete the following downloaded update package:' . "\n\n" . FileSystem::displayPath($update_zip));
-          }
-
-          mkdir($work_dir . '/' . $_POST['version'], 0777, true);
-
-          OnlineUpdate::log('Extracting downloaded update package files', $_POST['version']);
-
-          try {
-            $zip = new \ZipArchive();
-
-            if ($zip->open($update_pkg) === true) {
-               $zip->extractTo($work_dir . '/' . $_POST['version']);
-              $zip->close();
-            }
-          } catch (\Exception $e) {
-            throw new \Exception('### ERROR ###' . "\n" . 'Could not extract the files of the following update package:' . "\n\n" . FileSystem::displayPath($update_pkg) . "\n\n" . 'to the following work directory:' . "\n\n" . FileSystem::displayPath($work_dir . '/' . $_POST['version']));
-          }
-
-          unset($zip);
-          unlink($update_pkg);
-
-          OnlineUpdate::log('Verifying update package meta file', $_POST['version']);
-
-          $meta = [];
-
-          if (!is_file($work_dir . '/' . $_POST['version'] . '/oscommerce.json')) {
-            throw new \Exception('### ERROR ###' . "\n" . 'The oscommerce.json meta file could not be found in the following update package:' . "\n\n" . FileSystem::displayPath($update_pkg));
-          }
-
-          $meta = json_decode(file_get_contents($work_dir . '/' . $_POST['version'] . '/oscommerce.json'), true);
-
-          if (!is_array($meta) || empty($meta)) {
-            throw new \Exception('### ERROR ###' . "\n" . 'The oscommerce.json meta file in the following update package seems to be corrupt:' . "\n\n" . FileSystem::displayPath($update_pkg));
-          }
-
-          if (!isset($meta['version']) || ($meta['version'] != $_POST['version'])) {
-            throw new \Exception('### ERROR ###' . "\n" . 'The update package version does not match the requested update version. Update Package version: ' . $meta['version'] . '; Requested version: ' . $_POST['version']);
-          }
-
-          if (!isset($meta['version_req']) || ($meta['version_req'] != $current_version)) {
-            throw new \Exception('### ERROR ###' . "\n" . 'The update package version does not match the required current version of osCommerce Online Merchant. Current version: ' . $current_version . '; Update Package required version: ' . $meta['version_req']);
-          }
-
-          OnlineUpdate::log('Verifying file and directory permissions', $_POST['version']);
-
-          $errors = [];
-
-          $update_pkg_contents = FileSystem::getDirectoryContents($work_dir . '/' . $_POST['version']);
-
-          foreach ($update_pkg_contents as $file) {
-            $pathname = substr((string) $file, strlen($work_dir . '/' . $_POST['version'] . '/'));
-
-            $file_source = null;
-
-            if (str_starts_with($pathname, 'catalog/')) {
-              $file_source = OSCOM::getConfig('dir_root', 'Shop') . substr($pathname, 8);
-            } elseif (str_starts_with($pathname, 'admin/')) {
-              $file_source = OSCOM::getConfig('dir_root') . substr($pathname, 6);
-            }
-
-            if (isset($file_source)) {
-              // check if target and target directory are writable
-              if (!FileSystem::isWritable($file_source, true) || !FileSystem::isWritable(dirname($file_source), true)) {
-                $errors[] = FileSystem::displayPath($file_source);
-              }
-            }
-          }
-
-          $to_del = [];
-
-          if (is_file($work_dir . '/' . $_POST['version'] . '/delete.txt')) {
-            $to_del = explode("\n", trim(file_get_contents($work_dir . '/' . $_POST['version'] . '/delete.txt')));
-
-            foreach ($to_del as $d) {
-              $file_source = null;
-
-              if (str_starts_with($d, 'catalog/')) {
-                $file_source = OSCOM::getConfig('dir_root', 'Shop') . substr($d, 8);
-              } elseif (str_starts_with($d, 'admin/')) {
-                $file_source = OSCOM::getConfig('dir_root') . substr($d, 6);
-              }
-
-              if (isset($file_source)) {
-                if (file_exists($file_source)) {
-                  if (is_dir($file_source)) {
-                    foreach (FileSystem::getDirectoryContents($file_source) as $dr) {
-                      if (!FileSystem::isWritable($dr, true) || !FileSystem::isWritable(dirname((string) $dr), true)) {
-                        $errors[] = FileSystem::displayPath($dr);
-                      }
+        case 'getUpdateLog':
+            $check = false;
+
+            if (isset($_POST['version']) && preg_match('/^(\d+\.)?(\d+\.)?(\d+)$/', (string) $_POST['version'])) {
+                foreach ($versions as $v) {
+                    if ($v['version'] == $_POST['version']) {
+                        $check = true;
+
+                        break;
                     }
-                  }
-
-                  if (!FileSystem::isWritable($file_source, true) || !FileSystem::isWritable(dirname($file_source), true)) {
-                    $errors[] = FileSystem::displayPath($file_source);
-                  }
                 }
-              }
-            }
-          }
-
-          if (!empty($errors)) {
-            throw new \Exception('### ERROR ###' . "\n" . 'Could not write to the following files and directories - please check their file permissions:' . "\n\n" . implode("\n", $errors));
-          }
-
-          OnlineUpdate::log('Starting the update process', $_POST['version']);
-
-          $OU = null;
-
-          if (is_file($work_dir . '/' . $_POST['version'] . '/Update.php')) {
-            include($work_dir . '/' . $_POST['version'] . '/Update.php');
-
-            $OU = new OSC\OM\OnlineUpdate\Update;
-
-            if ($OU->version != $meta['version']) {
-              throw new \Exception('### ERROR ###' . "\n" . 'Update class version does not match update package version. Update Package version: ' . $meta['version'] . '; Update Class version: ' . $OU->version);
-            }
-          }
-
-          if (isset($OU) && ($OU instanceof \OSC\OM\OnlineUpdate\Update) && method_exists($OU, 'runBefore')) {
-            OnlineUpdate::log('Executing update package runBefore()', $_POST['version']);
-
-            $OU->runBefore();
-          }
-
-          foreach ($update_pkg_contents as $file) {
-            $pathname = substr((string) $file, strlen($work_dir . '/' . $_POST['version'] . '/'));
-
-            $file_source = null;
-
-            if (str_starts_with($pathname, 'catalog/')) {
-              $file_source = OSCOM::getConfig('dir_root', 'Shop') . substr($pathname, 8);
-            } elseif (str_starts_with($pathname, 'admin/')) {
-              $file_source = OSCOM::getConfig('dir_root') . substr($pathname, 6);
             }
 
-            if (isset($file_source)) {
-              $target = dirname($file_source);
+            if ($check !== true) {
+                trigger_error('Online Update: Retrievel of update log for requested v' . $_POST['version'] . ' is not valid.');
 
-              if (!is_dir($target)) {
-                mkdir($target, 0777, true);
-
-                OnlineUpdate::log('+ CREATED: ' . FileSystem::displayPath($target), $_POST['version']);
-              }
-
-              $action = is_file($file_source) ? 'UPDATED' : 'ADDED';
-
-              if (copy($file, $file_source)) {
-                OnlineUpdate::log('+ ' . $action . ': ' . FileSystem::displayPath($file_source), $_POST['version']);
-              } else {
-                throw new \Exception('### ERROR ###' . "\n" . 'Could not write to the following file: ' . FileSystem::displayPath($file_source));
-              }
-            }
-          }
-
-          foreach ($to_del as $d) {
-            $file_source = null;
-
-            if (str_starts_with($d, 'catalog/')) {
-              $file_source = OSCOM::getConfig('dir_root', 'Shop') . substr($d, 8);
-            } elseif (str_starts_with($d, 'admin/')) {
-              $file_source = OSCOM::getConfig('dir_root') . substr($d, 6);
+                http_response_code(404);
+                exit;
             }
 
-            if (isset($file_source)) {
-              if (file_exists($file_source)) {
-                if (is_dir($file_source)) {
-                  foreach (FileSystem::rmdir($file_source) as $delresult) {
-                    if ($delresult['result'] === true) {
-                      OnlineUpdate::log('- DELETED: ' . FileSystem::displayPath($delresult['source']), $_POST['version']);
-                    } else {
-                      OnlineUpdate::log('--- DELETE ERROR: Could not delete the following file or directory: ' . FileSystem::displayPath($delresult['source']), $_POST['version']);
+            $result = [
+              'result' => -1,
+            ];
+
+            if (OnlineUpdate::logExists($_POST['version'])) {
+                $result['result'] = 1;
+                $result['log'] = OnlineUpdate::getLog($_POST['version']);
+                $result['path'] = OnlineUpdate::getLogPath($_POST['version']);
+            }
+
+            echo json_encode($result);
+
+            exit;
+
+        case 'getReleaseNotes':
+            $check = false;
+
+            if (isset($_POST['version']) && preg_match('/^(\d+\.)?(\d+\.)?(\d+)$/', (string) $_POST['version'])) {
+                foreach ($versions as $v) {
+                    if ($v['version'] == $_POST['version']) {
+                        $check = true;
+
+                        break;
                     }
-                  }
+                }
+            }
+
+            if ($check !== true) {
+                trigger_error('Online Update: Retrievel of Release Notes for requested v' . $_POST['version'] . ' is not valid.');
+
+                http_response_code(404);
+                exit;
+            }
+
+            $version = str_replace('.', '_', $_POST['version']);
+
+            $ReleaseNotesCache = new Cache('online_update-rel_notes-' . $version);
+
+            if ($ReleaseNotesCache->exists()) {
+                $notes = $ReleaseNotesCache->get();
+            } else {
+                $notes = HTTP::getResponse([
+                  'url' => 'https://www.oscommerce.com/version/online_merchant/notes/' . $_POST['version'] . '.txt',
+                ]);
+
+                $notes = trim($notes);
+
+                if (!empty($notes)) {
+                    $ReleaseNotesCache->save($notes);
+                }
+            }
+
+            echo $notes;
+
+            exit;
+
+        case 'downloadRelease':
+            $check = false;
+
+            if (isset($_POST['version']) && preg_match('/^(\d+\.)?(\d+\.)?(\d+)$/', (string) $_POST['version'])) {
+                foreach ($versions as $v) {
+                    if ($v['version'] == $_POST['version']) {
+                        $check = true;
+
+                        break;
+                    }
+                }
+            }
+
+            if ($check !== true) {
+                trigger_error('Online Update: Download for requested v' . $_POST['version'] . ' update package is not valid.');
+
+                http_response_code(404);
+                exit;
+            }
+
+            $result = [
+              'result' => -1,
+            ];
+
+            if (FileSystem::isWritable(OSCOM::BASE_DIR . 'Work/OnlineUpdates', true)) {
+                if (!is_dir(OSCOM::BASE_DIR . 'Work/OnlineUpdates')) {
+                    mkdir(OSCOM::BASE_DIR . 'Work/OnlineUpdates', 0777, true);
+                }
+
+                $filepath = OSCOM::BASE_DIR . 'Work/OnlineUpdates/' . $_POST['version'] . '-update.zip';
+
+                if (FileSystem::isWritable($filepath)) {
+                    unlink($filepath);
+                }
+
+                $downloadFile = HTTP::getResponse([
+                  'url' => 'https://www.oscommerce.com/?Products&Download=oscom-' . $_POST['version'] . '-ou',
+                  'method' => 'post',
+                ]);
+
+                $save_result = file_put_contents($filepath, $downloadFile);
+
+                if (($save_result !== false) && ($save_result > 0)) {
+                    $result['result'] = 1;
                 } else {
-                  if (unlink($file_source)) {
-                    OnlineUpdate::log('- DELETED: ' . FileSystem::displayPath($file_source), $_POST['version']);
-                  } else {
-                    OnlineUpdate::log('--- DELETE ERROR: Could not delete the following file: ' . FileSystem::displayPath($file_source), $_POST['version']);
-                  }
+                    $result['result'] = -3;
+                    $result['path'] = FileSystem::displayPath($filepath);
                 }
-              }
+            } else {
+                $result['result'] = -2;
+                $result['path'] = FileSystem::displayPath(OSCOM::BASE_DIR . 'Work/OnlineUpdates');
             }
-          }
 
-          if (isset($OU) && ($OU instanceof \OSC\OM\OnlineUpdate\Update) && method_exists($OU, 'runAfter')) {
-            OnlineUpdate::log('Executing update package runAfter()', $_POST['version']);
+            echo json_encode($result);
 
-            $OU->runAfter();
-          }
+            exit;
 
-          if (file_put_contents(OSCOM::BASE_DIR . 'version.txt', $_POST['version'])) {
-            OnlineUpdate::log('+ UPDATED: ' . FileSystem::displayPath(OSCOM::BASE_DIR . 'version.txt'), $_POST['version']);
-          } else {
-            OnlineUpdate::log('+++ UPDATE ERROR: Could not update the following file: ' . FileSystem::displayPath(OSCOM::BASE_DIR . 'version.txt'), $_POST['version']);
-          }
+        case 'applyRelease':
+            $check = false;
 
-          OnlineUpdate::log('Finished update', $_POST['version']);
+            if (isset($_POST['version']) && preg_match('/^(\d+\.)?(\d+\.)?(\d+)$/', (string) $_POST['version'])) {
+                foreach ($versions as $v) {
+                    if ($v['version'] == $_POST['version']) {
+                        $check = true;
 
-          $result['result'] = 1;
+                        break;
+                    }
+                }
+            }
 
-          FileSystem::rmdir($work_dir);
-        } catch (\Exception $e) {
-          OnlineUpdate::log($e->getMessage(), $_POST['version']);
-        }
+            if ($check !== true) {
+                trigger_error('Online Update: Processing for requested v' . $_POST['version'] . ' update package is not valid.');
 
-        echo json_encode($result);
+                http_response_code(404);
+                exit;
+            }
 
-        exit;
+            $result = [
+              'result' => -1,
+            ];
+
+            // reset the log
+            OnlineUpdate::resetLog($_POST['version']);
+
+            OnlineUpdate::log('Starting update', $_POST['version']);
+
+            try {
+                if (!is_file(OSCOM::BASE_DIR . 'Work/Keys/oscommerce.pubkey')) {
+                    throw new \Exception('### ERROR ###' . "\n" . 'The following required public key cannot be found:' . "\n\n" . FileSystem::displayPath(OSCOM::BASE_DIR . 'Work/Keys/oscommerce.pubkey'));
+                }
+
+                if (!FileSystem::isWritable(OSCOM::BASE_DIR . 'version.txt')) {
+                    throw new \Exception('### ERROR ###' . "\n" . 'The following file cannot be written to - please check the file permissions: ' . "\n\n" . FileSystem::displayPath(OSCOM::BASE_DIR . 'version.txt'));
+                }
+
+                $update_zip = OSCOM::BASE_DIR . 'Work/OnlineUpdates/' . $_POST['version'] . '-update.zip';
+
+                if (!is_file($update_zip)) {
+                    throw new \Exception('### ERROR ###' . "\n" . 'The following downloaded update package could not be found:' . "\n\n" . FileSystem::displayPath($update_zip));
+                }
+
+                $work_dir = OSCOM::BASE_DIR . 'Work/OnlineUpdates/update_contents';
+
+                if (is_dir($work_dir)) {
+                    OnlineUpdate::log('Cleaning work directory', $_POST['version']);
+
+                    $errors = [];
+
+                    foreach (FileSystem::rmdir($work_dir) as $wd) {
+                        if ($wd['result'] !== true) {
+                            $errors[] = FileSystem::displayPath($wd['source']);
+                        }
+                    }
+
+                    if (!empty($errors)) {
+                        throw new \Exception('### ERROR ###' . "\n" . 'Could not clean the following files and directories from the work directory:' . "\n\n" . implode("\n", $errors));
+                    }
+                }
+
+                if (!mkdir($work_dir, 0777, true)) {
+                    throw new \Exception('### ERROR ###' . "\n" . 'Could not create the following work directory:' . "\n\n" . FileSystem::displayPath($work_dir));
+                }
+
+                if (!FileSystem::isWritable($work_dir)) {
+                    throw new \Exception('### ERROR ###' . "\n" . 'Could not write to the following work directory:' . "\n\n" . FileSystem::displayPath($work_dir));
+                }
+
+                OnlineUpdate::log('Extracting downloaded update package', $_POST['version']);
+
+                try {
+                    $zip = new \ZipArchive();
+
+                    if ($zip->open($update_zip) === true) {
+                        $zip->extractTo($work_dir);
+                        $zip->close();
+                    }
+                } catch (\Exception $e) {
+                    throw new \Exception('### ERROR ###' . "\n" . 'Could not extract the following downloaded update package:' . "\n\n" . FileSystem::displayPath($update_zip) . "\n\n" . 'to the following work directory:' . "\n\n" . FileSystem::displayPath($work_dir));
+                }
+
+                unset($zip);
+
+                OnlineUpdate::log('Verifying downloaded update package', $_POST['version']);
+
+                $update_pkg = $work_dir . '/' . $_POST['version'] . '.zip';
+
+                if (!is_file($update_pkg) || !is_file($update_pkg . '.sig')) {
+                    throw new \Exception('### ERROR ###' . "\n" . 'The following downloaded update package does not seem to be a valid update package:' . "\n\n" . FileSystem::displayPath($update_zip));
+                }
+
+                $public = openssl_get_publickey(file_get_contents(OSCOM::BASE_DIR . 'Work/Keys/oscommerce.pubkey'));
+
+                if (openssl_verify(sha1_file($update_pkg), file_get_contents($update_pkg . '.sig'), $public) !== 1) {
+                    throw new \Exception('### ERROR ###' . "\n" . 'Could not verify the following downloaded update package:' . "\n\n" . FileSystem::displayPath($update_zip));
+                }
+
+                if (!unlink($update_zip)) {
+                    throw new \Exception('### ERROR ###' . "\n" . 'Could not delete the following downloaded update package:' . "\n\n" . FileSystem::displayPath($update_zip));
+                }
+
+                mkdir($work_dir . '/' . $_POST['version'], 0777, true);
+
+                OnlineUpdate::log('Extracting downloaded update package files', $_POST['version']);
+
+                try {
+                    $zip = new \ZipArchive();
+
+                    if ($zip->open($update_pkg) === true) {
+                        $zip->extractTo($work_dir . '/' . $_POST['version']);
+                        $zip->close();
+                    }
+                } catch (\Exception $e) {
+                    throw new \Exception('### ERROR ###' . "\n" . 'Could not extract the files of the following update package:' . "\n\n" . FileSystem::displayPath($update_pkg) . "\n\n" . 'to the following work directory:' . "\n\n" . FileSystem::displayPath($work_dir . '/' . $_POST['version']));
+                }
+
+                unset($zip);
+                unlink($update_pkg);
+
+                OnlineUpdate::log('Verifying update package meta file', $_POST['version']);
+
+                $meta = [];
+
+                if (!is_file($work_dir . '/' . $_POST['version'] . '/oscommerce.json')) {
+                    throw new \Exception('### ERROR ###' . "\n" . 'The oscommerce.json meta file could not be found in the following update package:' . "\n\n" . FileSystem::displayPath($update_pkg));
+                }
+
+                $meta = json_decode(file_get_contents($work_dir . '/' . $_POST['version'] . '/oscommerce.json'), true);
+
+                if (!is_array($meta) || empty($meta)) {
+                    throw new \Exception('### ERROR ###' . "\n" . 'The oscommerce.json meta file in the following update package seems to be corrupt:' . "\n\n" . FileSystem::displayPath($update_pkg));
+                }
+
+                if (!isset($meta['version']) || ($meta['version'] != $_POST['version'])) {
+                    throw new \Exception('### ERROR ###' . "\n" . 'The update package version does not match the requested update version. Update Package version: ' . $meta['version'] . '; Requested version: ' . $_POST['version']);
+                }
+
+                if (!isset($meta['version_req']) || ($meta['version_req'] != $current_version)) {
+                    throw new \Exception('### ERROR ###' . "\n" . 'The update package version does not match the required current version of osCommerce Online Merchant. Current version: ' . $current_version . '; Update Package required version: ' . $meta['version_req']);
+                }
+
+                OnlineUpdate::log('Verifying file and directory permissions', $_POST['version']);
+
+                $errors = [];
+
+                $update_pkg_contents = FileSystem::getDirectoryContents($work_dir . '/' . $_POST['version']);
+
+                foreach ($update_pkg_contents as $file) {
+                    $pathname = substr((string) $file, strlen($work_dir . '/' . $_POST['version'] . '/'));
+
+                    $file_source = null;
+
+                    if (str_starts_with($pathname, 'catalog/')) {
+                        $file_source = OSCOM::getConfig('dir_root', 'Shop') . substr($pathname, 8);
+                    } elseif (str_starts_with($pathname, 'admin/')) {
+                        $file_source = OSCOM::getConfig('dir_root') . substr($pathname, 6);
+                    }
+
+                    if (isset($file_source)) {
+                        // check if target and target directory are writable
+                        if (!FileSystem::isWritable($file_source, true) || !FileSystem::isWritable(dirname($file_source), true)) {
+                            $errors[] = FileSystem::displayPath($file_source);
+                        }
+                    }
+                }
+
+                $to_del = [];
+
+                if (is_file($work_dir . '/' . $_POST['version'] . '/delete.txt')) {
+                    $to_del = explode("\n", trim(file_get_contents($work_dir . '/' . $_POST['version'] . '/delete.txt')));
+
+                    foreach ($to_del as $d) {
+                        $file_source = null;
+
+                        if (str_starts_with($d, 'catalog/')) {
+                            $file_source = OSCOM::getConfig('dir_root', 'Shop') . substr($d, 8);
+                        } elseif (str_starts_with($d, 'admin/')) {
+                            $file_source = OSCOM::getConfig('dir_root') . substr($d, 6);
+                        }
+
+                        if (isset($file_source)) {
+                            if (file_exists($file_source)) {
+                                if (is_dir($file_source)) {
+                                    foreach (FileSystem::getDirectoryContents($file_source) as $dr) {
+                                        if (!FileSystem::isWritable($dr, true) || !FileSystem::isWritable(dirname((string) $dr), true)) {
+                                            $errors[] = FileSystem::displayPath($dr);
+                                        }
+                                    }
+                                }
+
+                                if (!FileSystem::isWritable($file_source, true) || !FileSystem::isWritable(dirname($file_source), true)) {
+                                    $errors[] = FileSystem::displayPath($file_source);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (!empty($errors)) {
+                    throw new \Exception('### ERROR ###' . "\n" . 'Could not write to the following files and directories - please check their file permissions:' . "\n\n" . implode("\n", $errors));
+                }
+
+                OnlineUpdate::log('Starting the update process', $_POST['version']);
+
+                $OU = null;
+
+                if (is_file($work_dir . '/' . $_POST['version'] . '/Update.php')) {
+                    include($work_dir . '/' . $_POST['version'] . '/Update.php');
+
+                    $OU = new OSC\OM\OnlineUpdate\Update();
+
+                    if ($OU->version != $meta['version']) {
+                        throw new \Exception('### ERROR ###' . "\n" . 'Update class version does not match update package version. Update Package version: ' . $meta['version'] . '; Update Class version: ' . $OU->version);
+                    }
+                }
+
+                if (isset($OU) && ($OU instanceof \OSC\OM\OnlineUpdate\Update) && method_exists($OU, 'runBefore')) {
+                    OnlineUpdate::log('Executing update package runBefore()', $_POST['version']);
+
+                    $OU->runBefore();
+                }
+
+                foreach ($update_pkg_contents as $file) {
+                    $pathname = substr((string) $file, strlen($work_dir . '/' . $_POST['version'] . '/'));
+
+                    $file_source = null;
+
+                    if (str_starts_with($pathname, 'catalog/')) {
+                        $file_source = OSCOM::getConfig('dir_root', 'Shop') . substr($pathname, 8);
+                    } elseif (str_starts_with($pathname, 'admin/')) {
+                        $file_source = OSCOM::getConfig('dir_root') . substr($pathname, 6);
+                    }
+
+                    if (isset($file_source)) {
+                        $target = dirname($file_source);
+
+                        if (!is_dir($target)) {
+                            mkdir($target, 0777, true);
+
+                            OnlineUpdate::log('+ CREATED: ' . FileSystem::displayPath($target), $_POST['version']);
+                        }
+
+                        $action = is_file($file_source) ? 'UPDATED' : 'ADDED';
+
+                        if (copy($file, $file_source)) {
+                            OnlineUpdate::log('+ ' . $action . ': ' . FileSystem::displayPath($file_source), $_POST['version']);
+                        } else {
+                            throw new \Exception('### ERROR ###' . "\n" . 'Could not write to the following file: ' . FileSystem::displayPath($file_source));
+                        }
+                    }
+                }
+
+                foreach ($to_del as $d) {
+                    $file_source = null;
+
+                    if (str_starts_with($d, 'catalog/')) {
+                        $file_source = OSCOM::getConfig('dir_root', 'Shop') . substr($d, 8);
+                    } elseif (str_starts_with($d, 'admin/')) {
+                        $file_source = OSCOM::getConfig('dir_root') . substr($d, 6);
+                    }
+
+                    if (isset($file_source)) {
+                        if (file_exists($file_source)) {
+                            if (is_dir($file_source)) {
+                                foreach (FileSystem::rmdir($file_source) as $delresult) {
+                                    if ($delresult['result'] === true) {
+                                        OnlineUpdate::log('- DELETED: ' . FileSystem::displayPath($delresult['source']), $_POST['version']);
+                                    } else {
+                                        OnlineUpdate::log('--- DELETE ERROR: Could not delete the following file or directory: ' . FileSystem::displayPath($delresult['source']), $_POST['version']);
+                                    }
+                                }
+                            } else {
+                                if (unlink($file_source)) {
+                                    OnlineUpdate::log('- DELETED: ' . FileSystem::displayPath($file_source), $_POST['version']);
+                                } else {
+                                    OnlineUpdate::log('--- DELETE ERROR: Could not delete the following file: ' . FileSystem::displayPath($file_source), $_POST['version']);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (isset($OU) && ($OU instanceof \OSC\OM\OnlineUpdate\Update) && method_exists($OU, 'runAfter')) {
+                    OnlineUpdate::log('Executing update package runAfter()', $_POST['version']);
+
+                    $OU->runAfter();
+                }
+
+                if (file_put_contents(OSCOM::BASE_DIR . 'version.txt', $_POST['version'])) {
+                    OnlineUpdate::log('+ UPDATED: ' . FileSystem::displayPath(OSCOM::BASE_DIR . 'version.txt'), $_POST['version']);
+                } else {
+                    OnlineUpdate::log('+++ UPDATE ERROR: Could not update the following file: ' . FileSystem::displayPath(OSCOM::BASE_DIR . 'version.txt'), $_POST['version']);
+                }
+
+                OnlineUpdate::log('Finished update', $_POST['version']);
+
+                $result['result'] = 1;
+
+                FileSystem::rmdir($work_dir);
+            } catch (\Exception $e) {
+                OnlineUpdate::log($e->getMessage(), $_POST['version']);
+            }
+
+            echo json_encode($result);
+
+            exit;
     }
-  }
+}
 
-  $new_version = [];
+$new_version = [];
 
-  if (is_array($releases) && !empty($releases)) {
+if (is_array($releases) && !empty($releases)) {
     if (!empty($versions)) {
-      $new_version = array_slice($versions, -1)[0];
+        $new_version = array_slice($versions, -1)[0];
     }
 
     if (!empty($new_version)) {
-      $OSCOM_MessageStack->add(OSCOM::getDef('version_upgrades_available', ['version' => $new_version['version']]), 'warning', 'versionCheck');
+        $OSCOM_MessageStack->add(OSCOM::getDef('version_upgrades_available', ['version' => $new_version['version']]), 'warning', 'versionCheck');
     } else {
-      $OSCOM_MessageStack->add(OSCOM::getDef('version_running_latest'), 'success', 'versionCheck');
+        $OSCOM_MessageStack->add(OSCOM::getDef('version_running_latest'), 'success', 'versionCheck');
     }
-  } else {
+} else {
     $OSCOM_MessageStack->add(OSCOM::getDef('error_could_not_connect'), 'error', 'versionCheck');
-  }
+}
 
-  require($oscTemplate->getFile('template_top.php'));
+require($oscTemplate->getFile('template_top.php'));
 ?>
 
 <h2><i class="fa fa-cloud-download"></i> <a href="<?= OSCOM::link('online_update.php'); ?>"><?= OSCOM::getDef('heading_title'); ?></a></h2>
@@ -543,7 +542,7 @@
 
 <?php
   if (!empty($new_version)) {
-?>
+      ?>
 
   <?= HTML::button('Start Update Procedure', 'fa fa-cloud-download', null, ['params' => 'id="updateStartButton"'], 'btn-success'); ?>
 
@@ -555,13 +554,13 @@
 <div id="onlineUpdateSuccessBlock" class="hidden">
 
 <?php
-    $heading = $contents = [];
+          $heading = $contents = [];
 
-    $heading[] = ['text' => 'Success!'];
-    $contents[] = ['text' => 'osCommerce Online Merchant has been successfully updated to the latest version!'];
+      $heading[] = ['text' => 'Success!'];
+      $contents[] = ['text' => 'osCommerce Online Merchant has been successfully updated to the latest version!'];
 
-    echo HTML::panel($heading, $contents, ['type' => 'success']);
-?>
+      echo HTML::panel($heading, $contents, ['type' => 'success']);
+      ?>
 
 </div>
 
@@ -572,13 +571,13 @@
 <script id="templateReleasePanel" type="x-tmpl-mustache">
 
 <?php
-    $heading = $contents = [];
+          $heading = $contents = [];
 
-    $heading[] = ['text' => 'v{{version}} ({{date}})'];
-    $contents[] = ['text' => ''];
+      $heading[] = ['text' => 'v{{version}} ({{date}})'];
+      $contents[] = ['text' => ''];
 
-    echo HTML::panel($heading, $contents, ['type' => 'info']);
-?>
+      echo HTML::panel($heading, $contents, ['type' => 'info']);
+      ?>
 
 </script>
 
@@ -742,6 +741,6 @@ $(function() {
 <?php
   }
 
-  require($oscTemplate->getFile('template_bottom.php'));
-  require('includes/application_bottom.php');
+require($oscTemplate->getFile('template_bottom.php'));
+require('includes/application_bottom.php');
 ?>

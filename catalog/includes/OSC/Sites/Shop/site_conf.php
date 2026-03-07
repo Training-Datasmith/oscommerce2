@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 $ini = <<<EOD
 dir_root = ""
 http_server = ""

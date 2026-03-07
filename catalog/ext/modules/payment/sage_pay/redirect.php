@@ -6,32 +6,32 @@
   * @license MIT; https://www.oscommerce.com/license/mit.txt
   */
 
-  use OSC\OM\HTML;
-  use OSC\OM\OSCOM;
+use OSC\OM\HTML;
+use OSC\OM\OSCOM;
 
-  chdir('../../../../');
-  require('includes/application_top.php');
+chdir('../../../../');
+require('includes/application_top.php');
 
 // if the customer is not logged on, redirect them to the login page
-  if (!isset($_SESSION['customer_id'])) {
+if (!isset($_SESSION['customer_id'])) {
     $_SESSION['navigation']->set_snapshot(['page' => 'checkout_payment.php']);
     OSCOM::redirect('login.php');
-  }
+}
 
-  if ( isset($_GET['payment_error']) && tep_not_null($_GET['payment_error']) ) {
+if (isset($_GET['payment_error']) && tep_not_null($_GET['payment_error'])) {
     $redirect_url = OSCOM::link('checkout_payment.php', 'payment_error=' . $_GET['payment_error'] . (isset($_GET['error']) && tep_not_null($_GET['error']) ? '&error=' . $_GET['error'] : ''));
-  } else {
+} else {
     $hidden_params = '';
 
     if ($_SESSION['payment'] == 'sage_pay_direct') {
-      $redirect_url = OSCOM::link('checkout_process.php', 'check=3D');
-      $hidden_params = HTML::hiddenField('MD', $_POST['MD']) . HTML::hiddenField('PaRes', $_POST['PaRes']);
+        $redirect_url = OSCOM::link('checkout_process.php', 'check=3D');
+        $hidden_params = HTML::hiddenField('MD', $_POST['MD']) . HTML::hiddenField('PaRes', $_POST['PaRes']);
     } else {
-      $redirect_url = OSCOM::link('checkout_success.php');
+        $redirect_url = OSCOM::link('checkout_success.php');
     }
-  }
+}
 
-  $OSCOM_Language->loadDefinitions('checkout_confirmation');
+$OSCOM_Language->loadDefinitions('checkout_confirmation');
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html <?php echo OSCOM::getDef('html_params'); ?>>

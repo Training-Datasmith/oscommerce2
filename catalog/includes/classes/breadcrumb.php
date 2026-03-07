@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -6,37 +8,41 @@
   * @license MIT; https://www.oscommerce.com/license/mit.txt
   */
 
-  class breadcrumb {
+class breadcrumb
+{
     public $_trail;
 
-    function __construct() {
-      $this->reset();
+    public function __construct()
+    {
+        $this->reset();
     }
 
-    function reset(): void {
-      $this->_trail = [];
+    public function reset(): void
+    {
+        $this->_trail = [];
     }
 
-    function add($title, $link = ''): void {
-      $this->_trail[] = ['title' => $title, 'link' => $link];
+    public function add($title, $link = ''): void
+    {
+        $this->_trail[] = ['title' => $title, 'link' => $link];
     }
 
-    function trail($separator = NULL): string {
-      $breadcrumb_count = 1;
+    public function trail($separator = null): string
+    {
+        $breadcrumb_count = 1;
 
-      $trail_string = '<ol itemscope itemtype="http://schema.org/BreadcrumbList" class="breadcrumb">';
+        $trail_string = '<ol itemscope itemtype="http://schema.org/BreadcrumbList" class="breadcrumb">';
 
-      for ($i=0, $n=sizeof($this->_trail); $i<$n; $i++) {
-        if (isset($this->_trail[$i]['link']) && tep_not_null($this->_trail[$i]['link'])) {
-          $trail_string .= '<li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a href="' . $this->_trail[$i]['link'] . '" itemprop="item"><span itemprop="name">' . $this->_trail[$i]['title'] . '</span></a>';
-        } else {
-          $trail_string .= '<li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><span itemprop="name">' . $this->_trail[$i]['title'] . '</span>';
+        for ($i = 0, $n = sizeof($this->_trail); $i < $n; $i++) {
+            if (isset($this->_trail[$i]['link']) && tep_not_null($this->_trail[$i]['link'])) {
+                $trail_string .= '<li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a href="' . $this->_trail[$i]['link'] . '" itemprop="item"><span itemprop="name">' . $this->_trail[$i]['title'] . '</span></a>';
+            } else {
+                $trail_string .= '<li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><span itemprop="name">' . $this->_trail[$i]['title'] . '</span>';
+            }
+            $trail_string .= '<meta itemprop="position" content="' . $breadcrumb_count . '" /></li>' . PHP_EOL;
+            $breadcrumb_count++;
         }
-        $trail_string .= '<meta itemprop="position" content="' . $breadcrumb_count . '" /></li>' . PHP_EOL;
-        $breadcrumb_count++;
-      }
 
-      return $trail_string . '</ol>';
+        return $trail_string . '</ol>';
     }
-  }
-?>
+}

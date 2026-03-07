@@ -81,7 +81,7 @@ if ((!str_ends_with((string) $dir_fs_document_root, '\\')) && (!str_ends_with((s
 
 <?php
 if (FileSystem::isWritable($dir_fs_document_root) && FileSystem::isWritable($dir_fs_document_root . 'admin')) {
-?>
+    ?>
 
       <div class="form-group has-feedback">
         <label for="adminDir">Administration Directory Name</label>

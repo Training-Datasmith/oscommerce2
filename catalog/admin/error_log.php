@@ -6,74 +6,74 @@
   * @license MIT; https://www.oscommerce.com/license/mit.txt
   */
 
-  use OSC\OM\DateTime;
-  use OSC\OM\ErrorHandler;
-  use OSC\OM\FileSystem;
-  use OSC\OM\HTML;
-  use OSC\OM\OSCOM;
+use OSC\OM\DateTime;
+use OSC\OM\ErrorHandler;
+use OSC\OM\FileSystem;
+use OSC\OM\HTML;
+use OSC\OM\OSCOM;
 
-  require('includes/application_top.php');
+require('includes/application_top.php');
 
-  $files = [];
+$files = [];
 
-  foreach (glob(ErrorHandler::getDirectory() . 'errors-*.txt') as $f) {
+foreach (glob(ErrorHandler::getDirectory() . 'errors-*.txt') as $f) {
     $key = basename($f, '.txt');
 
     if (preg_match('/^errors-([0-9]{4})([0-9]{2})([0-9]{2})$/', $key, $matches)) {
-      $files[$key] = [
-        'path' => $f,
-        'key' => $key,
-        'date' => DateTime::toShort($matches[1] . '-' . $matches[2] . '-' . $matches[3]),
-        'size' => filesize($f)
-      ];
+        $files[$key] = [
+          'path' => $f,
+          'key' => $key,
+          'date' => DateTime::toShort($matches[1] . '-' . $matches[2] . '-' . $matches[3]),
+          'size' => filesize($f),
+        ];
     }
-  }
+}
 
-  $action = ($_GET['action'] ?? '');
+$action = ($_GET['action'] ?? '');
 
-  if (tep_not_null($action)) {
+if (tep_not_null($action)) {
     switch ($action) {
-      case 'delete':
-        if (isset($_GET['log']) && array_key_exists($_GET['log'], $files)) {
-          if (unlink($files[$_GET['log']]['path'])) {
-            $OSCOM_MessageStack->add(OSCOM::getDef('ms_success_delete', [
-              'log' => $files[$_GET['log']]['key']
-            ]), 'success');
-          } else {
-            $OSCOM_MessageStack->add(OSCOM::getDef('ms_error_delete', [
-              'log' => $files[$_GET['log']]['key']
-            ]), 'error');
-          }
-        }
+        case 'delete':
+            if (isset($_GET['log']) && array_key_exists($_GET['log'], $files)) {
+                if (unlink($files[$_GET['log']]['path'])) {
+                    $OSCOM_MessageStack->add(OSCOM::getDef('ms_success_delete', [
+                      'log' => $files[$_GET['log']]['key'],
+                    ]), 'success');
+                } else {
+                    $OSCOM_MessageStack->add(OSCOM::getDef('ms_error_delete', [
+                      'log' => $files[$_GET['log']]['key'],
+                    ]), 'error');
+                }
+            }
 
-        OSCOM::redirect('error_log.php');
-        break;
+            OSCOM::redirect('error_log.php');
+            break;
 
-      case 'deleteAll':
-        $result = true;
+        case 'deleteAll':
+            $result = true;
 
-        foreach ($files as $f) {
-          if (!unlink($f['path'])) {
-            $result = false;
-          }
-        }
+            foreach ($files as $f) {
+                if (!unlink($f['path'])) {
+                    $result = false;
+                }
+            }
 
-        if ($result === true) {
-          $OSCOM_MessageStack->add(OSCOM::getDef('ms_success_delete_all'), 'success');
-        } else {
-          $OSCOM_MessageStack->add(OSCOM::getDef('ms_error_delete_all'), 'success');
-        }
+            if ($result === true) {
+                $OSCOM_MessageStack->add(OSCOM::getDef('ms_success_delete_all'), 'success');
+            } else {
+                $OSCOM_MessageStack->add(OSCOM::getDef('ms_error_delete_all'), 'success');
+            }
 
-        OSCOM::redirect('error_log.php');
-        break;
+            OSCOM::redirect('error_log.php');
+            break;
     }
-  }
+}
 
-  require($oscTemplate->getFile('template_top.php'));
+require($oscTemplate->getFile('template_top.php'));
 
-  if (($action == 'view') && isset($_GET['log']) && array_key_exists($_GET['log'], $files)) {
+if (($action == 'view') && isset($_GET['log']) && array_key_exists($_GET['log'], $files)) {
     $log = $files[$_GET['log']];
-?>
+    ?>
 
 <div class="pull-right">
   <?= HTML::button(OSCOM::getDef('image_back'), 'fa fa-chevron-left', OSCOM::link('error_log.php'), null, 'btn-info') . HTML::button(OSCOM::getDef('image_delete'), 'fa fa-trash-o', OSCOM::link('error_log.php', 'action=delete&log=' . $log['key']), null, 'btn-danger'); ?>
@@ -88,8 +88,8 @@
 </p>
 
 <?php
-  } else {
-?>
+} else {
+    ?>
 
 <div class="pull-right">
   <?= HTML::button(OSCOM::getDef('button_delete_all'), 'fa fa-trash', OSCOM::link('error_log.php', 'action=deleteAll'), null, 'btn-danger'); ?>
@@ -108,8 +108,8 @@
   <tbody>
 
 <?php
-    foreach ($files as $f) {
-?>
+        foreach ($files as $f) {
+            ?>
 
     <tr>
       <td><?= $f['date']; ?></td>
@@ -118,23 +118,23 @@
     </tr>
 
 <?php
-    }
-?>
+        }
+    ?>
 
   </tbody>
 </table>
 
 <p>
   <?=
-    OSCOM::getDef('log_directory', [
-      'path' => FileSystem::displayPath(ErrorHandler::getDirectory())
-    ]);
-  ?>
+        OSCOM::getDef('log_directory', [
+          'path' => FileSystem::displayPath(ErrorHandler::getDirectory()),
+        ]);
+    ?>
 </p>
 
 <?php
-  }
+}
 
-  require($oscTemplate->getFile('template_bottom.php'));
-  require('includes/application_bottom.php');
+require($oscTemplate->getFile('template_bottom.php'));
+require('includes/application_bottom.php');
 ?>

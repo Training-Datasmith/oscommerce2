@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -6,43 +8,50 @@
   * @license MIT; https://www.oscommerce.com/license/mit.txt
   */
 
-  class logger {
-    public $timer_start, $timer_stop, $timer_total;
+class logger
+{
+    public $timer_start;
+    public $timer_stop;
+    public $timer_total;
 
-// class constructor
-    function __construct() {
-      $this->timer_start();
+    // class constructor
+    public function __construct()
+    {
+        $this->timer_start();
     }
 
-    function timer_start(): void {
-      if (defined("PAGE_PARSE_START_TIME")) {
-        $this->timer_start = PAGE_PARSE_START_TIME;
-      } else {
-        $this->timer_start = microtime();
-      }
+    public function timer_start(): void
+    {
+        if (defined('PAGE_PARSE_START_TIME')) {
+            $this->timer_start = PAGE_PARSE_START_TIME;
+        } else {
+            $this->timer_start = microtime();
+        }
     }
 
-    function timer_stop($display = 'false') {
-      $this->timer_stop = microtime();
+    public function timer_stop($display = 'false')
+    {
+        $this->timer_stop = microtime();
 
-      $time_start = explode(' ', (string) $this->timer_start);
-      $time_end = explode(' ', $this->timer_stop);
+        $time_start = explode(' ', (string) $this->timer_start);
+        $time_end = explode(' ', $this->timer_stop);
 
-      $this->timer_total = number_format(($time_end[1] + $time_end[0] - ($time_start[1] + $time_start[0])), 3);
+        $this->timer_total = number_format(($time_end[1] + $time_end[0] - ($time_start[1] + $time_start[0])), 3);
 
-      $this->write($_SERVER['REQUEST_URI'], $this->timer_total . 's');
+        $this->write($_SERVER['REQUEST_URI'], $this->timer_total . 's');
 
-      if ($display == 'true') {
-        return $this->timer_display();
-      }
+        if ($display == 'true') {
+            return $this->timer_display();
+        }
     }
 
-    function timer_display(): string {
-      return '<span class="smallText">Parse Time: ' . $this->timer_total . 's</span>';
+    public function timer_display(): string
+    {
+        return '<span class="smallText">Parse Time: ' . $this->timer_total . 's</span>';
     }
 
-    function write(string $message, string $type): void {
-      error_log(strftime(STORE_PARSE_DATE_TIME_FORMAT) . ' [' . $type . '] ' . $message . "\n", 3, STORE_PAGE_PARSE_TIME_LOG);
+    public function write(string $message, string $type): void
+    {
+        error_log(strftime(STORE_PARSE_DATE_TIME_FORMAT) . ' [' . $type . '] ' . $message . "\n", 3, STORE_PAGE_PARSE_TIME_LOG);
     }
-  }
-?>
+}

@@ -1,8 +1,9 @@
 <?php
-  use OSC\OM\ErrorHandler;
-  use OSC\OM\HTML;
-  use OSC\OM\OSCOM;
-  use OSC\OM\Registry;
+use OSC\OM\ErrorHandler;
+use OSC\OM\HTML;
+use OSC\OM\OSCOM;
+use OSC\OM\Registry;
+
 ?>
 
 <div class="navbar navbar-default navbar-static-top" role="navigation">
@@ -19,7 +20,7 @@
 
 <?php
   if (isset($_SESSION['admin'])) {
-?>
+      ?>
 
     <div class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
@@ -27,18 +28,18 @@
           <ul class="dropdown-menu">
 
 <?php
-    foreach ($admin_menu['shop'] as $group => $links) {
-      echo '<li><a>' . HTML::outputProtected(OSCOM::getDef('admin_menu_shop_' . $group)) . ' <span class="caret"></span></a>
+          foreach ($admin_menu['shop'] as $group => $links) {
+              echo '<li><a>' . HTML::outputProtected(OSCOM::getDef('admin_menu_shop_' . $group)) . ' <span class="caret"></span></a>
               <ul class="dropdown-menu">';
 
-      foreach ($links as $code => $page) {
-        echo '<li><a href="' . (is_string($page) ? $page : $page['link']) . '">' . HTML::outputProtected(OSCOM::getDef('admin_menu_shop_' . $group . '_' . $code)) . '</a></li>';
-      }
+              foreach ($links as $code => $page) {
+                  echo '<li><a href="' . (is_string($page) ? $page : $page['link']) . '">' . HTML::outputProtected(OSCOM::getDef('admin_menu_shop_' . $group . '_' . $code)) . '</a></li>';
+              }
 
-      echo '  </ul>
+              echo '  </ul>
             </li>';
-    }
-?>
+          }
+      ?>
 
           </ul>
         </li>
@@ -48,22 +49,22 @@
             <li><a href="<?= OSCOM::link('apps.php'); ?>">Manage</a></li>
 
 <?php
-    if (!empty($cl_apps_groups)) {
-      echo '<li class="divider"></li>';
+          if (!empty($cl_apps_groups)) {
+              echo '<li class="divider"></li>';
 
-      foreach ($cl_apps_groups as $groups) {
-        echo '<li><a>' . HTML::outputProtected($groups['heading']) . ' <span class="caret"></span></a>
+              foreach ($cl_apps_groups as $groups) {
+                  echo '<li><a>' . HTML::outputProtected($groups['heading']) . ' <span class="caret"></span></a>
                 <ul class="dropdown-menu">';
 
-        foreach ($groups['apps'] as $app) {
-          echo '<li><a href="' . $app['link'] . '">' . HTML::outputProtected($app['title']) . '</a></li>';
-        }
+                  foreach ($groups['apps'] as $app) {
+                      echo '<li><a href="' . $app['link'] . '">' . HTML::outputProtected($app['title']) . '</a></li>';
+                  }
 
-        echo '  </ul>
+                  echo '  </ul>
               </li>';
-      }
-    }
-?>
+              }
+          }
+      ?>
 
           </ul>
         </li>
@@ -71,25 +72,25 @@
           <ul class="dropdown-menu">
 
 <?php
-    foreach ($cl_box_groups as $groups) {
-      echo '<li><a>' . HTML::outputProtected($groups['heading']) . ' <span class="caret"></span></a>
+          foreach ($cl_box_groups as $groups) {
+              echo '<li><a>' . HTML::outputProtected($groups['heading']) . ' <span class="caret"></span></a>
               <ul class="dropdown-menu">';
 
-      foreach ($groups['apps'] as $app) {
-        echo '<li><a href="' . $app['link'] . '">' . HTML::outputProtected($app['title']) . '</a></li>';
-      }
+              foreach ($groups['apps'] as $app) {
+                  echo '<li><a href="' . $app['link'] . '">' . HTML::outputProtected($app['title']) . '</a></li>';
+              }
 
-      echo '  </ul>
+              echo '  </ul>
             </li>';
-    }
-?>
+          }
+      ?>
 
           </ul>
         </li>
 
 <?php
-    if (count(glob(ErrorHandler::getDirectory() . 'errors-*.txt')) > 0) {
-?>
+          if (count(glob(ErrorHandler::getDirectory() . 'errors-*.txt')) > 0) {
+              ?>
 
         <li><a href="<?= OSCOM::link('error_log.php'); ?>"><i class="fa fa-exclamation-circle text-danger"></i></a>
           <ul class="dropdown-menu">
@@ -98,8 +99,8 @@
         </li>
 
 <?php
-    }
-?>
+          }
+      ?>
 
       </ul>
 
@@ -111,7 +112,7 @@
 
 <?php
   if (isset($_SESSION['admin'])) {
-?>
+      ?>
 
         <li><a><?= HTML::outputProtected($_SESSION['admin']['username']); ?> <span class="caret"></span></a>
           <ul class="dropdown-menu">
@@ -122,33 +123,33 @@
 <?php
   }
 
-  $all_get = tep_get_all_get_params('language');
-  $lang = [];
+$all_get = tep_get_all_get_params('language');
+$lang = [];
 
-  foreach (tep_get_languages() as $l) {
+foreach (tep_get_languages() as $l) {
     $lang[] = [
       'name' => $l['name'],
-      'link' => OSCOM::link($PHP_SELF, $all_get . (!empty($all_get) ? '&' : '') . 'language=' . $l['code'])
+      'link' => OSCOM::link($PHP_SELF, $all_get . (!empty($all_get) ? '&' : '') . 'language=' . $l['code']),
     ];
-  }
+}
 
-  if (count($lang) > 1) {
-?>
+if (count($lang) > 1) {
+    ?>
 
         <li><a><i class="fa fa-language"></i></a>
           <ul class="dropdown-menu">
 
 <?php
-    foreach ($lang as $l) {
-      echo '<li><a href="' . $l['link'] . '">' . HTML::outputProtected($l['name']) . '</a></li>';
-    }
-?>
+        foreach ($lang as $l) {
+            echo '<li><a href="' . $l['link'] . '">' . HTML::outputProtected($l['name']) . '</a></li>';
+        }
+    ?>
 
           </ul>
         </li>
 
 <?php
-  }
+}
 ?>
 
         <li><a><i class="fa fa-question-circle"></i></a>
@@ -168,6 +169,6 @@
 
 <?php
   if (Registry::get('MessageStack')->exists('main')) {
-    echo Registry::get('MessageStack')->get('main');
+      echo Registry::get('MessageStack')->get('main');
   }
 ?>

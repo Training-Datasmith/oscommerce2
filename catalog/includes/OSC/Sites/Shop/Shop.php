@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -12,7 +14,6 @@ use OSC\OM\Apps;
 use OSC\OM\Cookies;
 use OSC\OM\Db;
 use OSC\OM\Hooks;
-use OSC\OM\HTML;
 use OSC\OM\Language;
 use OSC\OM\OSCOM;
 use OSC\OM\Registry;
@@ -37,41 +38,41 @@ class Shop extends \OSC\OM\SitesAbstract
 
         Registry::set('Hooks', new Hooks());
 
-// set the application parameters
+        // set the application parameters
         $Qcfg = $OSCOM_Db->get('configuration', [
             'configuration_key as k',
-            'configuration_value as v'
+            'configuration_value as v',
         ]);//, null, null, null, 'configuration'); // TODO add cache when supported by admin
 
         while ($Qcfg->fetch()) {
             define($Qcfg->value('k'), $Qcfg->value('v'));
         }
 
-// set php_self in the global scope
+        // set php_self in the global scope
         $req = parse_url((string) $_SERVER['SCRIPT_NAME']);
         $PHP_SELF = substr($req['path'], strlen((string) OSCOM::getConfig('http_path', 'Shop')));
 
         $OSCOM_Session = Session::load();
         Registry::set('Session', $OSCOM_Session);
 
-// start the session
+        // start the session
         $OSCOM_Session->start();
 
         $this->ignored_actions[] = session_name();
 
         $OSCOM_Language = new Language();
-//        $OSCOM_Language->setUseCache(true);
+        //        $OSCOM_Language->setUseCache(true);
         Registry::set('Language', $OSCOM_Language);
 
-// create the shopping cart
+        // create the shopping cart
         if (!isset($_SESSION['cart']) || !is_object($_SESSION['cart']) || ($_SESSION['cart']::class != 'shoppingCart')) {
             $_SESSION['cart'] = new \shoppingCart();
         }
 
-// include currencies class and create an instance
+        // include currencies class and create an instance
         $currencies = new \currencies();
 
-// set the language
+        // set the language
         if (!isset($_SESSION['language']) || isset($_GET['language'])) {
             if (isset($_GET['language']) && !empty($_GET['language']) && $OSCOM_Language->exists($_GET['language'])) {
                 $OSCOM_Language->set($_GET['language']);
@@ -80,15 +81,15 @@ class Shop extends \OSC\OM\SitesAbstract
             $_SESSION['language'] = $OSCOM_Language->get('code');
         }
 
-// include the language translations
+        // include the language translations
         $OSCOM_Language->loadDefinitions('main');
 
-// Prevent LC_ALL from setting LC_NUMERIC to a locale with 1,0 float/decimal values instead of 1.0 (see bug #634)
+        // Prevent LC_ALL from setting LC_NUMERIC to a locale with 1,0 float/decimal values instead of 1.0 (see bug #634)
         $system_locale_numeric = setlocale(LC_NUMERIC, 0);
         setlocale(LC_ALL, explode(';', (string) OSCOM::getDef('system_locale')));
         setlocale(LC_NUMERIC, $system_locale_numeric);
 
-// currency
+        // currency
         if (!isset($_SESSION['currency']) || isset($_GET['currency']) || ((USE_DEFAULT_LANGUAGE_CURRENCY == 'true') && (OSCOM::getDef('language_currency') != $_SESSION['currency']))) {
             if (isset($_GET['currency']) && $currencies->is_set($_GET['currency'])) {
                 $_SESSION['currency'] = $_GET['currency'];
@@ -97,7 +98,7 @@ class Shop extends \OSC\OM\SitesAbstract
             }
         }
 
-// navigation history
+        // navigation history
         if (!isset($_SESSION['navigation']) || !is_object($_SESSION['navigation']) || ($_SESSION['navigation']::class != 'navigationHistory')) {
             $_SESSION['navigation'] = new \navigationHistory();
         }
@@ -129,9 +130,9 @@ class Shop extends \OSC\OM\SitesAbstract
 
                 [$vendor_app, $page] = explode('/', (string) $route['destination'], 2);
 
-// get controller class name from namespace
+                // get controller class name from namespace
                 $page_namespace = explode('\\', $page);
-                $page_code = $page_namespace[count($page_namespace)-1];
+                $page_code = $page_namespace[count($page_namespace) - 1];
 
                 if (class_exists('OSC\Apps\\' . $vendor_app . '\\' . $page . '\\' . $page_code)) {
                     $class = 'OSC\Apps\\' . $vendor_app . '\\' . $page . '\\' . $page_code;
@@ -171,7 +172,7 @@ class Shop extends \OSC\OM\SitesAbstract
                         $result[] = [
                             'path' => $path,
                             'destination' => $vendor_app . '/' . $page,
-                            'score' => count($path_array)
+                            'score' => count($path_array),
                         ];
                     }
                 }

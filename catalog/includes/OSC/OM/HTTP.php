@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -7,8 +9,6 @@
   */
 
 namespace OSC\OM;
-
-use OSC\OM\Is;
 
 class HTTP
 {
@@ -27,7 +27,7 @@ class HTTP
     public static function redirect($url, $http_response_code = null): void
     {
         if ((!str_contains((string) $url, "\n")) && (!str_contains((string) $url, "\r"))) {
-            if ( str_contains((string) $url, '&amp;') ) {
+            if (str_contains((string) $url, '&amp;')) {
                 $url = str_replace('&amp;', '&', $url);
             }
 
@@ -80,7 +80,7 @@ class HTTP
             CURLOPT_FORBID_REUSE => true,
             CURLOPT_FRESH_CONNECT => true,
             CURLOPT_ENCODING => '', // disable gzip
-            CURLOPT_FOLLOWLOCATION => false // does not work with open_basedir so a workaround is implemented below
+            CURLOPT_FOLLOWLOCATION => false, // does not work with open_basedir so a workaround is implemented below
         ];
 
         if (!empty($parameters['headers'])) {
@@ -170,7 +170,7 @@ class HTTP
                 $redir_params = [
                     'url' => $redir_url,
                     'method' => $parameters['method'],
-                    'redir_counter', $parameters['redir_counter']
+                    'redir_counter', $parameters['redir_counter'],
                 ];
 
                 $body = static::getResponse($redir_params);

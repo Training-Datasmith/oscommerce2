@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -6,10 +8,11 @@
   * @license MIT; https://www.oscommerce.com/license/mit.txt
   */
 
-  use OSC\OM\OSCOM;
-  use OSC\OM\Registry;
+use OSC\OM\OSCOM;
+use OSC\OM\Registry;
 
-  class cm_footer_contact_us {
+class cm_footer_contact_us
+{
     /**
      * @var class-string<\cm_footer_contact_us>
      */
@@ -26,81 +29,87 @@
      */
     public $enabled = false;
 
-    function __construct() {
-      $this->code = static::class;
-      $this->group = basename(__DIR__);
+    public function __construct()
+    {
+        $this->code = static::class;
+        $this->group = basename(__DIR__);
 
-      $this->title = OSCOM::getDef('module_content_footer_contact_us_title');
-      $this->description = OSCOM::getDef('module_content_footer_contact_us_description');
+        $this->title = OSCOM::getDef('module_content_footer_contact_us_title');
+        $this->description = OSCOM::getDef('module_content_footer_contact_us_description');
 
-      if ( defined('MODULE_CONTENT_FOOTER_CONTACT_US_STATUS') ) {
-        $this->sort_order = MODULE_CONTENT_FOOTER_CONTACT_US_SORT_ORDER;
-        $this->enabled = (MODULE_CONTENT_FOOTER_CONTACT_US_STATUS == 'True');
-      }
+        if (defined('MODULE_CONTENT_FOOTER_CONTACT_US_STATUS')) {
+            $this->sort_order = MODULE_CONTENT_FOOTER_CONTACT_US_SORT_ORDER;
+            $this->enabled = (MODULE_CONTENT_FOOTER_CONTACT_US_STATUS == 'True');
+        }
     }
 
-    function execute(): void {
-      global $oscTemplate;
+    public function execute(): void
+    {
+        global $oscTemplate;
 
-      $content_width = (int)MODULE_CONTENT_FOOTER_CONTACT_US_CONTENT_WIDTH;
+        $content_width = (int)MODULE_CONTENT_FOOTER_CONTACT_US_CONTENT_WIDTH;
 
-      ob_start();
-      include('includes/modules/content/' . $this->group . '/templates/contact_us.php');
-      $template = ob_get_clean();
+        ob_start();
+        include('includes/modules/content/' . $this->group . '/templates/contact_us.php');
+        $template = ob_get_clean();
 
-      $oscTemplate->addContent($template, $this->group);
+        $oscTemplate->addContent($template, $this->group);
     }
 
-    function isEnabled() {
-      return $this->enabled;
+    public function isEnabled()
+    {
+        return $this->enabled;
     }
 
-    function check(): bool {
-      return defined('MODULE_CONTENT_FOOTER_CONTACT_US_STATUS');
+    public function check(): bool
+    {
+        return defined('MODULE_CONTENT_FOOTER_CONTACT_US_STATUS');
     }
 
-    function install(): void {
-      $OSCOM_Db = Registry::get('Db');
+    public function install(): void
+    {
+        $OSCOM_Db = Registry::get('Db');
 
-      $OSCOM_Db->save('configuration', [
-        'configuration_title' => 'Enable Contact Us Footer Module',
-        'configuration_key' => 'MODULE_CONTENT_FOOTER_CONTACT_US_STATUS',
-        'configuration_value' => 'True',
-        'configuration_description' => 'Do you want to enable the Contact Us content module?',
-        'configuration_group_id' => '6',
-        'sort_order' => '1',
-        'set_function' => 'tep_cfg_select_option(array(\'True\', \'False\'), ',
-        'date_added' => 'now()'
-      ]);
+        $OSCOM_Db->save('configuration', [
+          'configuration_title' => 'Enable Contact Us Footer Module',
+          'configuration_key' => 'MODULE_CONTENT_FOOTER_CONTACT_US_STATUS',
+          'configuration_value' => 'True',
+          'configuration_description' => 'Do you want to enable the Contact Us content module?',
+          'configuration_group_id' => '6',
+          'sort_order' => '1',
+          'set_function' => 'tep_cfg_select_option(array(\'True\', \'False\'), ',
+          'date_added' => 'now()',
+        ]);
 
-      $OSCOM_Db->save('configuration', [
-        'configuration_title' => 'Content Width',
-        'configuration_key' => 'MODULE_CONTENT_FOOTER_CONTACT_US_CONTENT_WIDTH',
-        'configuration_value' => '3',
-        'configuration_description' => 'What width container should the content be shown in? (12 = full width, 6 = half width).',
-        'configuration_group_id' => '6',
-        'sort_order' => '1',
-        'set_function' => 'tep_cfg_select_option(array(\'12\', \'11\', \'10\', \'9\', \'8\', \'7\', \'6\', \'5\', \'4\', \'3\', \'2\', \'1\'), ',
-        'date_added' => 'now()'
-      ]);
+        $OSCOM_Db->save('configuration', [
+          'configuration_title' => 'Content Width',
+          'configuration_key' => 'MODULE_CONTENT_FOOTER_CONTACT_US_CONTENT_WIDTH',
+          'configuration_value' => '3',
+          'configuration_description' => 'What width container should the content be shown in? (12 = full width, 6 = half width).',
+          'configuration_group_id' => '6',
+          'sort_order' => '1',
+          'set_function' => 'tep_cfg_select_option(array(\'12\', \'11\', \'10\', \'9\', \'8\', \'7\', \'6\', \'5\', \'4\', \'3\', \'2\', \'1\'), ',
+          'date_added' => 'now()',
+        ]);
 
-      $OSCOM_Db->save('configuration', [
-        'configuration_title' => 'Sort Order',
-        'configuration_key' => 'MODULE_CONTENT_FOOTER_CONTACT_US_SORT_ORDER',
-        'configuration_value' => '0',
-        'configuration_description' => 'Sort order of display. Lowest is displayed first.',
-        'configuration_group_id' => '6',
-        'sort_order' => '0',
-        'date_added' => 'now()'
-      ]);
+        $OSCOM_Db->save('configuration', [
+          'configuration_title' => 'Sort Order',
+          'configuration_key' => 'MODULE_CONTENT_FOOTER_CONTACT_US_SORT_ORDER',
+          'configuration_value' => '0',
+          'configuration_description' => 'Sort order of display. Lowest is displayed first.',
+          'configuration_group_id' => '6',
+          'sort_order' => '0',
+          'date_added' => 'now()',
+        ]);
     }
 
-    function remove() {
-      return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
+    public function remove()
+    {
+        return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
 
-    function keys(): array {
-      return ['MODULE_CONTENT_FOOTER_CONTACT_US_STATUS', 'MODULE_CONTENT_FOOTER_CONTACT_US_CONTENT_WIDTH', 'MODULE_CONTENT_FOOTER_CONTACT_US_SORT_ORDER'];
+    public function keys(): array
+    {
+        return ['MODULE_CONTENT_FOOTER_CONTACT_US_STATUS', 'MODULE_CONTENT_FOOTER_CONTACT_US_CONTENT_WIDTH', 'MODULE_CONTENT_FOOTER_CONTACT_US_SORT_ORDER'];
     }
-  }
-
+}

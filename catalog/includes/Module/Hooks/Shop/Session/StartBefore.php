@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -12,7 +14,8 @@ use OSC\OM\OSCOM;
 
 class StartBefore
 {
-    public function execute(array $parameters): void {
+    public function execute(array $parameters): void
+    {
         if (SESSION_BLOCK_SPIDERS == 'True') {
             $user_agent = '';
 

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -6,9 +8,10 @@
   * @license MIT; https://www.oscommerce.com/license/mit.txt
   */
 
-  use OSC\OM\OSCOM;
+use OSC\OM\OSCOM;
 
-  class cfgm_shipping {
+class cfgm_shipping
+{
     public $code = 'shipping';
     /**
      * @var string
@@ -23,10 +26,10 @@
     public $title;
     public $template_integration = false;
 
-    function __construct() {
-      $this->directory = OSCOM::getConfig('dir_root', $this->site) . 'includes/modules/shipping/';
-      $this->language_directory = OSCOM::getConfig('dir_root', $this->site) . 'includes/languages/';
-      $this->title = OSCOM::getDef('module_cfg_module_shipping_title');
+    public function __construct()
+    {
+        $this->directory = OSCOM::getConfig('dir_root', $this->site) . 'includes/modules/shipping/';
+        $this->language_directory = OSCOM::getConfig('dir_root', $this->site) . 'includes/languages/';
+        $this->title = OSCOM::getDef('module_cfg_module_shipping_title');
     }
-  }
-?>
+}

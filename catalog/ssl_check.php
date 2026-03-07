@@ -6,16 +6,16 @@
   * @license MIT; https://www.oscommerce.com/license/mit.txt
   */
 
-  use OSC\OM\HTML;
-  use OSC\OM\OSCOM;
+use OSC\OM\HTML;
+use OSC\OM\OSCOM;
 
-  require('includes/application_top.php');
+require('includes/application_top.php');
 
-  $OSCOM_Language->loadDefinitions('ssl_check');
+$OSCOM_Language->loadDefinitions('ssl_check');
 
-  $breadcrumb->add(OSCOM::getDef('navbar_title'), OSCOM::link('ssl_check.php'));
+$breadcrumb->add(OSCOM::getDef('navbar_title'), OSCOM::link('ssl_check.php'));
 
-  require($oscTemplate->getFile('template_top.php'));
+require($oscTemplate->getFile('template_top.php'));
 ?>
 
 <div class="page-header">
@@ -36,9 +36,9 @@
       <div class="panel-body">
         <?=
           OSCOM::getDef('text_information', [
-            'contact_us_url' => OSCOM::link('contact_us.php')
+            'contact_us_url' => OSCOM::link('contact_us.php'),
           ]);
-        ?>
+?>
       </div>
     </div>
   </div>
@@ -50,5 +50,5 @@
 
 <?php
   require($oscTemplate->getFile('template_bottom.php'));
-  require('includes/application_bottom.php');
+require('includes/application_bottom.php');
 ?>

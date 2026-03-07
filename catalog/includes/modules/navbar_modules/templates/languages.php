@@ -1,5 +1,4 @@
 <?php
-use OSC\OM\HTML;
 use OSC\OM\OSCOM;
 use OSC\OM\Registry;
 
@@ -13,7 +12,7 @@ $OSCOM_Language = Registry::get('Language');
 
 <?php
 foreach ($OSCOM_Language->getAll() as $code => $value) {
-  echo '<li><a href="' . OSCOM::link($PHP_SELF, tep_get_all_get_params(['language', 'currency']) . 'language=' . $code) . '">' . $OSCOM_Language->getImage($value['code']) . '&nbsp;' . $value['name'] . '</a></li>';
+    echo '<li><a href="' . OSCOM::link($PHP_SELF, tep_get_all_get_params(['language', 'currency']) . 'language=' . $code) . '">' . $OSCOM_Language->getImage($value['code']) . '&nbsp;' . $value['name'] . '</a></li>';
 }
 ?>
 

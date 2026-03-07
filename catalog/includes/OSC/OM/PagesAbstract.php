@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -7,10 +9,6 @@
   */
 
 namespace OSC\OM;
-
-use OSC\OM\HTML;
-use OSC\OM\OSCOM;
-use OSC\OM\Registry;
 
 abstract class PagesAbstract implements \OSC\OM\PagesInterface
 {
@@ -81,7 +79,7 @@ abstract class PagesAbstract implements \OSC\OM\PagesInterface
     {
         if (!is_array($actions)) {
             $actions = [
-                $actions
+                $actions,
             ];
         }
 
@@ -147,7 +145,7 @@ abstract class PagesAbstract implements \OSC\OM\PagesInterface
     {
         if (!is_array($action)) {
             $action = [
-                $action
+                $action,
             ];
         }
 
@@ -177,7 +175,7 @@ abstract class PagesAbstract implements \OSC\OM\PagesInterface
     {
         if (!is_array($action)) {
             $action = [
-                $action
+                $action,
             ];
         }
 

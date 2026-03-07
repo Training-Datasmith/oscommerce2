@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -6,26 +8,29 @@
   * @license MIT; https://www.oscommerce.com/license/mit.txt
   */
 
-  use OSC\OM\OSCOM;
-  use OSC\OM\Registry;
+use OSC\OM\OSCOM;
+use OSC\OM\Registry;
 
-  class securityCheck_default_language {
+class securityCheck_default_language
+{
     public $type = 'error';
 
     protected $lang;
 
-    function __construct() {
-      $this->lang = Registry::get('Language');
+    public function __construct()
+    {
+        $this->lang = Registry::get('Language');
 
-      $this->lang->loadDefinitions('modules/security_check/default_language');
+        $this->lang->loadDefinitions('modules/security_check/default_language');
     }
 
-    function pass(): bool {
-      return defined('DEFAULT_LANGUAGE');
+    public function pass(): bool
+    {
+        return defined('DEFAULT_LANGUAGE');
     }
 
-    function getMessage() {
-      return OSCOM::getDef('error_no_default_language_defined');
+    public function getMessage()
+    {
+        return OSCOM::getDef('error_no_default_language_defined');
     }
-  }
-?>
+}

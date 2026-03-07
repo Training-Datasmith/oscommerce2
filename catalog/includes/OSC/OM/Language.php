@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -7,11 +9,6 @@
   */
 
 namespace OSC\OM;
-
-use OSC\OM\Cache;
-use OSC\OM\HTML;
-use OSC\OM\OSCOM;
-use OSC\OM\Registry;
 
 class Language
 {
@@ -36,7 +33,7 @@ class Language
                 'code' => $Qlanguages->value('code'),
                 'name' => $Qlanguages->value('name'),
                 'image' => $Qlanguages->value('image'),
-                'directory' => $Qlanguages->value('directory')
+                'directory' => $Qlanguages->value('directory'),
             ];
         }
 
@@ -97,7 +94,7 @@ class Language
             'tw' => 'zh[-_]tw|chinese traditional',
             'zh' => 'zh|chinese simplified',
             'ji' => 'ji|yiddish',
-            'zu' => 'zu|zulu'
+            'zu' => 'zu|zulu',
         ];
 
         if (!isset($code) || !$this->exists($code)) {
@@ -198,7 +195,7 @@ class Language
     public static function parseDefinition($string, $values)
     {
         if (is_array($values) && !empty($values)) {
-            return preg_replace_callback('/\{\{([A-Za-z0-9-_]+)\}\}/', fn($matches) => $values[$matches[1]] ?? $matches[1], (string) $string);
+            return preg_replace_callback('/\{\{([A-Za-z0-9-_]+)\}\}/', fn ($matches) => $values[$matches[1]] ?? $matches[1], (string) $string);
         }
 
         return $string;
@@ -286,10 +283,10 @@ class Language
         } else {
             $Qdefs = $this->db->get('languages_definitions', [
                 'definition_key',
-                'definition_value'
+                'definition_value',
             ], [
                 'languages_id' => $this->getId($language_code),
-                'content_group' => $group_key
+                'content_group' => $group_key,
             ]);
 
             while ($Qdefs->fetch()) {
@@ -304,7 +301,7 @@ class Language
                         'languages_id' => $this->getId($language_code),
                         'content_group' => $group_key,
                         'definition_key' => $key,
-                        'definition_value' => $value
+                        'definition_value' => $value,
                     ]);
                 }
             }

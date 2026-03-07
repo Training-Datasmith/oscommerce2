@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -7,9 +9,6 @@
   */
 
 namespace OSC\OM;
-
-use OSC\OM\FileSystem;
-use OSC\OM\OSCOM;
 
 class ErrorHandler
 {

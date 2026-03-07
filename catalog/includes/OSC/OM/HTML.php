@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -9,8 +11,6 @@
 namespace OSC\OM;
 
 use OSC\OM\HTML\Panel;
-use OSC\OM\OSCOM;
-use OSC\OM\Registry;
 
 class HTML
 {
@@ -18,7 +18,7 @@ class HTML
     {
         if (!isset($translate)) {
             $translate = [
-                '"' => '&quot;'
+                '"' => '&quot;',
             ];
         }
 
@@ -34,12 +34,12 @@ class HTML
     {
         $patterns = [
             '/ +/',
-            '/[<>]/'
+            '/[<>]/',
         ];
 
         $replace = [
             ' ',
-            '_'
+            '_',
         ];
 
         return preg_replace($patterns, $replace, trim((string) $string));
@@ -51,8 +51,8 @@ class HTML
             return false;
         }
 
-// alt is added to the img tag even if it is null to prevent browsers from outputting
-// the image filename as default
+        // alt is added to the img tag even if it is null to prevent browsers from outputting
+        // the image filename as default
         $image = '<img src="' . static::output($src) . '" alt="' . static::output($alt) . '"';
 
         if (isset($alt) && (strlen($alt) > 0)) {
@@ -271,7 +271,7 @@ class HTML
                 '"' => '&quot;',
                 '\'' => '&#039;',
                 '<' => '&lt;',
-                '>' => '&gt;'
+                '>' => '&gt;',
             ]) . '</option>';
 
             if (($group !== false) && (($group != $v['group']) || ($ci->hasNext() === false))) {
@@ -318,7 +318,7 @@ class HTML
         }
 
         if (($params['type'] == 'submit') && isset($link)) {
-              $params['type'] = 'button';
+            $params['type'] = 'button';
         }
 
         $button = '';
@@ -357,7 +357,7 @@ class HTML
     public static function stars($rating = 0, $meta = false): string
     {
         $stars = str_repeat('<span class="glyphicon glyphicon-star"></span>', (int)$rating) .
-                 str_repeat('<span class="glyphicon glyphicon-star-empty"></span>', 5-(int)$rating);
+                 str_repeat('<span class="glyphicon glyphicon-star-empty"></span>', 5 - (int)$rating);
 
         if ($meta !== false) {
             $stars .= '<meta itemprop="rating" content="' . (int)$rating . '" />';

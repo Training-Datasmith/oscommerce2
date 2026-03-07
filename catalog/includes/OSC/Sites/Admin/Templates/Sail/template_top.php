@@ -1,5 +1,6 @@
 <?php
 use OSC\OM\OSCOM;
+
 ?>
 <!DOCTYPE html>
 <html <?= OSCOM::getDef('html_params'); ?>>
@@ -22,7 +23,7 @@ use OSC\OM\OSCOM;
 
 <?php
   if (tep_not_null(OSCOM::getDef('jquery_datepicker_i18n_code'))) {
-?>
+      ?>
 <script type="text/javascript" src="<?= OSCOM::link('Shop/ext/jquery/ui/i18n/datepicker-' . OSCOM::getDef('jquery_datepicker_i18n_code') . '.js', '', false); ?>"></script>
 <script type="text/javascript">
 $.datepicker.setDefaults($.datepicker.regional['<?= OSCOM::getDef('jquery_datepicker_i18n_code'); ?>']);

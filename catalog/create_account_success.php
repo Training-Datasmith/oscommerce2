@@ -6,24 +6,24 @@
   * @license MIT; https://www.oscommerce.com/license/mit.txt
   */
 
-  use OSC\OM\HTML;
-  use OSC\OM\OSCOM;
+use OSC\OM\HTML;
+use OSC\OM\OSCOM;
 
-  require('includes/application_top.php');
+require('includes/application_top.php');
 
-  $OSCOM_Language->loadDefinitions('create_account_success');
+$OSCOM_Language->loadDefinitions('create_account_success');
 
-  $breadcrumb->add(OSCOM::getDef('navbar_title_1'));
-  $breadcrumb->add(OSCOM::getDef('navbar_title_2'));
+$breadcrumb->add(OSCOM::getDef('navbar_title_1'));
+$breadcrumb->add(OSCOM::getDef('navbar_title_2'));
 
-  if (sizeof($_SESSION['navigation']->snapshot) > 0) {
+if (sizeof($_SESSION['navigation']->snapshot) > 0) {
     $origin_href = OSCOM::link($_SESSION['navigation']->snapshot['page'], tep_array_to_string($_SESSION['navigation']->snapshot['get'], [session_name()]));
     $_SESSION['navigation']->clear_snapshot();
-  } else {
+} else {
     $origin_href = OSCOM::link('index.php');
-  }
+}
 
-  require($oscTemplate->getFile('template_top.php'));
+require($oscTemplate->getFile('template_top.php'));
 ?>
 
 <div class="page-header">
@@ -44,5 +44,5 @@
 
 <?php
   require($oscTemplate->getFile('template_bottom.php'));
-  require('includes/application_bottom.php');
+require('includes/application_bottom.php');
 ?>

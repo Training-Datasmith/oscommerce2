@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -6,9 +8,10 @@
   * @license MIT; https://www.oscommerce.com/license/mit.txt
   */
 
-  use OSC\OM\OSCOM;
+use OSC\OM\OSCOM;
 
-  class cfgm_dashboard {
+class cfgm_dashboard
+{
     public $code = 'dashboard';
     /**
      * @var string
@@ -23,11 +26,11 @@
     public $title;
     public $template_integration = false;
 
-    function __construct() {
-      $this->directory = OSCOM::getConfig('dir_root', $this->site) . 'includes/modules/dashboard/';
-      $this->language_directory = OSCOM::getConfig('dir_root', $this->site) . 'includes/languages/';
+    public function __construct()
+    {
+        $this->directory = OSCOM::getConfig('dir_root', $this->site) . 'includes/modules/dashboard/';
+        $this->language_directory = OSCOM::getConfig('dir_root', $this->site) . 'includes/languages/';
 
-      $this->title = OSCOM::getDef('module_cfg_module_dashboard_title');
+        $this->title = OSCOM::getDef('module_cfg_module_dashboard_title');
     }
-  }
-?>
+}

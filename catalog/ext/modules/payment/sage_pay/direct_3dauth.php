@@ -6,27 +6,27 @@
   * @license MIT; https://www.oscommerce.com/license/mit.txt
   */
 
-  use OSC\OM\OSCOM;
+use OSC\OM\OSCOM;
 
-  chdir('../../../../');
-  require('includes/application_top.php');
+chdir('../../../../');
+require('includes/application_top.php');
 
 // if the customer is not logged on, redirect them to the login page
-  if (!isset($_SESSION['customer_id'])) {
+if (!isset($_SESSION['customer_id'])) {
     $_SESSION['navigation']->set_snapshot(['page' => 'checkout_payment.php']);
     OSCOM::redirect('login.php');
-  }
+}
 
-  if (!isset($_SESSION['sage_pay_direct_acsurl'])) {
+if (!isset($_SESSION['sage_pay_direct_acsurl'])) {
     OSCOM::redirect('checkout_payment.php');
-  }
+}
 
-  if (!isset($_SESSION['payment']) || ($_SESSION['payment'] != 'sage_pay_direct')) {
+if (!isset($_SESSION['payment']) || ($_SESSION['payment'] != 'sage_pay_direct')) {
     OSCOM::redirect('checkout_payment.php');
-  }
+}
 
-  $OSCOM_Language->loadDefinitions('checkout_confirmation');
-  $OSCOM_Language->loadDefinitions('modules/payment/sage_pay_direct');
+$OSCOM_Language->loadDefinitions('checkout_confirmation');
+$OSCOM_Language->loadDefinitions('modules/payment/sage_pay_direct');
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html <?php echo OSCOM::getDef('html_params'); ?>>

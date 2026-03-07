@@ -1,5 +1,6 @@
 <?php
 use OSC\OM\OSCOM;
+
 ?>
 <div class="col-sm-<?php echo $content_width; ?>">
   <div class="footerbox account">
@@ -7,7 +8,7 @@ use OSC\OM\OSCOM;
     <ul class="list-unstyled">
       <?php
       echo $account_content;
-      ?>
+?>
     </ul>
   </div>
 </div>

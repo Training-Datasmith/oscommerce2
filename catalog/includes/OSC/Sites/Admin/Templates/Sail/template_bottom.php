@@ -1,5 +1,6 @@
 <?php
-  use OSC\OM\OSCOM;
+use OSC\OM\OSCOM;
+
 ?>
 
 </div>

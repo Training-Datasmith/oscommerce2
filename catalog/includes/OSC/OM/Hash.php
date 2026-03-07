@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
   * osCommerce Online Merchant
   *
@@ -7,8 +9,6 @@
   */
 
 namespace OSC\OM;
-
-use OSC\OM\OSCOM;
 
 class Hash
 {
@@ -37,7 +37,7 @@ class Hash
         if ($algo == 'salt') {
             $password = '';
 
-            for ($i=0; $i<10; $i++) {
+            for ($i = 0; $i < 10; $i++) {
                 $password .= static::getRandomInt();
             }
 
@@ -154,7 +154,7 @@ class Hash
         if (!in_array($type, [
             'mixed',
             'chars',
-            'digits'
+            'digits',
         ])) {
             trigger_error('Hash::getRandomString() $type not recognized: ' . $type, E_USER_ERROR);
 
@@ -179,7 +179,7 @@ class Hash
         do {
             $random = base64_encode((string) static::getRandomBytes($length));
 
-            for ($i=0, $n=strlen($random); $i<$n; $i++) {
+            for ($i = 0, $n = strlen($random); $i < $n; $i++) {
                 $char = substr($random, $i, 1);
 
                 if (str_contains($base, $char)) {
@@ -206,7 +206,7 @@ class Hash
 
             $result = '';
 
-            for ($i=0; $i<$length; $i+=16) {
+            for ($i = 0; $i < $length; $i += 16) {
                 $random_state = md5(microtime() . $random_state);
 
                 $result .= pack('H*', md5($random_state));
