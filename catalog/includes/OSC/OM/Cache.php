@@ -73,7 +73,7 @@ class Cache
         $filename = static::$path . $this->key . '.cache';
 
         if (is_file($filename)) {
-            $this->data = unserialize(file_get_contents($filename));
+            $this->data = unserialize(file_get_contents($filename), ['allowed_classes' => false]);
         }
 
         return $this->data;

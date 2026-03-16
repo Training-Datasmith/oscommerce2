@@ -163,11 +163,11 @@ if (tep_not_null($action)) {
             if (isset($_POST['download']) && ($_POST['download'] == 'yes')) {
                 switch ($_POST['compress']) {
                     case 'gzip':
-                        exec(LOCAL_EXE_GZIP . ' ' . $backup_directory . $backup_file);
+                        exec(LOCAL_EXE_GZIP . ' ' . escapeshellarg($backup_directory . $backup_file));
                         $backup_file .= '.gz';
                         break;
                     case 'zip':
-                        exec(LOCAL_EXE_ZIP . ' -j ' . $backup_directory . $backup_file . '.zip ' . $backup_directory . $backup_file);
+                        exec(LOCAL_EXE_ZIP . ' -j ' . escapeshellarg($backup_directory . $backup_file . '.zip') . ' ' . escapeshellarg($backup_directory . $backup_file));
                         unlink($backup_directory . $backup_file);
                         $backup_file .= '.zip';
                 }
@@ -181,10 +181,10 @@ if (tep_not_null($action)) {
             }
             switch ($_POST['compress']) {
                 case 'gzip':
-                    exec(LOCAL_EXE_GZIP . ' ' . $backup_directory . $backup_file);
+                    exec(LOCAL_EXE_GZIP . ' ' . escapeshellarg($backup_directory . $backup_file));
                     break;
                 case 'zip':
-                    exec(LOCAL_EXE_ZIP . ' -j ' . $backup_directory . $backup_file . '.zip ' . $backup_directory . $backup_file);
+                    exec(LOCAL_EXE_ZIP . ' -j ' . escapeshellarg($backup_directory . $backup_file . '.zip') . ' ' . escapeshellarg($backup_directory . $backup_file));
                     unlink($backup_directory . $backup_file);
             }
             $OSCOM_MessageStack->add(OSCOM::getDef('success_database_saved'), 'success');
@@ -210,12 +210,12 @@ if (tep_not_null($action)) {
                                 break;
                             case '.gz':
                                 $restore_from = substr($restore_file, 0, -3);
-                                exec(LOCAL_EXE_GUNZIP . ' ' . $restore_file . ' -c > ' . $restore_from);
+                                exec(LOCAL_EXE_GUNZIP . ' ' . escapeshellarg($restore_file) . ' -c > ' . escapeshellarg($restore_from));
                                 $remove_raw = true;
                                 break;
                             case 'zip':
                                 $restore_from = substr($restore_file, 0, -4);
-                                exec(LOCAL_EXE_UNZIP . ' ' . $restore_file . ' -d ' . $backup_directory);
+                                exec(LOCAL_EXE_UNZIP . ' ' . escapeshellarg($restore_file) . ' -d ' . escapeshellarg($backup_directory));
                                 $remove_raw = true;
                         }
 

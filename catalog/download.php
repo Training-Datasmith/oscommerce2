@@ -47,7 +47,10 @@ if ($Qdownload->valueInt('download_count') <= 0) {
     die;
 }
 // Die if file is not there
-if (!is_file(OSCOM::getConfig('dir_root') . 'download/' . $Qdownload->value('orders_products_filename'))) {
+$download_filename = basename($Qdownload->value('orders_products_filename'));
+$download_base_dir = realpath(OSCOM::getConfig('dir_root') . 'download');
+$download_filepath = realpath($download_base_dir . '/' . $download_filename);
+if ($download_filepath === false || strpos($download_filepath, $download_base_dir . DIRECTORY_SEPARATOR) !== 0 || !is_file($download_filepath)) {
     die;
 }
 
@@ -114,19 +117,19 @@ header('Last-Modified: ' . gmdate('D,d M Y H:i:s') . ' GMT');
 header('Cache-Control: no-cache, must-revalidate');
 header('Pragma: no-cache');
 header('Content-Type: Application/octet-stream');
-header('Content-disposition: attachment; filename=' . $Qdownload->value('orders_products_filename'));
+header('Content-disposition: attachment; filename=' . $download_filename);
 
 if (DOWNLOAD_BY_REDIRECT == 'true') {
     // This will work only on Unix/Linux hosts
     tep_unlink_temp_dir(OSCOM::getConfig('dir_root') . 'pub/');
     $tempdir = tep_random_name();
     umask(0000);
-    mkdir(OSCOM::getConfig('dir_root') . 'pub/' . $tempdir, 0777);
-    symlink(OSCOM::getConfig('dir_root') . 'download/' . $Qdownload->value('orders_products_filename'), OSCOM::getConfig('dir_root', 'Shop') . 'pub/' . $tempdir . '/' . $Qdownload->value('orders_products_filename'));
-    if (is_file(OSCOM::getConfig('dir_root') . 'pub/' . $tempdir . '/' . $Qdownload->value('orders_products_filename'))) {
-        OSCOM::redirect('pub/' . $tempdir . '/' . $Qdownload->value('orders_products_filename'));
+    mkdir(OSCOM::getConfig('dir_root') . 'pub/' . $tempdir, 0750);
+    symlink($download_filepath, OSCOM::getConfig('dir_root', 'Shop') . 'pub/' . $tempdir . '/' . $download_filename);
+    if (is_file(OSCOM::getConfig('dir_root') . 'pub/' . $tempdir . '/' . $download_filename)) {
+        OSCOM::redirect('pub/' . $tempdir . '/' . $download_filename);
     }
 }
 
 // Fallback to readfile() delivery method. This will work on all systems, but will need considerable resources
-readfile(OSCOM::getConfig('dir_root') . 'download/' . $Qdownload->value('orders_products_filename'));
+readfile($download_filepath);

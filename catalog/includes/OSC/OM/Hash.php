@@ -73,7 +73,7 @@ class Hash
                     $stack = explode(':', (string) $hash, 2);
 
                     if (count($stack) === 2) {
-                        $result = (md5($stack[1] . $plain) == $stack[0]);
+                        $result = hash_equals($stack[0], md5($stack[1] . $plain));
                     } else {
                         $result = false;
                     }
@@ -205,6 +205,7 @@ class Hash
             }
 
             $result = '';
+            $random_state = '';
 
             for ($i = 0; $i < $length; $i += 16) {
                 $random_state = md5(microtime() . $random_state);
