@@ -1,82 +1,63 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
-  * osCommerce Online Merchant
-  *
-  * @copyright (c) 2016 osCommerce; https://www.oscommerce.com
-  * @license MIT; https://www.oscommerce.com/license/mit.txt
-  */
-
+ * osCommerce Online Merchant
+ *
+ * @copyright (c) 2016 osCommerce; https://www.oscommerce.com
+ * @license MIT; https://www.oscommerce.com/license/mit.txt
+ */
 namespace OSC\OM\Session;
 
-class File extends \OSC\OM\SessionAbstract implements \SessionHandlerInterface
+class File extends \OSC\OM\Session_Abstract implements \Session_Handler_Interface
 {
     protected $path;
-
     public function __construct()
     {
-        $this->setSavePath(OSCOM::BASE_DIR . 'Work/Session');
-
+        $this->set_save_path(OSCOM::BASE_DIR . 'Work/Session');
         session_set_save_handler($this, true);
     }
-
     public function exists($session_id): bool
     {
         $id = basename($session_id);
-
         return is_file($this->path . '/sess_' . $id);
     }
-
     public function open($save_path, $name)
     {
         if (!is_dir($save_path)) {
             mkdir($save_path, 0777);
         }
-
         return true;
     }
-
     public function close()
     {
         return true;
     }
-
     public function read($session_id)
     {
         $id = basename($session_id);
-
         $result = false;
-
         if ($this->exists($id)) {
             $result = file_get_contents($this->path . '/sess_' . $id);
         }
-
         if ($result === false) {
             return '';
         }
-
         return $result;
     }
-
     public function write($session_id, $session_data)
     {
         $id = basename($session_id);
-
         return file_put_contents($this->path . '/sess_' . $id, $session_data) === false ? false : true;
     }
-
     public function destroy($session_id)
     {
         $id = basename($session_id);
-
         if ($this->exists($id)) {
             return unlink($this->path . '/sess_' . $id);
         }
-
         return true;
     }
-
     public function gc($maxlifetime)
     {
         foreach (glob($this->path . '/sess_*') as $file) {
@@ -84,18 +65,14 @@ class File extends \OSC\OM\SessionAbstract implements \SessionHandlerInterface
                 unlink($file);
             }
         }
-
         return true;
     }
-
-    public function setSavePath($path): void
+    public function set_save_path($path): void
     {
-        if ((strlen((string) $path) > 1) && (str_ends_with((string) $path, '/'))) {
+        if (strlen((string) $path) > 1 && str_ends_with((string) $path, '/')) {
             $path = substr((string) $path, 0, -1);
         }
-
         session_save_path($path);
-
         $this->path = session_save_path();
     }
 }

@@ -1,22 +1,20 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
-  * osCommerce Online Merchant
-  *
-  * @copyright (c) 2016 osCommerce; https://www.oscommerce.com
-  * @license MIT; https://www.oscommerce.com/license/mit.txt
-  */
-
+ * osCommerce Online Merchant
+ *
+ * @copyright (c) 2016 osCommerce; https://www.oscommerce.com
+ * @license MIT; https://www.oscommerce.com/license/mit.txt
+ */
 namespace OSC\OM\Module\Hooks\Shop\Session;
 
 use OSC\OM\Hash;
-
 class Recreated
 {
     public function execute($parameters): void
     {
         // reset session token
-        $_SESSION['sessiontoken'] = md5(Hash::getRandomInt() . Hash::getRandomInt() . Hash::getRandomInt() . Hash::getRandomInt());
+        $_SESSION['sessiontoken'] = md5(Hash::get_random_int() . Hash::get_random_int() . Hash::get_random_int() . Hash::get_random_int());
     }
 }

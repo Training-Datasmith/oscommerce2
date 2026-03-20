@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 #
 # Portable PHP password hashing framework.
 #
@@ -31,7 +31,7 @@ declare(strict_types=1);
 # Obviously, since this code is in the public domain, the above are not
 # requirements (there can be none), but merely suggestions.
 #
-class PasswordHash
+class Password_Hash
 {
     /**
      * @var './0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
@@ -42,27 +42,22 @@ class PasswordHash
      * @var string
      */
     public $random_state;
-
     public function __construct($iteration_count_log2, public $portable_hashes)
     {
         $this->itoa64 = './0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-
         if ($iteration_count_log2 < 4 || $iteration_count_log2 > 31) {
             $iteration_count_log2 = 8;
         }
         $this->iteration_count_log2 = $iteration_count_log2;
-
         $this->random_state = microtime();
         if (function_exists('getmypid')) {
             $this->random_state .= getmypid();
         }
     }
-
     public function get_random_bytes($count)
     {
         $output = '';
-        if (@is_readable('/dev/urandom') &&
-            ($fh = @fopen('/dev/urandom', 'rb'))) {
+        if (@is_readable('/dev/urandom') && $fh = @fopen('/dev/urandom', 'rb')) {
             if (function_exists('stream_set_read_buffer')) {
                 stream_set_read_buffer($fh, 0);
             }
@@ -70,28 +65,22 @@ class PasswordHash
             fclose($fh);
         } elseif (function_exists('openssl_random_pseudo_bytes')) {
             $output = openssl_random_pseudo_bytes($count, $orpb_secure);
-
             if ($orpb_secure != true) {
                 $output = '';
             }
         } elseif (defined('MCRYPT_DEV_URANDOM')) {
             $output = mcrypt_create_iv($count, MCRYPT_DEV_URANDOM);
         }
-
         if (strlen($output) < $count) {
             $output = '';
             for ($i = 0; $i < $count; $i += 16) {
-                $this->random_state =
-                    md5(microtime() . $this->random_state);
-                $output .=
-                    pack('H*', md5($this->random_state));
+                $this->random_state = md5(microtime() . $this->random_state);
+                $output .= pack('H*', md5($this->random_state));
             }
             $output = substr($output, 0, $count);
         }
-
         return $output;
     }
-
     public function encode64($input, $count): string
     {
         $output = '';
@@ -102,57 +91,47 @@ class PasswordHash
             if ($i < $count) {
                 $value |= ord($input[$i]) << 8;
             }
-            $output .= $this->itoa64[($value >> 6) & 0x3f];
+            $output .= $this->itoa64[$value >> 6 & 0x3f];
             if ($i++ >= $count) {
                 break;
             }
             if ($i < $count) {
                 $value |= ord($input[$i]) << 16;
             }
-            $output .= $this->itoa64[($value >> 12) & 0x3f];
+            $output .= $this->itoa64[$value >> 12 & 0x3f];
             if ($i++ >= $count) {
                 break;
             }
-            $output .= $this->itoa64[($value >> 18) & 0x3f];
+            $output .= $this->itoa64[$value >> 18 & 0x3f];
         } while ($i < $count);
-
         return $output;
     }
-
     public function gensalt_private($input): string
     {
         $output = '$P$';
-        $output .= $this->itoa64[min($this->iteration_count_log2 +
-            ((PHP_VERSION >= '5') ? 5 : 3), 30)];
-
+        $output .= $this->itoa64[min($this->iteration_count_log2 + (PHP_VERSION >= '5' ? 5 : 3), 30)];
         return $output . $this->encode64($input, 6);
     }
-
     public function crypt_private(string $password, $setting): string
     {
         $output = '*0';
         if (substr((string) $setting, 0, 2) == $output) {
             $output = '*1';
         }
-
         $id = substr((string) $setting, 0, 3);
         # We use "$P$", phpBB3 uses "$H$" for the same thing
         if ($id != '$P$' && $id != '$H$') {
             return $output;
         }
-
         $count_log2 = strpos((string) $this->itoa64, (string) $setting[3]);
         if ($count_log2 < 7 || $count_log2 > 30) {
             return $output;
         }
-
         $count = 1 << $count_log2;
-
         $salt = substr((string) $setting, 4, 8);
         if (strlen($salt) != 8) {
             return $output;
         }
-
         # We're kind of forced to use MD5 here since it's the only
         # cryptographic primitive available in all versions of PHP
         # currently in use.  To implement our own low-level crypto
@@ -163,28 +142,22 @@ class PasswordHash
         do {
             $hash = md5($hash . $password, true);
         } while (--$count);
-
         $output = substr((string) $setting, 0, 12);
-
         return $output . $this->encode64($hash, 16);
     }
-
     public function gensalt_extended($input): string
     {
         $count_log2 = min($this->iteration_count_log2 + 8, 24);
         # This should be odd to not reveal weak DES keys, and the
         # maximum valid value is (2**24 - 1) which is odd anyway.
         $count = (1 << $count_log2) - 1;
-
         $output = '_';
         $output .= $this->itoa64[$count & 0x3f];
-        $output .= $this->itoa64[($count >> 6) & 0x3f];
-        $output .= $this->itoa64[($count >> 12) & 0x3f];
-        $output .= $this->itoa64[($count >> 18) & 0x3f];
-
+        $output .= $this->itoa64[$count >> 6 & 0x3f];
+        $output .= $this->itoa64[$count >> 12 & 0x3f];
+        $output .= $this->itoa64[$count >> 18 & 0x3f];
         return $output . $this->encode64($input, 3);
     }
-
     public function gensalt_blowfish($input): string
     {
         # This one needs to use a different order of characters and a
@@ -196,85 +169,67 @@ class PasswordHash
         # chances and we also do not want to waste an additional byte
         # of entropy.
         $itoa64 = './ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-
         $output = '$2a$';
         $output .= chr(ord('0') + $this->iteration_count_log2 / 10);
         $output .= chr(ord('0') + $this->iteration_count_log2 % 10);
         $output .= '$';
-
         $i = 0;
         do {
             $c1 = ord($input[$i++]);
             $output .= $itoa64[$c1 >> 2];
-            $c1 = ($c1 & 0x03) << 4;
+            $c1 = ($c1 & 0x3) << 4;
             if ($i >= 16) {
                 $output .= $itoa64[$c1];
                 break;
             }
-
             $c2 = ord($input[$i++]);
             $c1 |= $c2 >> 4;
             $output .= $itoa64[$c1];
-            $c1 = ($c2 & 0x0f) << 2;
-
+            $c1 = ($c2 & 0xf) << 2;
             $c2 = ord($input[$i++]);
             $c1 |= $c2 >> 6;
             $output .= $itoa64[$c1];
             $output .= $itoa64[$c2 & 0x3f];
         } while (1);
-
         return $output;
     }
-
-    public function HashPassword($password)
+    public function hash_password($password)
     {
         $random = '';
-
         if (!$this->portable_hashes) {
             $random = $this->get_random_bytes(16);
-            $hash =
-                crypt((string) $password, (string) $this->gensalt_blowfish($random));
+            $hash = crypt((string) $password, (string) $this->gensalt_blowfish($random));
             if (strlen($hash) == 60) {
                 return $hash;
             }
         }
-
         if (!$this->portable_hashes) {
             if (strlen((string) $random) < 3) {
                 $random = $this->get_random_bytes(3);
             }
-            $hash =
-                crypt((string) $password, (string) $this->gensalt_extended($random));
+            $hash = crypt((string) $password, (string) $this->gensalt_extended($random));
             if (strlen($hash) == 20) {
                 return $hash;
             }
         }
-
         if (strlen((string) $random) < 6) {
             $random = $this->get_random_bytes(6);
         }
-        $hash =
-            $this->crypt_private(
-                $password,
-                $this->gensalt_private($random)
-            );
+        $hash = $this->crypt_private($password, $this->gensalt_private($random));
         if (strlen((string) $hash) == 34) {
             return $hash;
         }
-
         # Returning '*' on error is safe here, but would _not_ be safe
         # in a crypt(3)-like function used _both_ for generating new
         # hashes and for validating passwords against existing hashes.
         return '*';
     }
-
-    public function CheckPassword($password, $stored_hash): bool
+    public function check_password($password, $stored_hash): bool
     {
         $hash = $this->crypt_private($password, $stored_hash);
         if ($hash[0] == '*') {
             $hash = crypt((string) $password, (string) $stored_hash);
         }
-
         return $hash == $stored_hash;
     }
 }

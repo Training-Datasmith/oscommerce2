@@ -1,44 +1,36 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
-  * osCommerce Online Merchant
-  *
-  * @copyright (c) 2016 osCommerce; https://www.oscommerce.com
-  * @license MIT; https://www.oscommerce.com/license/mit.txt
-  */
-
+ * osCommerce Online Merchant
+ *
+ * @copyright (c) 2016 osCommerce; https://www.oscommerce.com
+ * @license MIT; https://www.oscommerce.com/license/mit.txt
+ */
 namespace OSC\OM\Modules;
 
 use OSC\OM\Apps;
-
-class Content extends \OSC\OM\ModulesAbstract
+class Content extends \OSC\OM\Modules_Abstract
 {
     /**
      * @return class-string[]
      */
-    public function getInfo($app, $key, $data): array
+    public function get_info($app, $key, $data): array
     {
         $result = [];
-
         foreach ($data as $code => $class) {
             $class = $this->ns . $app . '\\' . $class;
-
             if (is_subclass_of($class, 'OSC\OM\Modules\\' . $this->code . 'Interface')) {
                 $result[$key . '/' . $app . '\\' . $code] = $class;
             }
         }
-
         return $result;
     }
-
-    public function getClass($module)
+    public function get_class($module)
     {
         [$group, $code] = explode('/', (string) $module, 2);
         [$vendor, $app, $code] = explode('\\', $code, 3);
-
-        $info = Apps::getInfo($vendor . '\\' . $app);
-
+        $info = Apps::get_info($vendor . '\\' . $app);
         if (isset($info['modules'][$this->code][$group][$code])) {
             return $this->ns . $vendor . '\\' . $app . '\\' . $info['modules'][$this->code][$group][$code];
         }

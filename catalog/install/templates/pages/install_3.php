@@ -1,11 +1,10 @@
 <?php
+
 use OSC\OM\DateTime;
-use OSC\OM\FileSystem;
+use OSC\OM\File_System;
 use OSC\OM\HTML;
-
 $dir_fs_document_root = $_POST['DIR_FS_DOCUMENT_ROOT'];
-
-if ((!str_ends_with((string) $dir_fs_document_root, '\\')) && (!str_ends_with((string) $dir_fs_document_root, '/'))) {
+if (!str_ends_with((string) $dir_fs_document_root, '\\') && !str_ends_with((string) $dir_fs_document_root, '/')) {
     if (strrpos((string) $dir_fs_document_root, '\\') !== false) {
         $dir_fs_document_root .= '\\';
     } else {
@@ -51,60 +50,76 @@ if ((!str_ends_with((string) $dir_fs_document_root, '\\')) && (!str_ends_with((s
     <form name="install" id="installForm" action="install.php?step=4" method="post">
       <div class="form-group has-feedback">
         <label for="storeName">Store Name</label>
-        <?php echo HTML::inputField('CFG_STORE_NAME', null, 'required aria-required="true" id="storeName"'); ?>
+        <?php 
+echo HTML::input_field('CFG_STORE_NAME', null, 'required aria-required="true" id="storeName"');
+?>
         <span class="help-block">The name of the online store that is presented to the public.</span>
       </div>
 
       <div class="form-group has-feedback">
         <label for="ownerName">Store Owner Name</label>
-        <?php echo HTML::inputField('CFG_STORE_OWNER_NAME', null, 'required aria-required="true" id="ownerName"'); ?>
+        <?php 
+echo HTML::input_field('CFG_STORE_OWNER_NAME', null, 'required aria-required="true" id="ownerName"');
+?>
         <span class="help-block">The name of the store owner that is presented to the public.</span>
       </div>
 
       <div class="form-group has-feedback">
         <label for="ownerEmail">Store Owner E-Mail Address</label>
-        <?php echo HTML::inputField('CFG_STORE_OWNER_EMAIL_ADDRESS', null, 'required aria-required="true" id="ownerEmail"'); ?>
+        <?php 
+echo HTML::input_field('CFG_STORE_OWNER_EMAIL_ADDRESS', null, 'required aria-required="true" id="ownerEmail"');
+?>
         <span class="help-block">The e-mail address of the store owner that is presented to the public.</span>
       </div>
 
       <div class="form-group has-feedback">
         <label for="adminUsername">Administrator Username</label>
-        <?php echo HTML::inputField('CFG_ADMINISTRATOR_USERNAME', null, 'required aria-required="true" id="adminUsername"'); ?>
+        <?php 
+echo HTML::input_field('CFG_ADMINISTRATOR_USERNAME', null, 'required aria-required="true" id="adminUsername"');
+?>
         <span class="help-block">The administrator username to use for the administration tool.</span>
       </div>
 
       <div class="form-group has-feedback">
         <label for="adminPassword">Administrator Password</label>
-        <?php echo HTML::inputField('CFG_ADMINISTRATOR_PASSWORD', null, 'required aria-required="true" id="adminPassword"'); ?>
+        <?php 
+echo HTML::input_field('CFG_ADMINISTRATOR_PASSWORD', null, 'required aria-required="true" id="adminPassword"');
+?>
         <span class="help-block">The password to use for the administrator account.</span>
       </div>
 
-<?php
-if (FileSystem::isWritable($dir_fs_document_root) && FileSystem::isWritable($dir_fs_document_root . 'admin')) {
+<?php 
+if (File_System::is_writable($dir_fs_document_root) && File_System::is_writable($dir_fs_document_root . 'admin')) {
     ?>
 
       <div class="form-group has-feedback">
         <label for="adminDir">Administration Directory Name</label>
-        <?php echo HTML::inputField('CFG_ADMIN_DIRECTORY', 'admin', 'required aria-required="true" id="adminDir"'); ?>
+        <?php 
+    echo HTML::input_field('CFG_ADMIN_DIRECTORY', 'admin', 'required aria-required="true" id="adminDir"');
+    ?>
         <span class="help-block">This is the directory where the administration section will be installed. You should change this for security reasons.</span>
       </div>
 
-<?php
+<?php 
 }
 ?>
 
       <div class="form-group has-feedback">
         <label for="Zulu">Time Zone</label>
-        <?php echo HTML::selectField('TIME_ZONE', DateTime::getTimeZones(), date_default_timezone_get(), 'id="Zulu"'); ?>
+        <?php 
+echo HTML::select_field('TIME_ZONE', DateTime::get_time_zones(), date_default_timezone_get(), 'id="Zulu"');
+?>
         <span class="help-block">The time zone to base the date and time on.</span>
       </div>
 
-      <p><?php echo HTML::button('Continue to Step 4', 'triangle-1-e', null, null, 'btn-success'); ?></p>
+      <p><?php 
+echo HTML::button('Continue to Step 4', 'triangle-1-e', null, null, 'btn-success');
+?></p>
 
-<?php
+<?php 
 foreach ($_POST as $key => $value) {
-    if (($key != 'x') && ($key != 'y')) {
-        echo HTML::hiddenField($key, $value);
+    if ($key != 'x' && $key != 'y') {
+        echo HTML::hidden_field($key, $value);
     }
 }
 ?>

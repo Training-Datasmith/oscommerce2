@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Random_* Compatibility Library
  * for using the new PHP 7 random_* API in PHP 5 projects
@@ -27,7 +27,6 @@ declare(strict_types=1);
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 if (!is_callable('random_bytes')) {
     /**
      * If the libsodium PHP extension is loaded, we'll use it above any other
@@ -43,19 +42,13 @@ if (!is_callable('random_bytes')) {
     function random_bytes($bytes): string
     {
         try {
-            $bytes = RandomCompat_intval($bytes);
+            $bytes = random_compat_intval($bytes);
         } catch (TypeError) {
-            throw new TypeError(
-                'random_bytes(): $bytes must be an integer'
-            );
+            throw new TypeError('random_bytes(): $bytes must be an integer');
         }
-
         if ($bytes < 1) {
-            throw new Error(
-                'Length must be greater than 0'
-            );
+            throw new Error('Length must be greater than 0');
         }
-
         /**
          * \Sodium\randombytes_buf() doesn't allow more than 2147483647 bytes to be
          * generated in one invocation.
@@ -63,24 +56,18 @@ if (!is_callable('random_bytes')) {
         if ($bytes > 2147483647) {
             $buf = '';
             for ($i = 0; $i < $bytes; $i += 1073741824) {
-                $n = ($bytes - $i) > 1073741824
-                    ? 1073741824
-                    : $bytes - $i;
+                $n = $bytes - $i > 1073741824 ? 1073741824 : $bytes - $i;
                 $buf .= \Sodium\randombytes_buf($n);
             }
         } else {
             $buf = \Sodium\randombytes_buf($bytes);
         }
-
-        if (RandomCompat_strlen($buf) === $bytes) {
+        if (random_compat_strlen($buf) === $bytes) {
             return $buf;
         }
-
         /**
          * If we reach here, PHP has failed us.
          */
-        throw new Exception(
-            'Could not gather sufficient random data'
-        );
+        throw new Exception('Could not gather sufficient random data');
     }
 }

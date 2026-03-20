@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Random_* Compatibility Library
  * for using the new PHP 7 random_* API in PHP 5 projects
@@ -27,12 +27,8 @@ declare(strict_types=1);
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 if (!is_callable('RandomCompat_strlen')) {
-    if (
-        defined('MB_OVERLOAD_STRING') &&
-        ini_get('mbstring.func_overload') & MB_OVERLOAD_STRING
-    ) {
+    if (defined('MB_OVERLOAD_STRING') && ini_get('mbstring.func_overload') & MB_OVERLOAD_STRING) {
         /**
          * strlen() implementation that isn't brittle to mbstring.func_overload
          *
@@ -43,17 +39,13 @@ if (!is_callable('RandomCompat_strlen')) {
          *
          * @throws TypeError
          */
-        function RandomCompat_strlen($binary_string): int
+        function random_compat_strlen($binary_string): int
         {
             if (!is_string($binary_string)) {
-                throw new TypeError(
-                    'RandomCompat_strlen() expects a string'
-                );
+                throw new TypeError('RandomCompat_strlen() expects a string');
             }
-
             return mb_strlen($binary_string, '8bit');
         }
-
     } else {
         /**
          * strlen() implementation that isn't brittle to mbstring.func_overload
@@ -64,25 +56,17 @@ if (!is_callable('RandomCompat_strlen')) {
          *
          * @throws TypeError
          */
-        function RandomCompat_strlen($binary_string): int
+        function random_compat_strlen($binary_string): int
         {
             if (!is_string($binary_string)) {
-                throw new TypeError(
-                    'RandomCompat_strlen() expects a string'
-                );
+                throw new TypeError('RandomCompat_strlen() expects a string');
             }
             return strlen($binary_string);
         }
     }
 }
-
 if (!is_callable('RandomCompat_substr')) {
-
-    if (
-        defined('MB_OVERLOAD_STRING')
-        &&
-        ini_get('mbstring.func_overload') & MB_OVERLOAD_STRING
-    ) {
+    if (defined('MB_OVERLOAD_STRING') && ini_get('mbstring.func_overload') & MB_OVERLOAD_STRING) {
         /**
          * substr() implementation that isn't brittle to mbstring.func_overload
          *
@@ -97,45 +81,33 @@ if (!is_callable('RandomCompat_substr')) {
          *
          * @return string
          */
-        function RandomCompat_substr($binary_string, $start, $length = null): false|string
+        function random_compat_substr($binary_string, $start, $length = null): false|string
         {
             if (!is_string($binary_string)) {
-                throw new TypeError(
-                    'RandomCompat_substr(): First argument should be a string'
-                );
+                throw new TypeError('RandomCompat_substr(): First argument should be a string');
             }
-
             if (!is_int($start)) {
-                throw new TypeError(
-                    'RandomCompat_substr(): Second argument should be an integer'
-                );
+                throw new TypeError('RandomCompat_substr(): Second argument should be an integer');
             }
-
             if ($length === null) {
                 /**
                  * mb_substr($str, 0, NULL, '8bit') returns an empty string on
                  * PHP 5.3, so we have to find the length ourselves.
                  */
-                $length = RandomCompat_strlen($length) - $start;
+                $length = random_compat_strlen($length) - $start;
             } elseif (!is_int($length)) {
-                throw new TypeError(
-                    'RandomCompat_substr(): Third argument should be an integer, or omitted'
-                );
+                throw new TypeError('RandomCompat_substr(): Third argument should be an integer, or omitted');
             }
-
             // Consistency with PHP's behavior
-            if ($start === RandomCompat_strlen($binary_string) && $length === 0) {
+            if ($start === random_compat_strlen($binary_string) && $length === 0) {
                 return '';
             }
-            if ($start > RandomCompat_strlen($binary_string)) {
+            if ($start > random_compat_strlen($binary_string)) {
                 return false;
             }
-
             return mb_substr($binary_string, $start, $length, '8bit');
         }
-
     } else {
-
         /**
          * substr() implementation that isn't brittle to mbstring.func_overload
          *
@@ -147,30 +119,20 @@ if (!is_callable('RandomCompat_substr')) {
          *
          * @throws TypeError
          */
-        function RandomCompat_substr($binary_string, $start, $length = null): string
+        function random_compat_substr($binary_string, $start, $length = null): string
         {
             if (!is_string($binary_string)) {
-                throw new TypeError(
-                    'RandomCompat_substr(): First argument should be a string'
-                );
+                throw new TypeError('RandomCompat_substr(): First argument should be a string');
             }
-
             if (!is_int($start)) {
-                throw new TypeError(
-                    'RandomCompat_substr(): Second argument should be an integer'
-                );
+                throw new TypeError('RandomCompat_substr(): Second argument should be an integer');
             }
-
             if ($length !== null) {
                 if (!is_int($length)) {
-                    throw new TypeError(
-                        'RandomCompat_substr(): Third argument should be an integer, or omitted'
-                    );
+                    throw new TypeError('RandomCompat_substr(): Third argument should be an integer, or omitted');
                 }
-
                 return substr($binary_string, $start, $length);
             }
-
             return substr($binary_string, $start);
         }
     }

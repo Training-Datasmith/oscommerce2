@@ -1,88 +1,63 @@
 <?php
-/**
-  * osCommerce Online Merchant
-  *
-  * @copyright (c) 2016 osCommerce; https://www.oscommerce.com
-  * @license MIT; https://www.oscommerce.com/license/mit.txt
-  */
 
+/**
+ * osCommerce Online Merchant
+ *
+ * @copyright (c) 2016 osCommerce; https://www.oscommerce.com
+ * @license MIT; https://www.oscommerce.com/license/mit.txt
+ */
 use OSC\OM\Apps;
 use OSC\OM\Cache;
 use OSC\OM\HTTP;
 use OSC\OM\OSCOM;
-
-require('includes/application_top.php');
-
-$action = ($_GET['action'] ?? '');
-
+require 'includes/application_top.php';
+$action = $_GET['action'] ?? '';
 if (tep_not_null($action)) {
     switch ($action) {
         case 'getShowcase':
-            $result = [
-              'result' => -1,
-            ];
-
-            $AppsShowcaseCache = new Cache('apps-showcase');
-
-            if ($AppsShowcaseCache->exists(360)) {
-                $showcase = $AppsShowcaseCache->get();
+            $result = ['result' => -1];
+            $apps_showcase_cache = new Cache('apps-showcase');
+            if ($apps_showcase_cache->exists(360)) {
+                $showcase = $apps_showcase_cache->get();
             } else {
                 $showcase = [];
-
-                $version_url = str_replace('.', '_', OSCOM::getVersion());
-
-                $response = HTTP::getResponse([
-                  'url' => 'https://apps.oscommerce.com/index.php?RPC&GetShowcase&' . $version_url,
-                ]);
-
+                $version_url = str_replace('.', '_', OSCOM::get_version());
+                $response = HTTP::get_response(['url' => 'https://apps.oscommerce.com/index.php?RPC&GetShowcase&' . $version_url]);
                 if (!empty($response)) {
                     $showcase = json_decode((string) $response, true);
                 }
-
-                if (is_array($showcase) && !empty($showcase) && isset($showcase['rpcStatus']) && ($showcase['rpcStatus'] === 1)) {
-                    $AppsShowcaseCache->save($showcase);
+                if (is_array($showcase) && !empty($showcase) && isset($showcase['rpcStatus']) && $showcase['rpcStatus'] === 1) {
+                    $apps_showcase_cache->save($showcase);
                 }
             }
-
-            if (is_array($showcase) && !empty($showcase) && isset($showcase['rpcStatus']) && ($showcase['rpcStatus'] === 1) && isset($showcase['showcase'])) {
+            if (is_array($showcase) && !empty($showcase) && isset($showcase['rpcStatus']) && $showcase['rpcStatus'] === 1 && isset($showcase['showcase'])) {
                 $result['result'] = 1;
                 $result['showcase'] = [];
-
                 foreach ($showcase['showcase'] as $app) {
-                    $result['showcase'][] = [
-                      'vendor' => $app['vendor'],
-                      'app' => $app['app'],
-                      'title' => $app['title'],
-                      'description' => $app['description'],
-                      'is_installed' => Apps::exists($app['vendor'] . '\\' . $app['app']),
-                    ];
+                    $result['showcase'][] = ['vendor' => $app['vendor'], 'app' => $app['app'], 'title' => $app['title'], 'description' => $app['description'], 'is_installed' => Apps::exists($app['vendor'] . '\\' . $app['app'])];
                 }
             }
-
             echo json_encode($result);
             exit;
-
         case 'getInstalledApps':
-            $result = [
-              'result' => -1,
-            ];
-
-            $apps = Apps::getAll();
-
+            $result = ['result' => -1];
+            $apps = Apps::get_all();
             if (is_array($apps)) {
                 $result['result'] = 1;
                 $result['apps'] = $apps;
             }
-
             echo json_encode($result);
             exit;
     }
 }
-
-require($oscTemplate->getFile('template_top.php'));
+require $osc_template->get_file('template_top.php');
 ?>
 
-<h2><i class="fa fa-th-large"></i> <a href="<?= OSCOM::link('apps.php'); ?>"><?= OSCOM::getDef('heading_title'); ?></a></h2>
+<h2><i class="fa fa-th-large"></i> <a href="<?php 
+echo OSCOM::link('apps.php');
+?>"><?php 
+echo OSCOM::get_def('heading_title');
+?></a></h2>
 
 <h3>Showcase Apps</h3>
 
@@ -93,9 +68,15 @@ require($oscTemplate->getFile('template_top.php'));
 <table id="appsInstalledTable" class="oscom-table table table-hover">
   <thead>
     <tr class="info">
-      <th><?= OSCOM::getDef('table_heading_apps'); ?></th>
-      <th><?= OSCOM::getDef('table_heading_vendor'); ?></th>
-      <th class="text-right"><?= OSCOM::getDef('table_heading_version'); ?></th>
+      <th><?php 
+echo OSCOM::get_def('table_heading_apps');
+?></th>
+      <th><?php 
+echo OSCOM::get_def('table_heading_vendor');
+?></th>
+      <th class="text-right"><?php 
+echo OSCOM::get_def('table_heading_version');
+?></th>
       <th class="action"></th>
     </tr>
   </thead>
@@ -129,7 +110,9 @@ $(function() {
 
     $('#appShowcase').append('<div class="row"><div class="text-center"><i class="fa fa-spinner fa-spin fa-2x"></i></div></div>');
 
-    $.get('<?= addslashes((string) OSCOM::link('apps.php', 'action=getShowcase')); ?>', function(response) {
+    $.get('<?php 
+echo addslashes((string) OSCOM::link('apps.php', 'action=getShowcase'));
+?>', function(response) {
       $('#appShowcase').empty();
 
       if ((typeof response == 'object') && ('result' in response) && (response.result === 1)) {
@@ -183,7 +166,9 @@ $(function() {
 
     $('#appsInstalledTable tbody').append('<tr><td colspan="' + $('#appsInstalledTable thead th').length + '"><i class="fa fa-spinner fa-spin"></i></td></tr>');
 
-    $.get('<?= addslashes((string) OSCOM::link('apps.php', 'action=getInstalledApps')); ?>', function(response) {
+    $.get('<?php 
+echo addslashes((string) OSCOM::link('apps.php', 'action=getInstalledApps'));
+?>', function(response) {
       $('#appsInstalledTable tbody').empty();
 
       if ((typeof response == 'object') && ('result' in response) && (response.result === 1)) {
@@ -224,7 +209,6 @@ $(function() {
 });
 </script>
 
-<?php
-  require($oscTemplate->getFile('template_bottom.php'));
-require('includes/application_bottom.php');
-?>
+<?php 
+require $osc_template->get_file('template_bottom.php');
+require 'includes/application_bottom.php';

@@ -1,39 +1,30 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
-  * osCommerce Online Merchant
-  *
-  * @copyright (c) 2016 osCommerce; https://www.oscommerce.com
-  * @license MIT; https://www.oscommerce.com/license/mit.txt
-  */
-
-use OSC\OM\FileSystem;
+ * osCommerce Online Merchant
+ *
+ * @copyright (c) 2016 osCommerce; https://www.oscommerce.com
+ * @license MIT; https://www.oscommerce.com/license/mit.txt
+ */
+use OSC\OM\File_System;
 use OSC\OM\OSCOM;
 use OSC\OM\Registry;
-
-class securityCheck_config_file_catalog
+class Security_Check_config_file_catalog
 {
     public $type = 'warning';
-
     protected $lang;
-
     public function __construct()
     {
         $this->lang = Registry::get('Language');
-
-        $this->lang->loadDefinitions('modules/security_check/config_file_catalog');
+        $this->lang->load_definitions('modules/security_check/config_file_catalog');
     }
-
     public function pass(): bool
     {
-        return !FileSystem::isWritable(OSCOM::getConfig('dir_root', 'Shop') . 'includes/configure.php');
+        return !File_System::is_writable(OSCOM::get_config('dir_root', 'Shop') . 'includes/configure.php');
     }
-
-    public function getMessage()
+    public function get_message()
     {
-        return OSCOM::getDef('warning_config_file_writeable', [
-          'configure_file_path' => OSCOM::getConfig('dir_root', 'Shop') . 'includes/configure.php',
-        ]);
+        return OSCOM::get_def('warning_config_file_writeable', ['configure_file_path' => OSCOM::get_config('dir_root', 'Shop') . 'includes/configure.php']);
     }
 }

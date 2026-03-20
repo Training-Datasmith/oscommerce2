@@ -1,17 +1,15 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
-  * osCommerce Online Merchant
-  *
-  * @copyright (c) 2016 osCommerce; https://www.oscommerce.com
-  * @license MIT; https://www.oscommerce.com/license/mit.txt
-  */
-
+ * osCommerce Online Merchant
+ *
+ * @copyright (c) 2016 osCommerce; https://www.oscommerce.com
+ * @license MIT; https://www.oscommerce.com/license/mit.txt
+ */
 use OSC\OM\HTML;
 use OSC\OM\OSCOM;
 use OSC\OM\Registry;
-
 class sb_google_plus_share
 {
     public $code = 'sb_google_plus_share';
@@ -23,46 +21,36 @@ class sb_google_plus_share
      * @var bool
      */
     public $enabled = false;
-
     protected $lang;
-
     public function __construct()
     {
         $this->lang = Registry::get('Language');
-
-        $this->title = OSCOM::getDef('module_social_bookmarks_google_plus_share_title');
-        $this->public_title = OSCOM::getDef('module_social_bookmarks_google_plus_share_public_title');
-        $this->description = OSCOM::getDef('module_social_bookmarks_google_plus_share_description');
-
+        $this->title = OSCOM::get_def('module_social_bookmarks_google_plus_share_title');
+        $this->public_title = OSCOM::get_def('module_social_bookmarks_google_plus_share_public_title');
+        $this->description = OSCOM::get_def('module_social_bookmarks_google_plus_share_description');
         if (defined('MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_STATUS')) {
             $this->sort_order = MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_SORT_ORDER;
-            $this->enabled = (MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_STATUS == 'True');
+            $this->enabled = MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_STATUS == 'True';
         }
     }
-
-    public function getOutput(): string
+    public function get_output(): string
     {
-        $button_height = (int)MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_HEIGHT;
-
+        $button_height = (int) MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_HEIGHT;
         if (MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_ANNOTATION == 'Vertical-Bubble') {
             $button_height = 60;
         }
-
         $output = '<div class="g-plus" data-action="share" data-href="' . OSCOM::link('product_info.php', 'products_id=' . $_GET['products_id'], false) . '" data-annotation="' . strtolower(MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_ANNOTATION) . '"';
-
-        if ((int)MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_WIDTH > 0) {
-            $output .= ' data-width="' . (int)MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_WIDTH . '"';
+        if ((int) MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_WIDTH > 0) {
+            $output .= ' data-width="' . (int) MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_WIDTH . '"';
         }
-
         $output .= ' data-height="' . $button_height . '" data-align="' . strtolower(MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_ALIGN) . '"></div>';
-
         return $output . ('<script>
   if ( typeof window.___gcfg == "undefined" ) {
     window.___gcfg = { };
   }
 
   if ( typeof window.___gcfg.lang == "undefined" ) {
-    window.___gcfg.lang = "' . HTML::outputProtected($this->lang->get('code')) . '";
+    window.___gcfg.lang = "' . HTML::output_protected($this->lang->get('code')) . '";
   }
 
   (function() {
@@ -72,101 +60,36 @@ class sb_google_plus_share
   })();
 </script>');
     }
-
-    public function isEnabled()
+    public function is_enabled()
     {
         return $this->enabled;
     }
-
-    public function getIcon()
+    public function get_icon()
     {
         return $this->icon;
     }
-
-    public function getPublicTitle()
+    public function get_public_title()
     {
         return $this->public_title;
     }
-
     public function check(): bool
     {
         return defined('MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_STATUS');
     }
-
     public function install(): void
     {
         $OSCOM_Db = Registry::get('Db');
-
-        $OSCOM_Db->save('configuration', [
-          'configuration_title' => 'Enable Google+ Share Module',
-          'configuration_key' => 'MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_STATUS',
-          'configuration_value' => 'True',
-          'configuration_description' => 'Do you want to allow products to be shared through Google+?',
-          'configuration_group_id' => '6',
-          'sort_order' => '1',
-          'set_function' => 'tep_cfg_select_option(array(\'True\', \'False\'), ',
-          'date_added' => 'now()',
-        ]);
-
-        $OSCOM_Db->save('configuration', [
-          'configuration_title' => 'Annotation',
-          'configuration_key' => 'MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_ANNOTATION',
-          'configuration_value' => 'Bubble',
-          'configuration_description' => 'The annotation to display next to the button.',
-          'configuration_group_id' => '6',
-          'sort_order' => '1',
-          'set_function' => 'tep_cfg_select_option(array(\'Inline\', \'Bubble\', \'Vertical-Bubble\', \'None\'), ',
-          'date_added' => 'now()',
-        ]);
-
-        $OSCOM_Db->save('configuration', [
-          'configuration_title' => 'Width',
-          'configuration_key' => 'MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_WIDTH',
-          'configuration_value' => '',
-          'configuration_description' => 'The maximum width of the button.',
-          'configuration_group_id' => '6',
-          'sort_order' => '1',
-          'date_added' => 'now()',
-        ]);
-
-        $OSCOM_Db->save('configuration', [
-          'configuration_title' => 'Height',
-          'configuration_key' => 'MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_HEIGHT',
-          'configuration_value' => '20',
-          'configuration_description' => 'Sets the height of the button.',
-          'configuration_group_id' => '6',
-          'sort_order' => '1',
-          'set_function' => 'tep_cfg_select_option(array(\'15\', \'20\', \'24\', \'60\'), ',
-          'date_added' => 'now()',
-        ]);
-
-        $OSCOM_Db->save('configuration', [
-          'configuration_title' => 'Alignment',
-          'configuration_key' => 'MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_ALIGN',
-          'configuration_value' => 'Left',
-          'configuration_description' => 'The alignment of the button assets.',
-          'configuration_group_id' => '6',
-          'sort_order' => '1',
-          'set_function' => 'tep_cfg_select_option(array(\'Left\', \'Right\'), ',
-          'date_added' => 'now()',
-        ]);
-
-        $OSCOM_Db->save('configuration', [
-          'configuration_title' => 'Sort Order',
-          'configuration_key' => 'MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_SORT_ORDER',
-          'configuration_value' => '0',
-          'configuration_description' => 'Sort order of display. Lowest is displayed first.',
-          'configuration_group_id' => '6',
-          'sort_order' => '0',
-          'date_added' => 'now()',
-        ]);
+        $OSCOM_Db->save('configuration', ['configuration_title' => 'Enable Google+ Share Module', 'configuration_key' => 'MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_STATUS', 'configuration_value' => 'True', 'configuration_description' => 'Do you want to allow products to be shared through Google+?', 'configuration_group_id' => '6', 'sort_order' => '1', 'set_function' => 'tep_cfg_select_option(array(\'True\', \'False\'), ', 'date_added' => 'now()']);
+        $OSCOM_Db->save('configuration', ['configuration_title' => 'Annotation', 'configuration_key' => 'MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_ANNOTATION', 'configuration_value' => 'Bubble', 'configuration_description' => 'The annotation to display next to the button.', 'configuration_group_id' => '6', 'sort_order' => '1', 'set_function' => 'tep_cfg_select_option(array(\'Inline\', \'Bubble\', \'Vertical-Bubble\', \'None\'), ', 'date_added' => 'now()']);
+        $OSCOM_Db->save('configuration', ['configuration_title' => 'Width', 'configuration_key' => 'MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_WIDTH', 'configuration_value' => '', 'configuration_description' => 'The maximum width of the button.', 'configuration_group_id' => '6', 'sort_order' => '1', 'date_added' => 'now()']);
+        $OSCOM_Db->save('configuration', ['configuration_title' => 'Height', 'configuration_key' => 'MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_HEIGHT', 'configuration_value' => '20', 'configuration_description' => 'Sets the height of the button.', 'configuration_group_id' => '6', 'sort_order' => '1', 'set_function' => 'tep_cfg_select_option(array(\'15\', \'20\', \'24\', \'60\'), ', 'date_added' => 'now()']);
+        $OSCOM_Db->save('configuration', ['configuration_title' => 'Alignment', 'configuration_key' => 'MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_ALIGN', 'configuration_value' => 'Left', 'configuration_description' => 'The alignment of the button assets.', 'configuration_group_id' => '6', 'sort_order' => '1', 'set_function' => 'tep_cfg_select_option(array(\'Left\', \'Right\'), ', 'date_added' => 'now()']);
+        $OSCOM_Db->save('configuration', ['configuration_title' => 'Sort Order', 'configuration_key' => 'MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_SORT_ORDER', 'configuration_value' => '0', 'configuration_description' => 'Sort order of display. Lowest is displayed first.', 'configuration_group_id' => '6', 'sort_order' => '0', 'date_added' => 'now()']);
     }
-
     public function remove()
     {
         return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
-
     public function keys(): array
     {
         return ['MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_STATUS', 'MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_ANNOTATION', 'MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_WIDTH', 'MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_HEIGHT', 'MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_ALIGN', 'MODULE_SOCIAL_BOOKMARKS_GOOGLE_PLUS_SHARE_SORT_ORDER'];

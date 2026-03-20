@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Random_* Compatibility Library
  * for using the new PHP 7 random_* API in PHP 5 projects
@@ -27,7 +27,6 @@ declare(strict_types=1);
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 if (!is_callable('random_bytes')) {
     /**
      * Windows with PHP < 5.3.0 will not have the function
@@ -43,43 +42,33 @@ if (!is_callable('random_bytes')) {
     function random_bytes($bytes)
     {
         try {
-            $bytes = RandomCompat_intval($bytes);
+            $bytes = random_compat_intval($bytes);
         } catch (TypeError) {
-            throw new TypeError(
-                'random_bytes(): $bytes must be an integer'
-            );
+            throw new TypeError('random_bytes(): $bytes must be an integer');
         }
-
         if ($bytes < 1) {
-            throw new Error(
-                'Length must be greater than 0'
-            );
+            throw new Error('Length must be greater than 0');
         }
-
         $buf = '';
         $util = new COM('CAPICOM.Utilities.1');
-        $execCount = 0;
-
+        $exec_count = 0;
         /**
          * Let's not let it loop forever. If we run N times and fail to
          * get N bytes of random data, then CAPICOM has failed us.
          */
         do {
-            $buf .= base64_decode($util->GetRandom($bytes, 0));
-            if (RandomCompat_strlen($buf) >= $bytes) {
+            $buf .= base64_decode($util->get_random($bytes, 0));
+            if (random_compat_strlen($buf) >= $bytes) {
                 /**
                  * Return our random entropy buffer here:
                  */
-                return RandomCompat_substr($buf, 0, $bytes);
+                return random_compat_substr($buf, 0, $bytes);
             }
-            ++$execCount;
-        } while ($execCount < $bytes);
-
+            ++$exec_count;
+        } while ($exec_count < $bytes);
         /**
          * If we reach here, PHP has failed us.
          */
-        throw new Exception(
-            'Could not gather sufficient random data'
-        );
+        throw new Exception('Could not gather sufficient random data');
     }
 }

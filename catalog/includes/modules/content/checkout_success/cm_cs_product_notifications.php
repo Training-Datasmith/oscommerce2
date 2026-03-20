@@ -1,17 +1,15 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
-  * osCommerce Online Merchant
-  *
-  * @copyright (c) 2016 osCommerce; https://www.oscommerce.com
-  * @license MIT; https://www.oscommerce.com/license/mit.txt
-  */
-
+ * osCommerce Online Merchant
+ *
+ * @copyright (c) 2016 osCommerce; https://www.oscommerce.com
+ * @license MIT; https://www.oscommerce.com/license/mit.txt
+ */
 use OSC\OM\HTML;
 use OSC\OM\OSCOM;
 use OSC\OM\Registry;
-
 class cm_cs_product_notifications
 {
     /**
@@ -29,115 +27,72 @@ class cm_cs_product_notifications
      * @var bool
      */
     public $enabled = false;
-
     public function __construct()
     {
         $this->code = static::class;
         $this->group = basename(__DIR__);
-
-        $this->title = OSCOM::getDef('module_content_checkout_success_product_notifications_title');
-        $this->description = OSCOM::getDef('module_content_checkout_success_product_notifications_description');
-
+        $this->title = OSCOM::get_def('module_content_checkout_success_product_notifications_title');
+        $this->description = OSCOM::get_def('module_content_checkout_success_product_notifications_description');
         if (defined('MODULE_CONTENT_CHECKOUT_SUCCESS_PRODUCT_NOTIFICATIONS_STATUS')) {
             $this->sort_order = MODULE_CONTENT_CHECKOUT_SUCCESS_PRODUCT_NOTIFICATIONS_SORT_ORDER;
-            $this->enabled = (MODULE_CONTENT_CHECKOUT_SUCCESS_PRODUCT_NOTIFICATIONS_STATUS == 'True');
+            $this->enabled = MODULE_CONTENT_CHECKOUT_SUCCESS_PRODUCT_NOTIFICATIONS_STATUS == 'True';
         }
     }
-
     public function execute(): void
     {
-        global $oscTemplate, $order_id;
-
+        global $osc_template, $order_id;
         $OSCOM_Db = Registry::get('Db');
-
         if (isset($_SESSION['customer_id'])) {
             $Qglobal = $OSCOM_Db->get('customers_info', 'global_product_notifications', ['customers_info_id' => $_SESSION['customer_id']]);
-
-            if ($Qglobal->valueInt('global_product_notifications') !== 1) {
-                if (isset($_GET['action']) && ($_GET['action'] == 'update')) {
+            if ($Qglobal->value_int('global_product_notifications') !== 1) {
+                if (isset($_GET['action']) && $_GET['action'] == 'update') {
                     if (isset($_POST['notify']) && is_array($_POST['notify']) && !empty($_POST['notify'])) {
                         $notify = array_unique($_POST['notify']);
-
                         foreach ($notify as $n) {
-                            if (is_numeric($n) && ($n > 0)) {
-                                $Qcheck = $OSCOM_Db->get('products_notifications', 'products_id', ['products_id' => (int)$n, 'customers_id' => $_SESSION['customer_id']], null, 1);
-
+                            if (is_numeric($n) && $n > 0) {
+                                $Qcheck = $OSCOM_Db->get('products_notifications', 'products_id', ['products_id' => (int) $n, 'customers_id' => $_SESSION['customer_id']], null, 1);
                                 if ($Qcheck->fetch() === false) {
-                                    $OSCOM_Db->save('products_notifications', [
-                                      'products_id' => (int)$n,
-                                      'customers_id' => $_SESSION['customer_id'],
-                                      'date_added' => 'now()',
-                                    ]);
+                                    $OSCOM_Db->save('products_notifications', ['products_id' => (int) $n, 'customers_id' => $_SESSION['customer_id'], 'date_added' => 'now()']);
                                 }
                             }
                         }
                     }
                 }
-
                 $products_displayed = [];
-
                 $Qproducts = $OSCOM_Db->get('orders_products', ['products_id', 'products_name'], ['orders_id' => $order_id], 'products_name');
-
                 while ($Qproducts->fetch()) {
-                    if (!isset($products_displayed[$Qproducts->valueInt('products_id')])) {
-                        $products_displayed[$Qproducts->valueInt('products_id')]  = '<div class="checkbox"><label>' . HTML::checkboxField('notify[]', $Qproducts->valueInt('products_id')) . ' ' . $Qproducts->value('products_name') . '</label></div>';
+                    if (!isset($products_displayed[$Qproducts->value_int('products_id')])) {
+                        $products_displayed[$Qproducts->value_int('products_id')] = '<div class="checkbox"><label>' . HTML::checkbox_field('notify[]', $Qproducts->value_int('products_id')) . ' ' . $Qproducts->value('products_name') . '</label></div>';
                     }
                 }
-
                 $products_notifications = implode('', $products_displayed);
-
                 ob_start();
-                include('includes/modules/content/' . $this->group . '/templates/product_notifications.php');
+                include 'includes/modules/content/' . $this->group . '/templates/product_notifications.php';
                 $template = ob_get_clean();
-
-                $oscTemplate->addContent($template, $this->group);
+                $osc_template->add_content($template, $this->group);
             }
         }
     }
-
-    public function isEnabled()
+    public function is_enabled()
     {
         return $this->enabled;
     }
-
     public function check(): bool
     {
         return defined('MODULE_CONTENT_CHECKOUT_SUCCESS_PRODUCT_NOTIFICATIONS_STATUS');
     }
-
     public function install(): void
     {
         $OSCOM_Db = Registry::get('Db');
-
-        $OSCOM_Db->save('configuration', [
-          'configuration_title' => 'Enable Product Notifications Module',
-          'configuration_key' => 'MODULE_CONTENT_CHECKOUT_SUCCESS_PRODUCT_NOTIFICATIONS_STATUS',
-          'configuration_value' => 'True',
-          'configuration_description' => 'Should the product notifications block be shown on the checkout success page?',
-          'configuration_group_id' => '6',
-          'sort_order' => '1',
-          'set_function' => 'tep_cfg_select_option(array(\'True\', \'False\'), ',
-          'date_added' => 'now()',
-        ]);
-
-        $OSCOM_Db->save('configuration', [
-          'configuration_title' => 'Sort Order',
-          'configuration_key' => 'MODULE_CONTENT_CHECKOUT_SUCCESS_PRODUCT_NOTIFICATIONS_SORT_ORDER',
-          'configuration_value' => '0',
-          'configuration_description' => 'Sort order of display. Lowest is displayed first.',
-          'configuration_group_id' => '6',
-          'sort_order' => '0',
-          'date_added' => 'now()',
-        ]);
+        $OSCOM_Db->save('configuration', ['configuration_title' => 'Enable Product Notifications Module', 'configuration_key' => 'MODULE_CONTENT_CHECKOUT_SUCCESS_PRODUCT_NOTIFICATIONS_STATUS', 'configuration_value' => 'True', 'configuration_description' => 'Should the product notifications block be shown on the checkout success page?', 'configuration_group_id' => '6', 'sort_order' => '1', 'set_function' => 'tep_cfg_select_option(array(\'True\', \'False\'), ', 'date_added' => 'now()']);
+        $OSCOM_Db->save('configuration', ['configuration_title' => 'Sort Order', 'configuration_key' => 'MODULE_CONTENT_CHECKOUT_SUCCESS_PRODUCT_NOTIFICATIONS_SORT_ORDER', 'configuration_value' => '0', 'configuration_description' => 'Sort order of display. Lowest is displayed first.', 'configuration_group_id' => '6', 'sort_order' => '0', 'date_added' => 'now()']);
     }
-
     public function remove()
     {
         return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
-
     public function keys(): array
     {
-        return ['MODULE_CONTENT_CHECKOUT_SUCCESS_PRODUCT_NOTIFICATIONS_STATUS','MODULE_CONTENT_CHECKOUT_SUCCESS_PRODUCT_NOTIFICATIONS_SORT_ORDER'];
+        return ['MODULE_CONTENT_CHECKOUT_SUCCESS_PRODUCT_NOTIFICATIONS_STATUS', 'MODULE_CONTENT_CHECKOUT_SUCCESS_PRODUCT_NOTIFICATIONS_SORT_ORDER'];
     }
 }

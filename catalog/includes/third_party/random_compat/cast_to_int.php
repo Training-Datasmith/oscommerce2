@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Random_* Compatibility Library
  * for using the new PHP 7 random_* API in PHP 5 projects
@@ -27,9 +27,7 @@ declare(strict_types=1);
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 if (!is_callable('RandomCompat_intval')) {
-
     /**
      * Cast to an integer if we can, safely.
      *
@@ -46,28 +44,17 @@ if (!is_callable('RandomCompat_intval')) {
      *
      * @throws TypeError
      */
-    function RandomCompat_intval($number, $fail_open = false): int|float
+    function random_compat_intval($number, $fail_open = false): int|float
     {
         if (is_numeric($number)) {
             $number += 0;
         }
-
-        if (
-            is_float($number)
-            &&
-            $number > ~PHP_INT_MAX
-            &&
-            $number < PHP_INT_MAX
-        ) {
+        if (is_float($number) && $number > ~PHP_INT_MAX && $number < PHP_INT_MAX) {
             $number = (int) $number;
         }
-
         if (is_int($number) || $fail_open) {
             return $number;
         }
-
-        throw new TypeError(
-            'Expected an integer.'
-        );
+        throw new TypeError('Expected an integer.');
     }
 }

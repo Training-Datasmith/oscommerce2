@@ -1,17 +1,15 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
-  * osCommerce Online Merchant
-  *
-  * @copyright (c) 2016 osCommerce; https://www.oscommerce.com
-  * @license MIT; https://www.oscommerce.com/license/mit.txt
-  */
-
+ * osCommerce Online Merchant
+ *
+ * @copyright (c) 2016 osCommerce; https://www.oscommerce.com
+ * @license MIT; https://www.oscommerce.com/license/mit.txt
+ */
 use OSC\OM\HTML;
 use OSC\OM\OSCOM;
 use OSC\OM\Registry;
-
 class sb_email
 {
     public $code = 'sb_email';
@@ -23,75 +21,46 @@ class sb_email
      * @var bool
      */
     public $enabled = false;
-
     public function __construct()
     {
-        $this->title = OSCOM::getDef('module_social_bookmarks_email_title');
-        $this->public_title = OSCOM::getDef('module_social_bookmarks_email_public_title');
-        $this->description = OSCOM::getDef('module_social_bookmarks_email_description');
-
+        $this->title = OSCOM::get_def('module_social_bookmarks_email_title');
+        $this->public_title = OSCOM::get_def('module_social_bookmarks_email_public_title');
+        $this->description = OSCOM::get_def('module_social_bookmarks_email_description');
         if (defined('MODULE_SOCIAL_BOOKMARKS_EMAIL_STATUS')) {
             $this->sort_order = MODULE_SOCIAL_BOOKMARKS_EMAIL_SORT_ORDER;
-            $this->enabled = (MODULE_SOCIAL_BOOKMARKS_EMAIL_STATUS == 'True');
+            $this->enabled = MODULE_SOCIAL_BOOKMARKS_EMAIL_STATUS == 'True';
         }
     }
-
-    public function getOutput(): string
+    public function get_output(): string
     {
-        return '<a href="' . OSCOM::link('tell_a_friend.php', 'products_id=' . $_GET['products_id']) . '"><img src="' . OSCOM::linkImage('social_bookmarks/' . $this->icon) . '" border="0" title="' . HTML::outputProtected($this->public_title) . '" alt="' . HTML::outputProtected($this->public_title) . '" /></a>';
+        return '<a href="' . OSCOM::link('tell_a_friend.php', 'products_id=' . $_GET['products_id']) . '"><img src="' . OSCOM::link_image('social_bookmarks/' . $this->icon) . '" border="0" title="' . HTML::output_protected($this->public_title) . '" alt="' . HTML::output_protected($this->public_title) . '" /></a>';
     }
-
-    public function isEnabled()
+    public function is_enabled()
     {
         return $this->enabled;
     }
-
-    public function getIcon()
+    public function get_icon()
     {
         return $this->icon;
     }
-
-    public function getPublicTitle()
+    public function get_public_title()
     {
         return $this->public_title;
     }
-
     public function check(): bool
     {
         return defined('MODULE_SOCIAL_BOOKMARKS_EMAIL_STATUS');
     }
-
     public function install(): void
     {
         $OSCOM_Db = Registry::get('Db');
-
-        $OSCOM_Db->save('configuration', [
-          'configuration_title' => 'Enable E-Mail Module',
-          'configuration_key' => 'MODULE_SOCIAL_BOOKMARKS_EMAIL_STATUS',
-          'configuration_value' => 'True',
-          'configuration_description' => 'Do you want to allow products to be shared through e-mail?',
-          'configuration_group_id' => '6',
-          'sort_order' => '1',
-          'set_function' => 'tep_cfg_select_option(array(\'True\', \'False\'), ',
-          'date_added' => 'now()',
-        ]);
-
-        $OSCOM_Db->save('configuration', [
-          'configuration_title' => 'Sort Order',
-          'configuration_key' => 'MODULE_SOCIAL_BOOKMARKS_EMAIL_SORT_ORDER',
-          'configuration_value' => '0',
-          'configuration_description' => 'Sort order of display. Lowest is displayed first.',
-          'configuration_group_id' => '6',
-          'sort_order' => '0',
-          'date_added' => 'now()',
-        ]);
+        $OSCOM_Db->save('configuration', ['configuration_title' => 'Enable E-Mail Module', 'configuration_key' => 'MODULE_SOCIAL_BOOKMARKS_EMAIL_STATUS', 'configuration_value' => 'True', 'configuration_description' => 'Do you want to allow products to be shared through e-mail?', 'configuration_group_id' => '6', 'sort_order' => '1', 'set_function' => 'tep_cfg_select_option(array(\'True\', \'False\'), ', 'date_added' => 'now()']);
+        $OSCOM_Db->save('configuration', ['configuration_title' => 'Sort Order', 'configuration_key' => 'MODULE_SOCIAL_BOOKMARKS_EMAIL_SORT_ORDER', 'configuration_value' => '0', 'configuration_description' => 'Sort order of display. Lowest is displayed first.', 'configuration_group_id' => '6', 'sort_order' => '0', 'date_added' => 'now()']);
     }
-
     public function remove()
     {
         return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
-
     public function keys(): array
     {
         return ['MODULE_SOCIAL_BOOKMARKS_EMAIL_STATUS', 'MODULE_SOCIAL_BOOKMARKS_EMAIL_SORT_ORDER'];

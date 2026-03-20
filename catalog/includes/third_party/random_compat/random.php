@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Random_* Compatibility Library
  * for using the new PHP 7 random_* API in PHP 5 projects
@@ -30,15 +30,9 @@ declare(strict_types=1);
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 if (!defined('PHP_VERSION_ID')) {
     // This constant was introduced in PHP 5.2.7
-    $RandomCompatversion = array_map(intval(...), explode('.', PHP_VERSION));
-    define(
-        'PHP_VERSION_ID',
-        $RandomCompatversion[0] * 10000
-        + $RandomCompatversion[1] * 100
-        + $RandomCompatversion[2]
-    );
-    $RandomCompatversion = null;
+    $random_compatversion = array_map(intval(...), explode('.', PHP_VERSION));
+    define('PHP_VERSION_ID', $random_compatversion[0] * 10000 + $random_compatversion[1] * 100 + $random_compatversion[2]);
+    $random_compatversion = null;
 }

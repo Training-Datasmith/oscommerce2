@@ -1,105 +1,80 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
-  * osCommerce Online Merchant
-  *
-  * @copyright (c) 2016 osCommerce; https://www.oscommerce.com
-  * @license MIT; https://www.oscommerce.com/license/mit.txt
-  */
-
+ * osCommerce Online Merchant
+ *
+ * @copyright (c) 2016 osCommerce; https://www.oscommerce.com
+ * @license MIT; https://www.oscommerce.com/license/mit.txt
+ */
 namespace OSC\Sites\Admin;
 
 use OSC\OM\Apps;
 use OSC\OM\Cookies;
 use OSC\OM\Db;
-use OSC\OM\ErrorHandler;
-use OSC\OM\FileSystem;
+use OSC\OM\Error_Handler;
+use OSC\OM\File_System;
 use OSC\OM\Hooks;
 use OSC\OM\Language;
-use OSC\OM\MessageStack;
+use OSC\OM\Message_Stack;
 use OSC\OM\OSCOM;
 use OSC\OM\Registry;
 use OSC\OM\Session;
-
-class Admin extends \OSC\OM\SitesAbstract
+class Admin extends \OSC\OM\Sites_Abstract
 {
     protected function init()
     {
-        global $PHP_SELF, $login_request, $cfgModules, $oscTemplate;
-
+        global $PHP_SELF, $login_request, $cfg_modules, $osc_template;
         $OSCOM_Cookies = new Cookies();
         Registry::set('Cookies', $OSCOM_Cookies);
-
         try {
             $OSCOM_Db = Db::initialize();
             Registry::set('Db', $OSCOM_Db);
         } catch (\Exception $e) {
-            include(OSCOM::getConfig('dir_root', 'Shop') . 'includes/error_documents/maintenance.php');
+            include OSCOM::get_config('dir_root', 'Shop') . 'includes/error_documents/maintenance.php';
             exit;
         }
-
         Registry::set('Hooks', new Hooks());
-
-        Registry::set('MessageStack', new MessageStack());
-
+        Registry::set('MessageStack', new Message_Stack());
         // set the application parameters
-        $Qcfg = $OSCOM_Db->get('configuration', [
-            'configuration_key as k',
-            'configuration_value as v',
-        ]);//, null, null, null, 'configuration'); // TODO add cache when supported by admin
-
+        $Qcfg = $OSCOM_Db->get('configuration', ['configuration_key as k', 'configuration_value as v']);
+        //, null, null, null, 'configuration'); // TODO add cache when supported by admin
         while ($Qcfg->fetch()) {
             define($Qcfg->value('k'), $Qcfg->value('v'));
         }
-
         // Used in the "Backup Manager" to compress backups
         define('LOCAL_EXE_GZIP', 'gzip');
         define('LOCAL_EXE_GUNZIP', 'gunzip');
         define('LOCAL_EXE_ZIP', 'zip');
         define('LOCAL_EXE_UNZIP', 'unzip');
-
         // set php_self in the global scope
         $req = parse_url((string) $_SERVER['SCRIPT_NAME']);
-        $PHP_SELF = substr($req['path'], strlen((string) OSCOM::getConfig('http_path')));
-
+        $PHP_SELF = substr($req['path'], strlen((string) OSCOM::get_config('http_path')));
         $OSCOM_Session = Session::load();
         Registry::set('Session', $OSCOM_Session);
-
         $OSCOM_Session->start();
-
         $OSCOM_Language = new Language();
         Registry::set('Language', $OSCOM_Language);
-
         // set the language
         if (!isset($_SESSION['language']) || isset($_GET['language'])) {
             if (isset($_GET['language']) && !empty($_GET['language']) && $OSCOM_Language->exists($_GET['language'])) {
                 $OSCOM_Language->set($_GET['language']);
             }
-
             $_SESSION['language'] = $OSCOM_Language->get('code');
         }
-
         // redirect to login page if administrator is not yet logged in
         if (!isset($_SESSION['admin'])) {
             $redirect = false;
-
             $current_page = $PHP_SELF;
-
             // if the first page request is to the login page, set the current page to the index page
             // so the redirection on a successful login is not made to the login page again
-            if (($current_page == FILENAME_LOGIN) && !isset($_SESSION['redirect_origin'])) {
+            if ($current_page == FILENAME_LOGIN && !isset($_SESSION['redirect_origin'])) {
                 $current_page = FILENAME_DEFAULT;
             }
-
             if ($current_page != FILENAME_LOGIN) {
                 if (!isset($_SESSION['redirect_origin'])) {
-                    $_SESSION['redirect_origin'] = [
-                        'page' => $current_page,
-                        'get' => [],
-                    ];
+                    $_SESSION['redirect_origin'] = ['page' => $current_page, 'get' => []];
                 }
-
                 // try to automatically login with the HTTP Authentication values if it exists
                 if (!isset($_SESSION['auth_ignore'])) {
                     if (isset($_SERVER['PHP_AUTH_USER']) && !empty($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['PHP_AUTH_PW']) && !empty($_SERVER['PHP_AUTH_PW'])) {
@@ -107,88 +82,66 @@ class Admin extends \OSC\OM\SitesAbstract
                         $_SESSION['redirect_origin']['auth_pw'] = $_SERVER['PHP_AUTH_PW'];
                     }
                 }
-
                 $redirect = true;
             }
-
             if (!isset($login_request) || isset($_GET['login_request']) || isset($_POST['login_request']) || isset($_COOKIE['login_request']) || isset($_SESSION['login_request']) || isset($_FILES['login_request']) || isset($_SERVER['login_request'])) {
                 $redirect = true;
             }
-
             if ($redirect == true) {
-                OSCOM::redirect(FILENAME_LOGIN, (isset($_SESSION['redirect_origin']['auth_user']) ? 'action=process' : ''));
+                OSCOM::redirect(FILENAME_LOGIN, isset($_SESSION['redirect_origin']['auth_user']) ? 'action=process' : '');
             }
         }
-
         // include the language translations
-        $OSCOM_Language->loadDefinitions('main');
-
+        $OSCOM_Language->load_definitions('main');
         // Prevent LC_ALL from setting LC_NUMERIC to a locale with 1,0 float/decimal values instead of 1.0 (see bug #634)
         $system_locale_numeric = setlocale(LC_NUMERIC, 0);
-        setlocale(LC_ALL, explode(';', (string) OSCOM::getDef('system_locale')));
+        setlocale(LC_ALL, explode(';', (string) OSCOM::get_def('system_locale')));
         setlocale(LC_NUMERIC, $system_locale_numeric);
-
         $current_page = basename($PHP_SELF);
-
-        if ($OSCOM_Language->definitionsExist(pathinfo($current_page, PATHINFO_FILENAME))) {
-            $OSCOM_Language->loadDefinitions(pathinfo($current_page, PATHINFO_FILENAME));
+        if ($OSCOM_Language->definitions_exist(pathinfo($current_page, PATHINFO_FILENAME))) {
+            $OSCOM_Language->load_definitions(pathinfo($current_page, PATHINFO_FILENAME));
         }
-
-        $oscTemplate = new \oscTemplate();
-
-        $cfgModules = new \cfg_modules();
-
-        if (!FileSystem::isWritable(ErrorHandler::getDirectory())) {
-            Registry::get('MessageStack')->add('The log directory is not writable. Please allow the web server to write to: ' . FileSystem::displayPath(ErrorHandler::getDirectory()));
+        $osc_template = new \Osc_Template();
+        $cfg_modules = new \cfg_modules();
+        if (!File_System::is_writable(Error_Handler::get_directory())) {
+            Registry::get('MessageStack')->add('The log directory is not writable. Please allow the web server to write to: ' . File_System::display_path(Error_Handler::get_directory()));
         }
     }
-
-    public function setPage(): void
+    public function set_page(): void
     {
         if (!empty($_GET)) {
             $req = basename((string) array_keys($_GET)[0]);
-
-            if (($req == 'A') && (count($_GET) > 1)) {
+            if ($req == 'A' && count($_GET) > 1) {
                 $app = array_keys($_GET)[1];
-
                 if (str_contains((string) $app, '\\')) {
                     [$vendor, $app] = explode('\\', (string) $app);
-
-                    if (Apps::exists($vendor . '\\' . $app) && ($page = Apps::getRouteDestination(null, $vendor . '\\' . $app)) !== null) {
+                    if (Apps::exists($vendor . '\\' . $app) && ($page = Apps::get_route_destination(null, $vendor . '\\' . $app)) !== null) {
                         // get controller class name from namespace
                         $page_namespace = explode('\\', $page);
                         $page_code = $page_namespace[count($page_namespace) - 1];
-
                         if (class_exists('OSC\Apps\\' . $vendor . '\\' . $app . '\\' . $page . '\\' . $page_code)) {
                             $this->app = $vendor . '\\' . $app;
                             $this->route = $this->app . '\\' . $page;
                             $this->actions_index = 2;
-
                             $class = 'OSC\Apps\\' . $this->app . '\\' . $page . '\\' . $page_code;
                         }
                     }
                 }
-            } else {
-                if (class_exists('OSC\Sites\\' . $this->code . '\Pages\\' . $req . '\\' . $req)) {
-                    $page_code = $req;
-
-                    $class = 'OSC\Sites\\' . $this->code . '\Pages\\' . $page_code . '\\' . $page_code;
-                }
+            } else if (class_exists('OSC\Sites\\' . $this->code . '\Pages\\' . $req . '\\' . $req)) {
+                $page_code = $req;
+                $class = 'OSC\Sites\\' . $this->code . '\Pages\\' . $page_code . '\\' . $page_code;
             }
         }
-
         if (isset($class)) {
-            if (is_subclass_of($class, \OSC\OM\PagesInterface::class)) {
+            if (is_subclass_of($class, \OSC\OM\Pages_Interface::class)) {
                 $this->page = new $class($this);
-
-                $this->page->runActions();
+                $this->page->run_actions();
             } else {
                 trigger_error('OSC\Sites\Admin\Admin::setPage() - ' . $page_code . ': Page does not implement OSC\OM\PagesInterface and cannot be loaded.');
             }
         }
     }
-
-    public static function resolveRoute(array $route, array $routes)
+    public static function resolve_route(array $route, array $routes)
     {
         return array_values($routes)[0];
     }

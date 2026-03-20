@@ -1,6 +1,6 @@
 <?php
-use OSC\OM\HTML;
 
+use OSC\OM\HTML;
 ?>
 
 <div class="row">
@@ -42,38 +42,47 @@ use OSC\OM\HTML;
     <form name="install" id="installForm" action="install.php?step=2" method="post">
       <div class="form-group has-feedback">
         <label for="dbServer">Database Server</label>
-        <?php echo HTML::inputField('DB_SERVER', null, 'required aria-required="true" id="dbServer" placeholder="localhost"'); ?>
+        <?php 
+echo HTML::input_field('DB_SERVER', null, 'required aria-required="true" id="dbServer" placeholder="localhost"');
+?>
         <span class="help-block">The address of the database server in the form of a hostname or IP address.</span>
       </div>
 
       <div class="form-group has-feedback">
         <label for="username">Username</label>
-        <?php echo HTML::inputField('DB_SERVER_USERNAME', null, 'required aria-required="true" id="username"'); ?>
+        <?php 
+echo HTML::input_field('DB_SERVER_USERNAME', null, 'required aria-required="true" id="username"');
+?>
         <span class="help-block">The username used to connect to the database server.</span>
       </div>
 
       <div class="form-group">
         <label for="password">Password</label>
-        <?php echo HTML::passwordField('DB_SERVER_PASSWORD', null, 'id="password"'); ?>
+        <?php 
+echo HTML::password_field('DB_SERVER_PASSWORD', null, 'id="password"');
+?>
         <span class="help-block">The password that is used together with the username to connect to the database server.</span>
       </div>
 
       <div class="form-group has-feedback">
         <label for="dbName">Database Name</label>
-        <?php echo HTML::inputField('DB_DATABASE', null, 'required aria-required="true" id="dbName"'); ?>
+        <?php 
+echo HTML::input_field('DB_DATABASE', null, 'required aria-required="true" id="dbName"');
+?>
         <span class="help-block">The name of the database to hold the data in.</span>
       </div>
 
       <div class="form-group">
         <label for="dbTablePrefix">Table Prefix</label>
-        <?php echo HTML::inputField('DB_TABLE_PREFIX', 'osc_', 'id="dbTablePrefix"'); ?>
+        <?php 
+echo HTML::input_field('DB_TABLE_PREFIX', 'osc_', 'id="dbTablePrefix"');
+?>
         <span class="help-block">Prefix all table names in the database with this value.</span>
       </div>
 
       <p>
-        <?=
-          HTML::button('Continue to Step 2', 'triangle-1-e', null, ['params' => 'id="buttonDoImport"'], 'btn-success') . '&nbsp;' .
-          HTML::button('or continue and skip database import', null, null, ['params' => 'id="buttonSkipImport"'], 'btn-link');
+        <?php 
+echo HTML::button('Continue to Step 2', 'triangle-1-e', null, ['params' => 'id="buttonDoImport"'], 'btn-success') . '&nbsp;' . HTML::button('or continue and skip database import', null, null, ['params' => 'id="buttonSkipImport"'], 'btn-link');
 ?>
       </p>
     </form>

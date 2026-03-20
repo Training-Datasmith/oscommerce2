@@ -1,60 +1,50 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 use OSC\OM\Mail;
 use OSC\OM\Registry;
-
 class mc360
 {
     public $system = 'osc';
     public $version = '1.1';
-
     /**
      * @var true
      */
     public $debug = false;
-
     public $apikey = '';
     /**
      * @var bool
      */
     public $key_valid = false;
     public $store_id = '';
-
     public function __construct()
     {
         $this->apikey = MODULE_HEADER_TAGS_MAILCHIMP_360_API_KEY;
         $this->store_id = MODULE_HEADER_TAGS_MAILCHIMP_360_STORE_ID;
-        $this->key_valid = ((MODULE_HEADER_TAGS_MAILCHIMP_360_KEY_VALID == 'true') ? true : false);
-
+        $this->key_valid = MODULE_HEADER_TAGS_MAILCHIMP_360_KEY_VALID == 'true' ? true : false;
         if (tep_not_null(MODULE_HEADER_TAGS_MAILCHIMP_360_DEBUG_EMAIL)) {
             $this->debug = true;
         }
-
         $this->validate_cfg();
     }
-
     public function complain(string $msg): void
     {
-        echo '<div style="position:absolute;left:0;top:0;width:100%;font-size:24px;text-align:center;background:#CCCCCC;color:#660000">MC360 Module: '.$msg.'</div><br />';
+        echo '<div style="position:absolute;left:0;top:0;width:100%;font-size:24px;text-align:center;background:#CCCCCC;color:#660000">MC360 Module: ' . $msg . '</div><br />';
     }
-
     public function validate_cfg(): void
     {
         $OSCOM_Db = Registry::get('Db');
-
         $this->valid_cfg = false;
         if (empty($this->apikey)) {
             $this->complain('You have not entered your API key. Please read the installation instructions.');
             return;
         }
-
         if (!$this->key_valid) {
             $GLOBALS['mc_api_key'] = $this->apikey;
             $api = new MCAPI('notused', 'notused');
             $res = $api->ping();
-            if ($api->errorMessage != '') {
-                $this->complain('Server said: "'.$api->errorMessage.'". Your API key is likely invalid. Please read the installation instructions.');
+            if ($api->error_message != '') {
+                $this->complain('Server said: "' . $api->error_message . '". Your API key is likely invalid. Please read the installation instructions.');
                 return;
             }
             $this->key_valid = true;
@@ -64,7 +54,6 @@ class mc360
                 $OSCOM_Db->save('configuration', ['configuration_value' => $this->store_id], ['configuration_key' => 'MODULE_HEADER_TAGS_MAILCHIMP_360_STORE_ID']);
             }
         }
-
         if (empty($this->store_id)) {
             $this->complain('Your Store ID has not been set. This is not good. Contact support.');
         } else {
@@ -84,72 +73,38 @@ class mc360
             setcookie('mailchimp_email_id', trim((string) $_REQUEST['mc_eid']), ['expires' => $thirty_days]);
         }
     }
-
     public function process(): void
     {
         if (!$this->valid_cfg) {
             return;
         }
-
         global $order, $insert_id;
-
         $OSCOM_Db = Registry::get('Db');
-
-        $orderId = $insert_id; // just to make it obvious.
-
+        $order_id = $insert_id;
+        // just to make it obvious.
         $debug_email = '';
-
         if ($this->debug) {
-            $debug_email .= '------------[New Order ' . $orderId . ']-----------------' . "\n" .
-                            '$order =' . "\n" .
-                            print_r($order, true) .
-                            '$_COOKIE =' . "\n" .
-                            print_r($_COOKIE, true);
+            $debug_email .= '------------[New Order ' . $order_id . ']-----------------' . "\n" . '$order =' . "\n" . print_r($order, true) . '$_COOKIE =' . "\n" . print_r($_COOKIE, true);
         }
-
         if (!isset($_COOKIE['mailchimp_campaign_id']) || !isset($_COOKIE['mailchimp_email_id'])) {
             return;
         }
-
         if ($this->debug) {
-            $debug_email .= date('Y-m-d H:i:s') . ' current ids:' . "\n" .
-                            date('Y-m-d H:i:s') . ' eid =' . $_COOKIE['mailchimp_email_id'] . "\n" .
-                            date('Y-m-d H:i:s') . ' cid =' . $_COOKIE['mailchimp_campaign_id'] . "\n";
+            $debug_email .= date('Y-m-d H:i:s') . ' current ids:' . "\n" . date('Y-m-d H:i:s') . ' eid =' . $_COOKIE['mailchimp_email_id'] . "\n" . date('Y-m-d H:i:s') . ' cid =' . $_COOKIE['mailchimp_campaign_id'] . "\n";
         }
-
         $Qorder = $OSCOM_Db->get('orders', 'orders_id', ['customers_id' => $_SESSION['customer_id']], 'date_purchased desc', 1);
-
         $totals_array = [];
-        $Qtotals = $OSCOM_Db->get('orders_total', ['value', 'class'], ['orders_id' => $Qorder->valueInt('orders_id')]);
+        $Qtotals = $OSCOM_Db->get('orders_total', ['value', 'class'], ['orders_id' => $Qorder->value_int('orders_id')]);
         while ($Qtotals->fetch()) {
             $totals_array[$Qtotals->value('class')] = $Qtotals->value('value');
         }
-
         $products_array = [];
-        $Qproducts = $OSCOM_Db->get('orders_products', ['products_id', 'products_model', 'products_name', 'products_tax', 'products_quantity', 'final_price'], ['orders_id' => $Qorder->valueInt('orders_id')]);
+        $Qproducts = $OSCOM_Db->get('orders_products', ['products_id', 'products_model', 'products_name', 'products_tax', 'products_quantity', 'final_price'], ['orders_id' => $Qorder->value_int('orders_id')]);
         while ($Qproducts->fetch()) {
-            $products_array[] = ['id' => $Qproducts->valueInt('products_id'),
-                                    'name' => $Qproducts->value('products_name'),
-                                    'model' => $Qproducts->value('products_model'),
-                                    'qty' => $Qproducts->value('products_quantity'),
-                                    'final_price' => $Qproducts->value('final_price'),
-                                    ];
+            $products_array[] = ['id' => $Qproducts->value_int('products_id'), 'name' => $Qproducts->value('products_name'), 'model' => $Qproducts->value('products_model'), 'qty' => $Qproducts->value('products_quantity'), 'final_price' => $Qproducts->value('final_price')];
             $totals_array['ot_tax'] += $Qproducts->value('product_tax');
         }
-
-        $mcorder = [
-                'id' => $Qorder->valueInt('orders_id'),
-                'total' => $totals_array['ot_total'],
-                'shipping' => $totals_array['ot_shipping'],
-                'tax'  => $totals_array['ot_tax'],
-                'items' => [],
-                'store_id' => $this->store_id,
-                'store_name' => $_SERVER['SERVER_NAME'],
-                'campaign_id' => $_COOKIE['mailchimp_campaign_id'],
-                'email_id' => $_COOKIE['mailchimp_email_id'],
-                'plugin_id' => 1216,
-                ];
-
+        $mcorder = ['id' => $Qorder->value_int('orders_id'), 'total' => $totals_array['ot_total'], 'shipping' => $totals_array['ot_shipping'], 'tax' => $totals_array['ot_tax'], 'items' => [], 'store_id' => $this->store_id, 'store_name' => $_SERVER['SERVER_NAME'], 'campaign_id' => $_COOKIE['mailchimp_campaign_id'], 'email_id' => $_COOKIE['mailchimp_email_id'], 'plugin_id' => 1216];
         foreach ($products_array as $product) {
             $item = [];
             $item['line_num'] = $line;
@@ -158,52 +113,46 @@ class mc360
             $item['sku'] = $product['model'];
             $item['qty'] = $product['qty'];
             $item['cost'] = $product['final_price'];
-
             //All this to get a silly category name from here
             $Qcat = $OSCOM_Db->get('products_to_categories', 'categories_id', ['products_id' => $product['id']], null, 1);
-
-            $cat_id = $Qcat->valueInt('categories_id');
-
+            $cat_id = $Qcat->value_int('categories_id');
             $item['category_id'] = $cat_id;
             $continue = true;
             while ($continue) {
                 //now recurse up the categories tree...
                 $Qcat = $OSCOM_Db->prepare('select c.categories_id, c.parent_id, cd.categories_name from :table_categories c inner join :table_categories_description cd on c.categories_id = cd.categories_id where c.categories_id = :categories_id');
-                $Qcat->bindInt(':categories_id', $cat_id);
+                $Qcat->bind_int(':categories_id', $cat_id);
                 $Qcat->execute();
-
                 if ($cat_name == '') {
                     $cat_name = $Qcat->value('categories_name');
                 } else {
-                    $cat_name = $Qcat->value('categories_name') .' - '.$cat_name;
+                    $cat_name = $Qcat->value('categories_name') . ' - ' . $cat_name;
                 }
-                $cat_id = $Qcat->valueInt('parent_id');
+                $cat_id = $Qcat->value_int('parent_id');
                 if ($cat_id == 0) {
                     $continue = false;
                 }
             }
             $item['category_name'] = $cat_name;
-
             $mcorder['items'][] = $item;
         }
-
         $GLOBALS['mc_api_key'] = $this->apikey;
         $api = new MCAPI('notused', 'notused');
-        $api->campaignEcommAddOrder($mcorder);
-        if ($api->errorMessage != '') {
+        $api->campaign_ecomm_add_order($mcorder);
+        if ($api->error_message != '') {
             if ($this->debug) {
-                $debug_email .= 'Error:' . "\n" .
-                                 $api->errorMessage . "\n";
+                $debug_email .= 'Error:' . "\n" . $api->error_message . "\n";
             }
         } else {
             //nothing
         }
         // send!()
-
         if ($this->debug && !empty($debug_email)) {
-            $debugEmail = new Mail(MODULE_HEADER_TAGS_MAILCHIMP_360_DEBUG_EMAIL, null, STORE_OWNER_EMAIL_ADDRESS, STORE_OWNER, 'MailChimp Debug E-Mail');
-            $debugEmail->setBody($debug_email);
-            $debugEmail->send();
+            $debug_email = new Mail(MODULE_HEADER_TAGS_MAILCHIMP_360_DEBUG_EMAIL, null, STORE_OWNER_EMAIL_ADDRESS, STORE_OWNER, 'MailChimp Debug E-Mail');
+            $debug_email->set_body($debug_email);
+            $debug_email->send();
         }
-    }//update
-}//mc360 class
+    }
+    //update
+}
+//mc360 class

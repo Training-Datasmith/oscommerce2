@@ -1,35 +1,30 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
-  * osCommerce Online Merchant
-  *
-  * @copyright (c) 2016 osCommerce; https://www.oscommerce.com
-  * @license MIT; https://www.oscommerce.com/license/mit.txt
-  */
-
-class box extends tableBlock
+ * osCommerce Online Merchant
+ *
+ * @copyright (c) 2016 osCommerce; https://www.oscommerce.com
+ * @license MIT; https://www.oscommerce.com/license/mit.txt
+ */
+class box extends Table_Block
 {
     public function __construct()
     {
         $this->heading = [];
         $this->contents = [];
     }
-
-    public function infoBox($heading, $contents): string
+    public function info_box($heading, $contents): string
     {
         $this->table_row_parameters = 'class="infoBoxHeading"';
         $this->table_data_parameters = 'class="infoBoxHeading"';
-        $this->heading = $this->tableBlock($heading);
-
+        $this->heading = $this->table_block($heading);
         $this->table_row_parameters = '';
         $this->table_data_parameters = 'class="infoBoxContent"';
-        $this->contents = $this->tableBlock($contents);
-
+        $this->contents = $this->table_block($contents);
         return $this->heading . $this->contents;
     }
-
-    public function menuBox($heading, $contents): string
+    public function menu_box($heading, $contents): string
     {
         $this->table_data_parameters = 'class="menuBoxHeading"';
         if (isset($heading[0]['link'])) {
@@ -38,11 +33,9 @@ class box extends tableBlock
         } else {
             $heading[0]['text'] = '&nbsp;' . $heading[0]['text'] . '&nbsp;';
         }
-        $this->heading = $this->tableBlock($heading);
-
+        $this->heading = $this->table_block($heading);
         $this->table_data_parameters = 'class="menuBoxContent"';
-        $this->contents = (!empty($contents) ? $this->tableBlock($contents) : '');
-
+        $this->contents = !empty($contents) ? $this->table_block($contents) : '';
         return $this->heading . $this->contents;
     }
 }

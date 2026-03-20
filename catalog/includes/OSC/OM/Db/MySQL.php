@@ -1,16 +1,15 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
-  * osCommerce Online Merchant
-  *
-  * @copyright (c) 2016 osCommerce; https://www.oscommerce.com
-  * @license MIT; https://www.oscommerce.com/license/mit.txt
-  */
-
+ * osCommerce Online Merchant
+ *
+ * @copyright (c) 2016 osCommerce; https://www.oscommerce.com
+ * @license MIT; https://www.oscommerce.com/license/mit.txt
+ */
 namespace OSC\OM\Db;
 
-class MySQL extends \OSC\OM\Db
+class My_Sql extends \OSC\OM\Db
 {
     public function __construct($server, $username, $password, $database, $port, $driver_options, $options)
     {
@@ -21,7 +20,6 @@ class MySQL extends \OSC\OM\Db
         $this->port = $port;
         $this->driver_options = $driver_options;
         $this->options = $options;
-
         if (!isset($this->driver_options[\PDO::MYSQL_ATTR_INIT_COMMAND])) {
             // STRICT_ALL_TABLES 5.0.2
             // NO_ZERO_DATE 5.0.2
@@ -30,34 +28,25 @@ class MySQL extends \OSC\OM\Db
             // NO_ENGINE_SUBSTITUTION 5.0.8
             $this->driver_options[\PDO::MYSQL_ATTR_INIT_COMMAND] = 'set session sql_mode="STRICT_ALL_TABLES,NO_ZERO_DATE,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION"';
         }
-
         return $this->connect();
     }
-
     public function connect(): static
     {
         $dsn_array = [];
-
         if (!empty($this->database)) {
             $dsn_array[] = 'dbname=' . $this->database;
         }
-
-        if ((str_contains((string) $this->server, '/')) || (str_contains((string) $this->server, '\\'))) {
+        if (str_contains((string) $this->server, '/') || str_contains((string) $this->server, '\\')) {
             $dsn_array[] = 'unix_socket=' . $this->server;
         } else {
             $dsn_array[] = 'host=' . $this->server;
-
             if (!empty($this->port)) {
                 $dsn_array[] = 'port=' . $this->port;
             }
         }
-
         $dsn_array[] = 'charset=utf8';
-
         $dsn = 'mysql:' . implode(';', $dsn_array);
-
         $this->connected = true;
-
         return parent::__construct($dsn, $this->username, $this->password, $this->driver_options);
     }
 }

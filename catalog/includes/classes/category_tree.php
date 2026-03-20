@@ -1,20 +1,17 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
-  * osCommerce Online Merchant
-  *
-  * @copyright (c) 2016 osCommerce; https://www.oscommerce.com
-  * @license MIT; https://www.oscommerce.com/license/mit.txt
-  */
-
+ * osCommerce Online Merchant
+ *
+ * @copyright (c) 2016 osCommerce; https://www.oscommerce.com
+ * @license MIT; https://www.oscommerce.com/license/mit.txt
+ */
 use OSC\OM\OSCOM;
 use OSC\OM\Registry;
-
 class category_tree implements \Stringable
 {
     protected $_data = [];
-
     public $root_category_id = 0;
     public $max_level = 0;
     public $root_start_string = '';
@@ -34,126 +31,99 @@ class category_tree implements \Stringable
     public $cpath_array = [];
     public $cpath_start_string = '';
     public $cpath_end_string = '';
-
     public function __construct()
     {
         static $_category_tree_data;
-
         $OSCOM_Db = Registry::get('Db');
         $OSCOM_Language = Registry::get('Language');
-
         if (isset($_category_tree_data)) {
             $this->_data = $_category_tree_data;
         } else {
             $Qcategories = $OSCOM_Db->prepare('select c.categories_id, c.parent_id, c.categories_image, cd.categories_name from :table_categories c, :table_categories_description cd where c.categories_id = cd.categories_id and cd.language_id = :language_id order by c.parent_id, c.sort_order, cd.categories_name');
-            $Qcategories->bindInt(':language_id', $OSCOM_Language->getId());
-            $Qcategories->setCache('categories-lang' . $OSCOM_Language->getId());
+            $Qcategories->bind_int(':language_id', $OSCOM_Language->get_id());
+            $Qcategories->set_cache('categories-lang' . $OSCOM_Language->get_id());
             $Qcategories->execute();
-
             while ($Qcategories->fetch()) {
-                $this->_data[$Qcategories->valueInt('parent_id')][$Qcategories->valueInt('categories_id')] = ['name' => $Qcategories->value('categories_name'),
-                                                                                                                   'image' => $Qcategories->value('categories_image')];
+                $this->_data[$Qcategories->value_int('parent_id')][$Qcategories->value_int('categories_id')] = ['name' => $Qcategories->value('categories_name'), 'image' => $Qcategories->value('categories_image')];
             }
-
             $_category_tree_data = $this->_data;
         }
     }
-
-    protected function _buildBranch($parent_id, $level = 0): string
+    protected function _build_branch($parent_id, $level = 0): string
     {
-        $result = ((($level === 0) && ($this->parent_group_apply_to_root === true)) || ($level > 0)) ? $this->parent_group_start_string : null;
-
+        $result = $level === 0 && $this->parent_group_apply_to_root === true || $level > 0 ? $this->parent_group_start_string : null;
         if (isset($this->_data[$parent_id])) {
             foreach ($this->_data[$parent_id] as $category_id => $category) {
                 if ($this->breadcrumb_usage === true) {
-                    $category_link = $this->buildBreadcrumb($category_id);
+                    $category_link = $this->build_breadcrumb($category_id);
                 } else {
                     $category_link = $category_id;
                 }
-
                 $result .= $this->child_start_string;
-
                 if (isset($this->_data[$category_id])) {
                     $result .= $this->parent_start_string;
                 }
-
                 if ($level === 0) {
                     $result .= $this->root_start_string;
                 }
-
-                if (($this->follow_cpath === true) && in_array($category_id, $this->cpath_array)) {
+                if ($this->follow_cpath === true && in_array($category_id, $this->cpath_array)) {
                     $link_title = $this->cpath_start_string . $category['name'] . $this->cpath_end_string;
                 } else {
                     $link_title = $category['name'];
                 }
-
                 $result .= '<a href="' . OSCOM::link('index.php', 'cPath=' . $category_link) . '">';
                 $result .= str_repeat((string) $this->spacer_string, $this->spacer_multiplier * $level);
                 $result .= $link_title . '</a>';
-
                 if ($level === 0) {
                     $result .= $this->root_end_string;
                 }
-
                 if (isset($this->_data[$category_id])) {
                     $result .= $this->parent_end_string;
                 }
-
-                if (isset($this->_data[$category_id]) && (($this->max_level == '0') || ($this->max_level > $level + 1))) {
+                if (isset($this->_data[$category_id]) && ($this->max_level == '0' || $this->max_level > $level + 1)) {
                     if ($this->follow_cpath === true) {
                         if (in_array($category_id, $this->cpath_array)) {
-                            $result .= $this->_buildBranch($category_id, $level + 1);
+                            $result .= $this->_build_branch($category_id, $level + 1);
                         }
                     } else {
-                        $result .= $this->_buildBranch($category_id, $level + 1);
+                        $result .= $this->_build_branch($category_id, $level + 1);
                     }
                 }
-
                 $result .= $this->child_end_string;
             }
         }
-
-        $result .= ((($level === 0) && ($this->parent_group_apply_to_root === true)) || ($level > 0)) ? $this->parent_group_end_string : null;
-
+        $result .= $level === 0 && $this->parent_group_apply_to_root === true || $level > 0 ? $this->parent_group_end_string : null;
         return $result;
     }
-
-    public function buildBranchArray($parent_id, $level = 0, $result = '')
+    public function build_branch_array($parent_id, $level = 0, $result = '')
     {
         if (empty($result)) {
             $result = [];
         }
-
         if (isset($this->_data[$parent_id])) {
             foreach ($this->_data[$parent_id] as $category_id => $category) {
                 if ($this->breadcrumb_usage == true) {
-                    $category_link = $this->buildBreadcrumb($category_id);
+                    $category_link = $this->build_breadcrumb($category_id);
                 } else {
                     $category_link = $category_id;
                 }
-
-                $result[] = ['id' => $category_link,
-                                  'title' => str_repeat((string) $this->spacer_string, $this->spacer_multiplier * $level) . $category['name']];
-
-                if (isset($this->_data[$category_id]) && (($this->max_level == '0') || ($this->max_level > $level + 1))) {
+                $result[] = ['id' => $category_link, 'title' => str_repeat((string) $this->spacer_string, $this->spacer_multiplier * $level) . $category['name']];
+                if (isset($this->_data[$category_id]) && ($this->max_level == '0' || $this->max_level > $level + 1)) {
                     if ($this->follow_cpath === true) {
                         if (in_array($category_id, $this->cpath_array)) {
-                            $result = $this->buildBranchArray($category_id, $level + 1, $result);
+                            $result = $this->build_branch_array($category_id, $level + 1, $result);
                         }
                     } else {
-                        $result = $this->buildBranchArray($category_id, $level + 1, $result);
+                        $result = $this->build_branch_array($category_id, $level + 1, $result);
                     }
                 }
             }
         }
-
         return $result;
     }
-
-    public function buildBreadcrumb($category_id, $level = 0)
+    public function build_breadcrumb($category_id, $level = 0)
     {
         $breadcrumb = '';
-
         foreach ($this->_data as $parent => $categories) {
             foreach ($categories as $id => $info) {
                 if ($id == $category_id) {
@@ -162,48 +132,41 @@ class category_tree implements \Stringable
                     } else {
                         $breadcrumb = $id . $this->breadcrumb_separator . $breadcrumb;
                     }
-
                     if ($parent != $this->root_category_id) {
-                        $breadcrumb = $this->buildBreadcrumb($parent, $level + 1) . $breadcrumb;
+                        $breadcrumb = $this->build_breadcrumb($parent, $level + 1) . $breadcrumb;
                     }
                 }
             }
         }
-
         return $breadcrumb;
     }
-
     /**
      * Return a formated string representation of the category structure relationship data
      *
      * @access public
      * @return string
      */
-
-    public function getTree()
+    public function get_tree()
     {
-        return $this->_buildBranch($this->root_category_id);
+        return $this->_build_branch($this->root_category_id);
     }
-
     /**
-         * Magic function; return a formated string representation of the category structure relationship data
-         *
-         * This is used when echoing the class object, eg:
-         *
-         * echo $osC_CategoryTree;
-         *
-         * @access public
-         */
+     * Magic function; return a formated string representation of the category structure relationship data
+     *
+     * This is used when echoing the class object, eg:
+     *
+     * echo $osC_CategoryTree;
+     *
+     * @access public
+     */
     public function __toString(): string
     {
-        return $this->getTree();
+        return $this->get_tree();
     }
-
-    public function getArray($parent_id = '')
+    public function get_array($parent_id = '')
     {
-        return $this->buildBranchArray((empty($parent_id) ? $this->root_category_id : $parent_id));
+        return $this->build_branch_array(empty($parent_id) ? $this->root_category_id : $parent_id);
     }
-
     public function exists($id): bool
     {
         foreach ($this->_data as $categories) {
@@ -213,24 +176,20 @@ class category_tree implements \Stringable
                 }
             }
         }
-
         return false;
     }
-
-    public function getChildren($category_id, &$array = [])
+    public function get_children($category_id, &$array = [])
     {
         foreach ($this->_data as $parent => $categories) {
             if ($parent == $category_id) {
                 foreach ($categories as $id => $info) {
                     $array[] = $id;
-                    $this->getChildren($id, $array);
+                    $this->get_children($id, $array);
                 }
             }
         }
-
         return $array;
     }
-
     /**
      * Return category information
      *
@@ -239,25 +198,18 @@ class category_tree implements \Stringable
      * @return mixed
      * @since v3.0.0
      */
-
-    public function getData($id, $key = null)
+    public function get_data($id, $key = null)
     {
         foreach ($this->_data as $parent => $categories) {
             foreach ($categories as $category_id => $info) {
                 if ($id == $category_id) {
-                    $data = ['id' => $id,
-                                  'name' => $info['name'],
-                                  'parent_id' => $parent,
-                                  'image' => $info['image']];
-
-                    return (isset($key) ? $data[$key] : $data);
+                    $data = ['id' => $id, 'name' => $info['name'], 'parent_id' => $parent, 'image' => $info['image']];
+                    return isset($key) ? $data[$key] : $data;
                 }
             }
         }
-
         return false;
     }
-
     /**
      * Return the parent ID of a category
      *
@@ -265,53 +217,44 @@ class category_tree implements \Stringable
      * @return int
      * @since v3.0.2
      */
-
-    public function getParentID($id)
+    public function get_parent_id($id)
     {
-        return $this->getData($id, 'parent_id');
+        return $this->get_data($id, 'parent_id');
     }
-
-    public function setRootCategoryID($root_category_id): void
+    public function set_root_category_id($root_category_id): void
     {
         $this->root_category_id = $root_category_id;
     }
-
-    public function setMaximumLevel($max_level): void
+    public function set_maximum_level($max_level): void
     {
         $this->max_level = $max_level;
     }
-
-    public function setRootString($root_start_string, $root_end_string): void
+    public function set_root_string($root_start_string, $root_end_string): void
     {
         $this->root_start_string = $root_start_string;
         $this->root_end_string = $root_end_string;
     }
-
-    public function setParentString($parent_start_string, $parent_end_string): void
+    public function set_parent_string($parent_start_string, $parent_end_string): void
     {
         $this->parent_start_string = $parent_start_string;
         $this->parent_end_string = $parent_end_string;
     }
-
-    public function setParentGroupString($parent_group_start_string, $parent_group_end_string, $apply_to_root = false): void
+    public function set_parent_group_string($parent_group_start_string, $parent_group_end_string, $apply_to_root = false): void
     {
         $this->parent_group_start_string = $parent_group_start_string;
         $this->parent_group_end_string = $parent_group_end_string;
         $this->parent_group_apply_to_root = $apply_to_root;
     }
-
-    public function setChildString($child_start_string, $child_end_string): void
+    public function set_child_string($child_start_string, $child_end_string): void
     {
         $this->child_start_string = $child_start_string;
         $this->child_end_string = $child_end_string;
     }
-
-    public function setBreadcrumbSeparator($breadcrumb_separator): void
+    public function set_breadcrumb_separator($breadcrumb_separator): void
     {
         $this->breadcrumb_separator = $breadcrumb_separator;
     }
-
-    public function setBreadcrumbUsage($breadcrumb_usage): void
+    public function set_breadcrumb_usage($breadcrumb_usage): void
     {
         if ($breadcrumb_usage === true) {
             $this->breadcrumb_usage = true;
@@ -319,22 +262,19 @@ class category_tree implements \Stringable
             $this->breadcrumb_usage = false;
         }
     }
-
-    public function setSpacerString($spacer_string, $spacer_multiplier = 2): void
+    public function set_spacer_string($spacer_string, $spacer_multiplier = 2): void
     {
         $this->spacer_string = $spacer_string;
         $this->spacer_multiplier = $spacer_multiplier;
     }
-
-    public function setCategoryPath($cpath, $cpath_start_string = '', $cpath_end_string = ''): void
+    public function set_category_path($cpath, $cpath_start_string = '', $cpath_end_string = ''): void
     {
         $this->follow_cpath = true;
         $this->cpath_array = explode($this->breadcrumb_separator, (string) $cpath);
         $this->cpath_start_string = $cpath_start_string;
         $this->cpath_end_string = $cpath_end_string;
     }
-
-    public function setFollowCategoryPath($follow_cpath): void
+    public function set_follow_category_path($follow_cpath): void
     {
         if ($follow_cpath === true) {
             $this->follow_cpath = true;
@@ -342,8 +282,7 @@ class category_tree implements \Stringable
             $this->follow_cpath = false;
         }
     }
-
-    public function setCategoryPathString($cpath_start_string, $cpath_end_string): void
+    public function set_category_path_string($cpath_start_string, $cpath_end_string): void
     {
         $this->cpath_start_string = $cpath_start_string;
         $this->cpath_end_string = $cpath_end_string;

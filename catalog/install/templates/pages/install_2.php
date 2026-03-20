@@ -1,24 +1,20 @@
 <?php
-use OSC\OM\FileSystem;
+
+use OSC\OM\File_System;
 use OSC\OM\HTML;
 use OSC\OM\OSCOM;
-
-if ((isset($_SERVER['HTTPS']) && (strtolower((string) $_SERVER['HTTPS']) == 'on')) || (isset($_SERVER['SERVER_PORT']) && ($_SERVER['SERVER_PORT'] == 443))) {
+if (isset($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) == 'on' || isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443) {
     $conn = 'https';
 } else {
     $conn = 'http';
 }
-
 $www_location = $conn . '://' . $_SERVER['HTTP_HOST'];
-
 if (isset($_SERVER['REQUEST_URI']) && !empty($_SERVER['REQUEST_URI'])) {
     $www_location .= $_SERVER['REQUEST_URI'];
 } else {
     $www_location .= $_SERVER['SCRIPT_FILENAME'];
 }
-
 $www_location = substr($www_location, 0, strpos($www_location, 'install'));
-
 $dir_fs_www_root = dirname(OSCOM::BASE_DIR, 2) . '/';
 ?>
 
@@ -59,22 +55,28 @@ $dir_fs_www_root = dirname(OSCOM::BASE_DIR, 2) . '/';
     <form name="install" id="installForm" action="install.php?step=3" method="post">
       <div class="form-group has-feedback">
         <label for="wwwAddress">WWW Address</label>
-        <?php echo HTML::inputField('HTTP_WWW_ADDRESS', $www_location, 'required aria-required="true" id="wwwAddress" placeholder="http://"'); ?>
+        <?php 
+echo HTML::input_field('HTTP_WWW_ADDRESS', $www_location, 'required aria-required="true" id="wwwAddress" placeholder="http://"');
+?>
         <span class="help-block">The web address to the online store.</span>
       </div>
 
       <div class="form-group has-feedback">
         <label for="webRoot">Webserver Root Directory</label>
-        <?php echo HTML::inputField('DIR_FS_DOCUMENT_ROOT', str_replace('\\', '/', FileSystem::displayPath($dir_fs_www_root)), 'required aria-required="true" id="webRoot"'); ?>
+        <?php 
+echo HTML::input_field('DIR_FS_DOCUMENT_ROOT', str_replace('\\', '/', File_System::display_path($dir_fs_www_root)), 'required aria-required="true" id="webRoot"');
+?>
         <span class="help-block">The directory where the online store is installed on the server.</span>
       </div>
 
-      <p><?php echo HTML::button('Continue to Step 3', 'triangle-1-e', null, null, 'btn-success'); ?></p>
+      <p><?php 
+echo HTML::button('Continue to Step 3', 'triangle-1-e', null, null, 'btn-success');
+?></p>
 
-<?php
+<?php 
 foreach ($_POST as $key => $value) {
-    if (($key != 'x') && ($key != 'y')) {
-        echo HTML::hiddenField($key, $value);
+    if ($key != 'x' && $key != 'y') {
+        echo HTML::hidden_field($key, $value);
     }
 }
 ?>

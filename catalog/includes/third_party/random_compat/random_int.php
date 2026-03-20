@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Random_* Compatibility Library
  * for using the new PHP 7 random_* API in PHP 5 projects
@@ -46,38 +46,27 @@ function random_int($min, $max): int
      * lose precision, so the <= and => operators might accidentally let a float
      * through.
      */
-
     try {
-        $min = RandomCompat_intval($min);
+        $min = random_compat_intval($min);
     } catch (TypeError) {
-        throw new TypeError(
-            'random_int(): $min must be an integer'
-        );
+        throw new TypeError('random_int(): $min must be an integer');
     }
-
     try {
-        $max = RandomCompat_intval($max);
+        $max = random_compat_intval($max);
     } catch (TypeError) {
-        throw new TypeError(
-            'random_int(): $max must be an integer'
-        );
+        throw new TypeError('random_int(): $max must be an integer');
     }
-
     /**
      * Now that we've verified our weak typing system has given us an integer,
      * let's validate the logic then we can move forward with generating random
      * integers along a given range.
      */
     if ($min > $max) {
-        throw new Error(
-            'Minimum value must be less than or equal to the maximum value'
-        );
+        throw new Error('Minimum value must be less than or equal to the maximum value');
     }
-
     if ($max === $min) {
         return $min;
     }
-
     /**
      * Initialize variables to 0
      *
@@ -86,20 +75,17 @@ function random_int($min, $max): int
      * $mask => an integer bitmask (for use with the &) operator
      *          so we can minimize the number of discards
      */
-    $attempts = $bits = $bytes = $mask = $valueShift = 0;
-
+    $attempts = $bits = $bytes = $mask = $value_shift = 0;
     /**
      * At this point, $range is a positive number greater than 0. It might
      * overflow, however, if $max - $min > PHP_INT_MAX. PHP will cast it to
      * a float and we will lose some precision.
      */
     $range = $max - $min;
-
     /**
      * Test for integer overflow:
      */
     if (!is_int($range)) {
-
         /**
          * Still safely calculate wider ranges.
          * Provided by @CodesInChaos, @oittaa
@@ -113,9 +99,7 @@ function random_int($min, $max): int
          */
         $bytes = PHP_INT_SIZE;
         $mask = ~0;
-
     } else {
-
         /**
          * $bits is effectively ceil(log($range, 2)) without dealing with
          * type juggling
@@ -128,9 +112,8 @@ function random_int($min, $max): int
             $range >>= 1;
             $mask = $mask << 1 | 1;
         }
-        $valueShift = $min;
+        $value_shift = $min;
     }
-
     /**
      * Now that we have our parameters set up, let's begin generating
      * random integers until one falls between $min and $max
@@ -141,21 +124,15 @@ function random_int($min, $max): int
          * to a failure probability of 2^-128 for a working RNG
          */
         if ($attempts > 128) {
-            throw new Exception(
-                'random_int: RNG is broken - too many rejections'
-            );
+            throw new Exception('random_int: RNG is broken - too many rejections');
         }
-
         /**
          * Let's grab the necessary number of random bytes
          */
-        $randomByteString = random_bytes($bytes);
-        if ($randomByteString === false) {
-            throw new Exception(
-                'Random number generator failure'
-            );
+        $random_byte_string = random_bytes($bytes);
+        if ($random_byte_string === false) {
+            throw new Exception('Random number generator failure');
         }
-
         /**
          * Let's turn $randomByteString into an integer
          *
@@ -168,15 +145,13 @@ function random_int($min, $max): int
          */
         $val = 0;
         for ($i = 0; $i < $bytes; ++$i) {
-            $val |= ord($randomByteString[$i]) << ($i * 8);
+            $val |= ord($random_byte_string[$i]) << $i * 8;
         }
-
         /**
          * Apply mask
          */
         $val &= $mask;
-        $val += $valueShift;
-
+        $val += $value_shift;
         ++$attempts;
         /**
          * If $val overflows to a floating point number,
@@ -185,6 +160,5 @@ function random_int($min, $max): int
          * then try again.
          */
     } while (!is_int($val) || $val > $max || $val < $min);
-
     return $val;
 }

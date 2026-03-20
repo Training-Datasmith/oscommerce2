@@ -1,117 +1,69 @@
 <?php
-/**
-  * osCommerce Online Merchant
-  *
-  * @copyright (c) 2016 osCommerce; https://www.oscommerce.com
-  * @license MIT; https://www.oscommerce.com/license/mit.txt
-  */
 
+/**
+ * osCommerce Online Merchant
+ *
+ * @copyright (c) 2016 osCommerce; https://www.oscommerce.com
+ * @license MIT; https://www.oscommerce.com/license/mit.txt
+ */
 use OSC\OM\HTML;
 use OSC\OM\OSCOM;
 use OSC\OM\Registry;
-
-require('includes/application_top.php');
-
+require 'includes/application_top.php';
 /**
  * @return mixed[]
  */
 function tep_dt_get_tables(): array
 {
     $OSCOM_Db = Registry::get('Db');
-
     $result = [];
-
     $Qtables = $OSCOM_Db->query('show table status');
-
     while ($Qtables->fetch()) {
         $result[] = $Qtables->value('Name');
     }
-
     return $result;
 }
-
-$mysql_charsets = [
-  [
-    'id' => 'auto',
-    'text' => OSCOM::getDef('action_utf8_conversion_from_autodetect'),
-  ],
-];
-
+$mysql_charsets = [['id' => 'auto', 'text' => OSCOM::get_def('action_utf8_conversion_from_autodetect')]];
 $Qcharsets = $OSCOM_Db->query('show character set');
-
 while ($Qcharsets->fetch()) {
-    $mysql_charsets[] = [
-      'id' => $Qcharsets->value('Charset'),
-      'text' => OSCOM::getDef('action_utf8_conversion_from', ['char_set' => $Qcharsets->value('Charset')]),
-    ];
+    $mysql_charsets[] = ['id' => $Qcharsets->value('Charset'), 'text' => OSCOM::get_def('action_utf8_conversion_from', ['char_set' => $Qcharsets->value('Charset')])];
 }
-
 $action = null;
-$actions = [['id' => 'check',
-                       'text' => OSCOM::getDef('action_check_tables')],
-                 ['id' => 'analyze',
-                       'text' => OSCOM::getDef('action_analyze_tables')],
-                 ['id' => 'optimize',
-                       'text' => OSCOM::getDef('action_optimize_tables')],
-                 ['id' => 'repair',
-                       'text' => OSCOM::getDef('action_repair_tables')],
-                 ['id' => 'utf8',
-                       'text' => OSCOM::getDef('action_utf8_conversion')]];
-
+$actions = [['id' => 'check', 'text' => OSCOM::get_def('action_check_tables')], ['id' => 'analyze', 'text' => OSCOM::get_def('action_analyze_tables')], ['id' => 'optimize', 'text' => OSCOM::get_def('action_optimize_tables')], ['id' => 'repair', 'text' => OSCOM::get_def('action_repair_tables')], ['id' => 'utf8', 'text' => OSCOM::get_def('action_utf8_conversion')]];
 if (isset($_POST['action'])) {
     if (in_array($_POST['action'], ['check', 'analyze', 'optimize', 'repair', 'utf8'])) {
         if (isset($_POST['id']) && is_array($_POST['id']) && !empty($_POST['id'])) {
             $tables = tep_dt_get_tables();
-
             foreach ($_POST['id'] as $key => $value) {
                 if (!in_array($value, $tables)) {
                     unset($_POST['id'][$key]);
                 }
             }
-
             if (!empty($_POST['id'])) {
                 $action = $_POST['action'];
             }
         }
     }
 }
-
 switch ($action) {
     case 'check':
     case 'analyze':
     case 'optimize':
     case 'repair':
         tep_set_time_limit(0);
-
-        $table_headers = [OSCOM::getDef('table_heading_table'),
-                               OSCOM::getDef('table_heading_msg_type'),
-                               OSCOM::getDef('table_heading_msg'),
-                               HTML::checkboxField('masterblaster')];
-
+        $table_headers = [OSCOM::get_def('table_heading_table'), OSCOM::get_def('table_heading_msg_type'), OSCOM::get_def('table_heading_msg'), HTML::checkbox_field('masterblaster')];
         $table_data = [];
-
         foreach ($_POST['id'] as $table) {
             $current_table = null;
-
             $Qaction = $OSCOM_Db->query($action . ' table ' . $table);
-
             while ($Qaction->fetch()) {
-                $table_data[] = [
-                  ($table != $current_table) ? HTML::outputProtected($table) : '',
-                  $Qaction->valueProtected('Msg_type'),
-                  $Qaction->valueProtected('Msg_text'),
-                  ($table != $current_table) ? HTML::checkboxField('id[]', $table, isset($_POST['id']) && in_array($table, $_POST['id'])) : '',
-                ];
-
+                $table_data[] = [$table != $current_table ? HTML::output_protected($table) : '', $Qaction->value_protected('Msg_type'), $Qaction->value_protected('Msg_text'), $table != $current_table ? HTML::checkbox_field('id[]', $table, isset($_POST['id']) && in_array($table, $_POST['id'])) : ''];
                 $current_table = $table;
             }
         }
-
         break;
-
     case 'utf8':
         $charset_pass = false;
-
         if (isset($_POST['from_charset'])) {
             if ($_POST['from_charset'] == 'auto') {
                 $charset_pass = true;
@@ -124,147 +76,110 @@ switch ($action) {
                 }
             }
         }
-
         if ($charset_pass === false) {
             OSCOM::redirect('database_tables.php');
         }
-
         tep_set_time_limit(0);
-
         if (isset($_POST['dryrun'])) {
-            $table_headers = [OSCOM::getDef('table_heading_queries')];
+            $table_headers = [OSCOM::get_def('table_heading_queries')];
         } else {
-            $table_headers = [OSCOM::getDef('table_heading_table'),
-                                   OSCOM::getDef('table_heading_msg'),
-                                   HTML::checkboxField('masterblaster')];
+            $table_headers = [OSCOM::get_def('table_heading_table'), OSCOM::get_def('table_heading_msg'), HTML::checkbox_field('masterblaster')];
         }
-
         $table_data = [];
-
         foreach ($_POST['id'] as $table) {
             $result = 'OK';
-
             $queries = [];
-
             $Qcols = $OSCOM_Db->query('show full columns from ' . $table);
-
             while ($Qcols->fetch()) {
-                if ($Qcols->hasValue('Collation') && tep_not_null($Qcols->value('Collation'))) {
+                if ($Qcols->has_value('Collation') && tep_not_null($Qcols->value('Collation'))) {
                     if ($_POST['from_charset'] == 'auto') {
                         $old_charset = substr((string) $Qcols->value('Collation'), 0, strpos((string) $Qcols->value('Collation'), '_'));
                     } else {
                         $old_charset = $_POST['from_charset'];
                     }
-
                     $queries[] = 'update ' . $table . ' set ' . $Qcols->value('Field') . ' = convert(binary convert(' . $Qcols->value('Field') . ' using ' . $old_charset . ') using utf8) where char_length(' . $Qcols->value('Field') . ') = length(convert(binary convert(' . $Qcols->value('Field') . ' using ' . $old_charset . ') using utf8))';
                 }
             }
-
             $query = 'alter table ' . $table . ' convert to character set utf8 collate utf8_unicode_ci';
-
             if (isset($_POST['dryrun'])) {
                 $table_data[] = [$query];
-
                 foreach ($queries as $q) {
                     $table_data[] = [$q];
                 }
-            } else {
-                if ($OSCOM_Db->exec($query) !== false) {
-                    foreach ($queries as $q) {
-                        if ($OSCOM_Db->exec($q) === false) {
-                            $result = implode(' - ', $OSCOM_Db->errorInfo());
-                            break;
-                        }
+            } else if ($OSCOM_Db->exec($query) !== false) {
+                foreach ($queries as $q) {
+                    if ($OSCOM_Db->exec($q) === false) {
+                        $result = implode(' - ', $OSCOM_Db->error_info());
+                        break;
                     }
-                } else {
-                    $result = implode(' - ', $OSCOM_Db->errorInfo());
                 }
+            } else {
+                $result = implode(' - ', $OSCOM_Db->error_info());
             }
-
             if (!isset($_POST['dryrun'])) {
-                $table_data[] = [HTML::outputProtected($table),
-                                      HTML::outputProtected($result),
-                                      HTML::checkboxField('id[]', $table, true)];
+                $table_data[] = [HTML::output_protected($table), HTML::output_protected($result), HTML::checkbox_field('id[]', $table, true)];
             }
         }
-
         break;
-
     default:
-        $table_headers = [
-          OSCOM::getDef('table_heading_table'),
-          OSCOM::getDef('table_heading_rows'),
-          OSCOM::getDef('table_heading_size'),
-          OSCOM::getDef('table_heading_engine'),
-          OSCOM::getDef('table_heading_collation'),
-          HTML::checkboxField('masterblaster'),
-        ];
-
+        $table_headers = [OSCOM::get_def('table_heading_table'), OSCOM::get_def('table_heading_rows'), OSCOM::get_def('table_heading_size'), OSCOM::get_def('table_heading_engine'), OSCOM::get_def('table_heading_collation'), HTML::checkbox_field('masterblaster')];
         $table_data = [];
-
         $Qstatus = $OSCOM_Db->query('show table status');
-
         while ($Qstatus->fetch()) {
-            $table_data[] = [
-              $Qstatus->valueProtected('Name'),
-              $Qstatus->valueProtected('Rows'),
-              round(($Qstatus->value('Data_length') + $Qstatus->value('Index_length')) / 1024 / 1024, 2) . 'M',
-              $Qstatus->valueProtected('Engine'),
-              $Qstatus->valueProtected('Collation'),
-              HTML::checkboxField('id[]', $Qstatus->value('Name')),
-            ];
+            $table_data[] = [$Qstatus->value_protected('Name'), $Qstatus->value_protected('Rows'), round(($Qstatus->value('Data_length') + $Qstatus->value('Index_length')) / 1024 / 1024, 2) . 'M', $Qstatus->value_protected('Engine'), $Qstatus->value_protected('Collation'), HTML::checkbox_field('id[]', $Qstatus->value('Name'))];
         }
 }
-
-require($oscTemplate->getFile('template_top.php'));
+require $osc_template->get_file('template_top.php');
 ?>
 
-<?php
-  if (isset($action)) {
-      echo '<div style="float: right;">' . HTML::button(OSCOM::getDef('image_back'), 'fa fa-chevron-left', OSCOM::link('database_tables.php')) . '</div>';
-  }
+<?php 
+if (isset($action)) {
+    echo '<div style="float: right;">' . HTML::button(OSCOM::get_def('image_back'), 'fa fa-chevron-left', OSCOM::link('database_tables.php')) . '</div>';
+}
 ?>
 
-<h1 class="pageHeading"><?php echo OSCOM::getDef('heading_title'); ?></h1>
+<h1 class="pageHeading"><?php 
+echo OSCOM::get_def('heading_title');
+?></h1>
 
-<?php
-  echo HTML::form('sql', OSCOM::link('database_tables.php'));
+<?php 
+echo HTML::form('sql', OSCOM::link('database_tables.php'));
 ?>
 
 <table border="0" width="100%" cellspacing="0" cellpadding="2">
   <tr class="dataTableHeadingRow">
 
-<?php
-  foreach ($table_headers as $th) {
-      echo '    <td class="dataTableHeadingContent">' . $th . '</td>' . "\n";
-  }
+<?php 
+foreach ($table_headers as $th) {
+    echo '    <td class="dataTableHeadingContent">' . $th . '</td>' . "\n";
+}
 ?>
   </tr>
 
-<?php
-  foreach ($table_data as $td) {
-      echo '  <tr class="dataTableRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)">' . "\n";
-
-      foreach ($td as $data) {
-          echo '    <td class="dataTableContent">' . $data . '</td>' . "\n";
-      }
-
-      echo '  </tr>' . "\n";
-  }
+<?php 
+foreach ($table_data as $td) {
+    echo '  <tr class="dataTableRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)">' . "\n";
+    foreach ($td as $data) {
+        echo '    <td class="dataTableContent">' . $data . '</td>' . "\n";
+    }
+    echo '  </tr>' . "\n";
+}
 ?>
 
 </table>
 
-<?php
-  if (!isset($_POST['dryrun'])) {
-      ?>
+<?php 
+if (!isset($_POST['dryrun'])) {
+    ?>
 
 <div class="main" style="text-align: right;">
-  <?php echo '<span class="runUtf8" style="display: none;">' . OSCOM::getDef('action_utf8_dry_run', ['dryrun' => HTML::checkboxField('dryrun')]) . '</span>' . HTML::selectField('action', $actions, '', 'id="sqlActionsMenu"') . '<span class="runUtf8" style="display: none;">&nbsp;' . HTML::selectField('from_charset', $mysql_charsets) . '</span>&nbsp;' . HTML::button(OSCOM::getDef('button_action_go')); ?>
+  <?php 
+    echo '<span class="runUtf8" style="display: none;">' . OSCOM::get_def('action_utf8_dry_run', ['dryrun' => HTML::checkbox_field('dryrun')]) . '</span>' . HTML::select_field('action', $actions, '', 'id="sqlActionsMenu"') . '<span class="runUtf8" style="display: none;">&nbsp;' . HTML::select_field('from_charset', $mysql_charsets) . '</span>&nbsp;' . HTML::button(OSCOM::get_def('button_action_go'));
+    ?>
 </div>
 
-<?php
-  }
+<?php 
+}
 ?>
 
 </form>
@@ -293,7 +208,6 @@ $(function() {
 });
 </script>
 
-<?php
-  require($oscTemplate->getFile('template_bottom.php'));
-require('includes/application_bottom.php');
-?>
+<?php 
+require $osc_template->get_file('template_bottom.php');
+require 'includes/application_bottom.php';

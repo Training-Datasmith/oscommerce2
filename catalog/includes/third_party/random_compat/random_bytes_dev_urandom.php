@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Random_* Compatibility Library
  * for using the new PHP 7 random_* API in PHP 5 projects
@@ -27,11 +27,9 @@ declare(strict_types=1);
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 if (!defined('RANDOM_COMPAT_READ_BUFFER')) {
     define('RANDOM_COMPAT_READ_BUFFER', 8);
 }
-
 if (!is_callable('random_bytes')) {
     /**
      * Unless open_basedir is enabled, use /dev/urandom for
@@ -63,7 +61,6 @@ if (!is_callable('random_bytes')) {
                     $fp = false;
                 }
             }
-
             if (!empty($fp)) {
                 /**
                  * stream_set_read_buffer() does not exist in HHVM
@@ -81,21 +78,14 @@ if (!is_callable('random_bytes')) {
                 }
             }
         }
-
         try {
-            $bytes = RandomCompat_intval($bytes);
+            $bytes = random_compat_intval($bytes);
         } catch (TypeError) {
-            throw new TypeError(
-                'random_bytes(): $bytes must be an integer'
-            );
+            throw new TypeError('random_bytes(): $bytes must be an integer');
         }
-
         if ($bytes < 1) {
-            throw new Error(
-                'Length must be greater than 0'
-            );
+            throw new Error('Length must be greater than 0');
         }
-
         /**
          * This if() block only runs if we managed to open a file handle
          *
@@ -106,7 +96,6 @@ if (!is_callable('random_bytes')) {
         if (!empty($fp)) {
             $remaining = $bytes;
             $buf = '';
-
             /**
              * We use fread() in a loop to protect against partial reads
              */
@@ -123,15 +112,14 @@ if (!is_callable('random_bytes')) {
                 /**
                  * Decrease the number of bytes returned from remaining
                  */
-                $remaining -= RandomCompat_strlen($read);
+                $remaining -= random_compat_strlen($read);
                 $buf .= $read;
             } while ($remaining > 0);
-
             /**
              * Is our result valid?
              */
             if ($buf !== false) {
-                if (RandomCompat_strlen($buf) === $bytes) {
+                if (random_compat_strlen($buf) === $bytes) {
                     /**
                      * Return our random entropy buffer here:
                      */
@@ -139,12 +127,9 @@ if (!is_callable('random_bytes')) {
                 }
             }
         }
-
         /**
          * If we reach here, PHP has failed us.
          */
-        throw new Exception(
-            'Error reading from source device'
-        );
+        throw new Exception('Error reading from source device');
     }
 }

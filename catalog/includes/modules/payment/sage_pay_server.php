@@ -1,192 +1,132 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
-  * osCommerce Online Merchant
-  *
-  * @copyright (c) 2016 osCommerce; https://www.oscommerce.com
-  * @license MIT; https://www.oscommerce.com/license/mit.txt
-  */
-
+ * osCommerce Online Merchant
+ *
+ * @copyright (c) 2016 osCommerce; https://www.oscommerce.com
+ * @license MIT; https://www.oscommerce.com/license/mit.txt
+ */
 use OSC\OM\Hash;
 use OSC\OM\HTML;
 use OSC\OM\HTTP;
 use OSC\OM\Mail;
 use OSC\OM\OSCOM;
 use OSC\OM\Registry;
-
 class sage_pay_server
 {
     public $code;
     public $title;
     public $description;
     public $enabled;
-
     public function __construct()
     {
         global $PHP_SELF, $order;
-
         $this->signature = 'sage_pay|sage_pay_server|2.1|2.3';
         $this->api_version = '3.00';
-
         $this->code = 'sage_pay_server';
-        $this->title = OSCOM::getDef('module_payment_sage_pay_server_text_title');
-        $this->public_title = OSCOM::getDef('module_payment_sage_pay_server_text_public_title');
-        $this->description = OSCOM::getDef('module_payment_sage_pay_server_text_description');
+        $this->title = OSCOM::get_def('module_payment_sage_pay_server_text_title');
+        $this->public_title = OSCOM::get_def('module_payment_sage_pay_server_text_public_title');
+        $this->description = OSCOM::get_def('module_payment_sage_pay_server_text_description');
         $this->sort_order = defined('MODULE_PAYMENT_SAGE_PAY_SERVER_SORT_ORDER') ? MODULE_PAYMENT_SAGE_PAY_SERVER_SORT_ORDER : 0;
-        $this->enabled = defined('MODULE_PAYMENT_SAGE_PAY_SERVER_STATUS') && (MODULE_PAYMENT_SAGE_PAY_SERVER_STATUS == 'True') ? true : false;
-        $this->order_status = defined('MODULE_PAYMENT_SAGE_PAY_SERVER_ORDER_STATUS_ID') && ((int)MODULE_PAYMENT_SAGE_PAY_SERVER_ORDER_STATUS_ID > 0) ? (int)MODULE_PAYMENT_SAGE_PAY_SERVER_ORDER_STATUS_ID : 0;
-
+        $this->enabled = defined('MODULE_PAYMENT_SAGE_PAY_SERVER_STATUS') && MODULE_PAYMENT_SAGE_PAY_SERVER_STATUS == 'True' ? true : false;
+        $this->order_status = defined('MODULE_PAYMENT_SAGE_PAY_SERVER_ORDER_STATUS_ID') && (int) MODULE_PAYMENT_SAGE_PAY_SERVER_ORDER_STATUS_ID > 0 ? (int) MODULE_PAYMENT_SAGE_PAY_SERVER_ORDER_STATUS_ID : 0;
         if (defined('MODULE_PAYMENT_SAGE_PAY_SERVER_STATUS')) {
             if (MODULE_PAYMENT_SAGE_PAY_SERVER_TRANSACTION_SERVER == 'Test') {
                 $this->title .= ' [Test]';
                 $this->public_title .= ' (' . $this->code . '; Test)';
             }
-
-            $this->description .= $this->getTestLinkInfo();
+            $this->description .= $this->get_test_link_info();
         }
-
         if (!function_exists('curl_init')) {
-            $this->description = '<div class="secWarning">' . OSCOM::getDef('module_payment_sage_pay_server_error_admin_curl') . '</div>' . $this->description;
-
+            $this->description = '<div class="secWarning">' . OSCOM::get_def('module_payment_sage_pay_server_error_admin_curl') . '</div>' . $this->description;
             $this->enabled = false;
         }
-
         if ($this->enabled === true) {
             if (!tep_not_null(MODULE_PAYMENT_SAGE_PAY_SERVER_VENDOR_LOGIN_NAME)) {
-                $this->description = '<div class="secWarning">' . OSCOM::getDef('module_payment_sage_pay_server_error_admin_configuration') . '</div>' . $this->description;
-
+                $this->description = '<div class="secWarning">' . OSCOM::get_def('module_payment_sage_pay_server_error_admin_configuration') . '</div>' . $this->description;
                 $this->enabled = false;
             }
         }
-
         if ($this->enabled === true) {
             if (isset($order) && is_object($order)) {
                 $this->update_status();
             }
         }
-
-        if (defined('FILENAME_MODULES') && (basename((string) $PHP_SELF) == 'modules.php') && isset($_GET['action']) && ($_GET['action'] == 'install') && isset($_GET['subaction']) && ($_GET['subaction'] == 'conntest')) {
-            echo $this->getTestConnectionResult();
+        if (defined('FILENAME_MODULES') && basename((string) $PHP_SELF) == 'modules.php' && isset($_GET['action']) && $_GET['action'] == 'install' && isset($_GET['subaction']) && $_GET['subaction'] == 'conntest') {
+            echo $this->get_test_connection_result();
             exit;
         }
     }
-
     public function update_status(): void
     {
         global $order;
-
         $OSCOM_Db = Registry::get('Db');
-
-        if (($this->enabled == true) && ((int)MODULE_PAYMENT_SAGE_PAY_SERVER_ZONE > 0)) {
+        if ($this->enabled == true && (int) MODULE_PAYMENT_SAGE_PAY_SERVER_ZONE > 0) {
             $check_flag = false;
             $Qcheck = $OSCOM_Db->get('zones_to_geo_zones', 'zone_id', ['geo_zone_id' => MODULE_PAYMENT_SAGE_PAY_SERVER_ZONE, 'zone_country_id' => $order->billing['country']['id']], 'zone_id');
             while ($Qcheck->fetch()) {
-                if ($Qcheck->valueInt('zone_id') < 1) {
+                if ($Qcheck->value_int('zone_id') < 1) {
                     $check_flag = true;
                     break;
-                } elseif ($Qcheck->valueInt('zone_id') == $order->billing['zone_id']) {
+                } elseif ($Qcheck->value_int('zone_id') == $order->billing['zone_id']) {
                     $check_flag = true;
                     break;
                 }
             }
-
             if ($check_flag == false) {
                 $this->enabled = false;
             }
         }
     }
-
     public function javascript_validation(): bool
     {
         return false;
     }
-
     public function selection(): array
     {
-        return ['id' => $this->code,
-                     'module' => $this->public_title];
+        return ['id' => $this->code, 'module' => $this->public_title];
     }
-
     public function pre_confirmation_check(): bool
     {
         return false;
     }
-
     public function confirmation(): bool
     {
         return false;
     }
-
     public function process_button(): bool
     {
         return false;
     }
-
     public function before_process()
     {
         global $sagepay_server_transaction_details, $order, $order_totals;
-
         $OSCOM_Db = Registry::get('Db');
-
         $sagepay_server_transaction_details = null;
-
         $error = null;
-
-        if (isset($_GET['check']) && ($_GET['check'] == 'PROCESS')) {
-            if (isset($_GET['skcode']) && isset($_SESSION['sagepay_server_skey_code']) && ($_GET['skcode'] == $_SESSION['sagepay_server_skey_code'])) {
+        if (isset($_GET['check']) && $_GET['check'] == 'PROCESS') {
+            if (isset($_GET['skcode']) && isset($_SESSION['sagepay_server_skey_code']) && $_GET['skcode'] == $_SESSION['sagepay_server_skey_code']) {
                 $skcode = HTML::sanitize($_GET['skcode']);
-
                 $Qsp = $OSCOM_Db->get('sagepay_server_securitykeys', ['verified', 'transaction_details'], ['code' => $skcode], null, 1);
-
                 if ($Qsp->fetch() !== false) {
                     unset($_SESSION['sagepay_server_skey_code']);
-
                     $OSCOM_Db->delete('sagepay_server_securitykeys', ['code' => $skcode]);
-
                     if ($Qsp->value('verified') == '1') {
                         $sagepay_server_transaction_details = $Qsp->value('transaction_details');
-
                         return true;
                     }
                 }
             }
         } else {
             if (!isset($_SESSION['sagepay_server_skey_code'])) {
-                $_SESSION['sagepay_server_skey_code'] = Hash::getRandomString(16);
+                $_SESSION['sagepay_server_skey_code'] = Hash::get_random_string(16);
             }
-
-            $params = ['VPSProtocol' => $this->api_version,
-                            'ReferrerID' => 'C74D7B82-E9EB-4FBD-93DB-76F0F551C802',
-                            'Vendor' => substr(MODULE_PAYMENT_SAGE_PAY_SERVER_VENDOR_LOGIN_NAME, 0, 15),
-                            'VendorTxCode' => substr(date('YmdHis') . '-' . $_SESSION['customer_id'] . '-' . $_SESSION['cartID'], 0, 40),
-                            'Amount' => $this->format_raw($order->info['total']),
-                            'Currency' => $_SESSION['currency'],
-                            'Description' => substr(STORE_NAME, 0, 100),
-                            'NotificationURL' => $this->formatURL(OSCOM::link('ext/modules/payment/sage_pay/server.php', 'check=SERVER&skcode=' . $_SESSION['sagepay_server_skey_code'], false)),
-                            'BillingSurname' => substr((string) $order->billing['lastname'], 0, 20),
-                            'BillingFirstnames' => substr((string) $order->billing['firstname'], 0, 20),
-                            'BillingAddress1' => substr((string) $order->billing['street_address'], 0, 100),
-                            'BillingCity' => substr((string) $order->billing['city'], 0, 40),
-                            'BillingPostCode' => substr((string) $order->billing['postcode'], 0, 10),
-                            'BillingCountry' => $order->billing['country']['iso_code_2'],
-                            'BillingPhone' => substr((string) $order->customer['telephone'], 0, 20),
-                            'DeliverySurname' => substr((string) $order->delivery['lastname'], 0, 20),
-                            'DeliveryFirstnames' => substr((string) $order->delivery['firstname'], 0, 20),
-                            'DeliveryAddress1' => substr((string) $order->delivery['street_address'], 0, 100),
-                            'DeliveryCity' => substr((string) $order->delivery['city'], 0, 40),
-                            'DeliveryPostCode' => substr((string) $order->delivery['postcode'], 0, 10),
-                            'DeliveryCountry' => $order->delivery['country']['iso_code_2'],
-                            'DeliveryPhone' => substr((string) $order->customer['telephone'], 0, 20),
-                            'CustomerEMail' => substr((string) $order->customer['email_address'], 0, 255),
-                            'Apply3DSecure' => '0'];
-
-            $ip_address = HTTP::getIpAddress();
-
-            if ((ip2long($ip_address) != -1) && (ip2long($ip_address) != false)) {
+            $params = ['VPSProtocol' => $this->api_version, 'ReferrerID' => 'C74D7B82-E9EB-4FBD-93DB-76F0F551C802', 'Vendor' => substr(MODULE_PAYMENT_SAGE_PAY_SERVER_VENDOR_LOGIN_NAME, 0, 15), 'VendorTxCode' => substr(date('YmdHis') . '-' . $_SESSION['customer_id'] . '-' . $_SESSION['cartID'], 0, 40), 'Amount' => $this->format_raw($order->info['total']), 'Currency' => $_SESSION['currency'], 'Description' => substr(STORE_NAME, 0, 100), 'NotificationURL' => $this->format_url(OSCOM::link('ext/modules/payment/sage_pay/server.php', 'check=SERVER&skcode=' . $_SESSION['sagepay_server_skey_code'], false)), 'BillingSurname' => substr((string) $order->billing['lastname'], 0, 20), 'BillingFirstnames' => substr((string) $order->billing['firstname'], 0, 20), 'BillingAddress1' => substr((string) $order->billing['street_address'], 0, 100), 'BillingCity' => substr((string) $order->billing['city'], 0, 40), 'BillingPostCode' => substr((string) $order->billing['postcode'], 0, 10), 'BillingCountry' => $order->billing['country']['iso_code_2'], 'BillingPhone' => substr((string) $order->customer['telephone'], 0, 20), 'DeliverySurname' => substr((string) $order->delivery['lastname'], 0, 20), 'DeliveryFirstnames' => substr((string) $order->delivery['firstname'], 0, 20), 'DeliveryAddress1' => substr((string) $order->delivery['street_address'], 0, 100), 'DeliveryCity' => substr((string) $order->delivery['city'], 0, 40), 'DeliveryPostCode' => substr((string) $order->delivery['postcode'], 0, 10), 'DeliveryCountry' => $order->delivery['country']['iso_code_2'], 'DeliveryPhone' => substr((string) $order->customer['telephone'], 0, 20), 'CustomerEMail' => substr((string) $order->customer['email_address'], 0, 255), 'Apply3DSecure' => '0'];
+            $ip_address = HTTP::get_ip_address();
+            if (ip2long($ip_address) != -1 && ip2long($ip_address) != false) {
                 $params['ClientIPAddress'] = $ip_address;
             }
-
             if (MODULE_PAYMENT_SAGE_PAY_SERVER_TRANSACTION_METHOD == 'Payment') {
                 $params['TxType'] = 'PAYMENT';
             } elseif (MODULE_PAYMENT_SAGE_PAY_SERVER_TRANSACTION_METHOD == 'Deferred') {
@@ -194,159 +134,111 @@ class sage_pay_server
             } else {
                 $params['TxType'] = 'AUTHENTICATE';
             }
-
             if ($params['BillingCountry'] == 'US') {
                 $params['BillingState'] = tep_get_zone_code($order->billing['country']['id'], $order->billing['zone_id'], '');
             }
-
             if ($params['DeliveryCountry'] == 'US') {
                 $params['DeliveryState'] = tep_get_zone_code($order->delivery['country']['id'], $order->delivery['zone_id'], '');
             }
-
             if (MODULE_PAYMENT_SAGE_PAY_SERVER_PROFILE_PAGE != 'Normal') {
                 $params['Profile'] = 'LOW';
             }
-
             $contents = [];
-
             foreach ($order->products as $product) {
                 $product_name = $product['name'];
-
                 if (isset($product['attributes'])) {
                     foreach ($product['attributes'] as $att) {
                         $product_name .= '; ' . $att['option'] . '=' . $att['value'];
                     }
                 }
-
-                $contents[] = str_replace([':', "\n", "\r", '&'], '', $product_name) . ':' . $product['qty'] . ':' . $this->format_raw($product['final_price']) . ':' . $this->format_raw(($product['tax'] / 100) * $product['final_price']) . ':' . $this->format_raw((($product['tax'] / 100) * $product['final_price']) + $product['final_price']) . ':' . $this->format_raw(((($product['tax'] / 100) * $product['final_price']) + $product['final_price']) * $product['qty']);
+                $contents[] = str_replace([':', "\n", "\r", '&'], '', $product_name) . ':' . $product['qty'] . ':' . $this->format_raw($product['final_price']) . ':' . $this->format_raw($product['tax'] / 100 * $product['final_price']) . ':' . $this->format_raw($product['tax'] / 100 * $product['final_price'] + $product['final_price']) . ':' . $this->format_raw(($product['tax'] / 100 * $product['final_price'] + $product['final_price']) * $product['qty']);
             }
-
             foreach ($order_totals as $ot) {
                 $contents[] = str_replace([':', "\n", "\r", '&'], '', strip_tags((string) $ot['title'])) . ':---:---:---:---:' . $this->format_raw($ot['value']);
             }
-
             $params['Basket'] = substr(sizeof($contents) . ':' . implode(':', $contents), 0, 7500);
-
             $post_string = '';
-
             foreach ($params as $key => $value) {
                 $post_string .= $key . '=' . urlencode(trim($value)) . '&';
             }
-
             if (MODULE_PAYMENT_SAGE_PAY_SERVER_TRANSACTION_SERVER == 'Live') {
                 $gateway_url = 'https://live.sagepay.com/gateway/service/vspserver-register.vsp';
             } else {
                 $gateway_url = 'https://test.sagepay.com/gateway/service/vspserver-register.vsp';
             }
-
-            $transaction_response = $this->sendTransactionToGateway($gateway_url, $post_string);
-
+            $transaction_response = $this->send_transaction_to_gateway($gateway_url, $post_string);
             $string_array = explode(chr(10), (string) $transaction_response);
             $return = [];
-
             foreach ($string_array as $string) {
                 if (str_contains($string, '=')) {
                     $parts = explode('=', $string, 2);
                     $return[trim($parts[0])] = trim($parts[1]);
                 }
             }
-
             if ($return['Status'] == 'OK') {
                 $Qsp = $OSCOM_Db->get('sagepay_server_securitykeys', ['id', 'securitykey'], ['code' => $_SESSION['sagepay_server_skey_code']], null, 1);
-
                 if ($Qsp->fetch() !== false) {
                     if ($Qsp->value('securitykey') != $return['SecurityKey']) {
-                        $OSCOM_Db->save('sagepay_server_securitykeys', ['securitykey' => $return['SecurityKey'], 'date_added' => 'now()'], ['id' => $Qsp->valueInt('id')]);
+                        $OSCOM_Db->save('sagepay_server_securitykeys', ['securitykey' => $return['SecurityKey'], 'date_added' => 'now()'], ['id' => $Qsp->value_int('id')]);
                     }
                 } else {
-                    $OSCOM_Db->save('sagepay_server_securitykeys', [
-                      'code' => $_SESSION['sagepay_server_skey_code'],
-                      'securitykey' => $return['SecurityKey'],
-                      'date_added' => 'now()',
-                    ]);
+                    $OSCOM_Db->save('sagepay_server_securitykeys', ['code' => $_SESSION['sagepay_server_skey_code'], 'securitykey' => $return['SecurityKey'], 'date_added' => 'now()']);
                 }
-
                 if (MODULE_PAYMENT_SAGE_PAY_SERVER_PROFILE_PAGE == 'Normal') {
                     HTTP::redirect($return['NextURL']);
                 } else {
                     $_SESSION['sage_pay_server_nexturl'] = $return['NextURL'];
-
                     OSCOM::redirect('ext/modules/payment/sage_pay/checkout.php');
                 }
             } else {
-                $error = $this->getErrorMessageNumber($return['StatusDetail']);
-
-                $this->sendDebugEmail($return);
+                $error = $this->get_error_message_number($return['StatusDetail']);
+                $this->send_debug_email($return);
             }
         }
-
         OSCOM::redirect('checkout_payment.php', 'payment_error=' . $this->code . (tep_not_null($error) ? '&error=' . $error : ''));
     }
-
     public function after_process(): void
     {
         global $insert_id, $sagepay_server_transaction_details;
-
         $OSCOM_Db = Registry::get('Db');
-
-        $sql_data_array = ['orders_id' => $insert_id,
-                                'orders_status_id' => DEFAULT_ORDERS_STATUS_ID,
-                                'date_added' => 'now()',
-                                'customer_notified' => '0',
-                                'comments' => trim($sagepay_server_transaction_details)];
-
+        $sql_data_array = ['orders_id' => $insert_id, 'orders_status_id' => DEFAULT_ORDERS_STATUS_ID, 'date_added' => 'now()', 'customer_notified' => '0', 'comments' => trim($sagepay_server_transaction_details)];
         $OSCOM_Db->save('orders_status_history', $sql_data_array);
-
         if (MODULE_PAYMENT_SAGE_PAY_SERVER_PROFILE_PAGE == 'Low') {
             $_SESSION['cart']->reset(true);
-
             // unregister session variables used during checkout
             unset($_SESSION['sendto']);
             unset($_SESSION['billto']);
             unset($_SESSION['shipping']);
             unset($_SESSION['payment']);
             unset($_SESSION['comments']);
-
             unset($_SESSION['sage_pay_server_nexturl']);
-
             OSCOM::redirect('ext/modules/payment/sage_pay/redirect.php');
         }
     }
-
     public function get_error(): false|array
     {
-        $message = OSCOM::getDef('module_payment_sage_pay_server_error_general');
-
+        $message = OSCOM::get_def('module_payment_sage_pay_server_error_general');
         $error_number = null;
-
-        if (isset($_GET['error']) && is_numeric($_GET['error']) && $this->errorMessageNumberExists($_GET['error'])) {
+        if (isset($_GET['error']) && is_numeric($_GET['error']) && $this->error_message_number_exists($_GET['error'])) {
             $error_number = $_GET['error'];
         }
-
         if (isset($error_number)) {
             // don't show an error message for user cancelled/aborted transactions
             if ($error_number == '2013') {
                 return false;
             }
-
-            $message = $this->getErrorMessage($error_number) . ' ' . OSCOM::getDef('module_payment_sage_pay_server_error_general');
+            $message = $this->get_error_message($error_number) . ' ' . OSCOM::get_def('module_payment_sage_pay_server_error_general');
         }
-
-        return ['title' => OSCOM::getDef('module_payment_sage_pay_server_error_title'),
-                       'error' => $message];
+        return ['title' => OSCOM::get_def('module_payment_sage_pay_server_error_title'), 'error' => $message];
     }
-
     public function check(): bool
     {
         return defined('MODULE_PAYMENT_SAGE_PAY_SERVER_STATUS');
     }
-
     public function install($parameter = null): void
     {
         $OSCOM_Db = Registry::get('Db');
-
-        $params = $this->getParams();
-
+        $params = $this->get_params();
         if (isset($parameter)) {
             if (isset($params[$parameter])) {
                 $params = [$parameter => $params[$parameter]];
@@ -354,40 +246,27 @@ class sage_pay_server
                 $params = [];
             }
         }
-
         foreach ($params as $key => $data) {
-            $sql_data_array = ['configuration_title' => $data['title'],
-                                    'configuration_key' => $key,
-                                    'configuration_value' => ($data['value'] ?? ''),
-                                    'configuration_description' => $data['desc'],
-                                    'configuration_group_id' => '6',
-                                    'sort_order' => '0',
-                                    'date_added' => 'now()'];
-
+            $sql_data_array = ['configuration_title' => $data['title'], 'configuration_key' => $key, 'configuration_value' => $data['value'] ?? '', 'configuration_description' => $data['desc'], 'configuration_group_id' => '6', 'sort_order' => '0', 'date_added' => 'now()'];
             if (isset($data['set_func'])) {
                 $sql_data_array['set_function'] = $data['set_func'];
             }
-
             if (isset($data['use_func'])) {
                 $sql_data_array['use_function'] = $data['use_func'];
             }
-
             $OSCOM_Db->save('configuration', $sql_data_array);
         }
     }
-
     public function remove()
     {
         return Registry::get('Db')->exec('delete from :table_configuration where configuration_key in ("' . implode('", "', $this->keys()) . '")');
     }
-
     /**
      * @return int[]|string[]
      */
     public function keys(): array
     {
-        $keys = array_keys($this->getParams());
-
+        $keys = array_keys($this->get_params());
         if ($this->check()) {
             foreach ($keys as $key) {
                 if (!defined($key)) {
@@ -395,118 +274,54 @@ class sage_pay_server
                 }
             }
         }
-
         return $keys;
     }
-
-    public function getParams(): array
+    public function get_params(): array
     {
         $OSCOM_Db = Registry::get('Db');
-
         $Qcheck = $OSCOM_Db->query('show tables like "sagepay_server_securitykeys"');
-
         if ($Qcheck->fetch() === false) {
             $sql = <<<EOD
-CREATE TABLE sagepay_server_securitykeys (
-  id int NOT NULL auto_increment,
-  code char(16) NOT NULL,
-  securitykey char(10) NOT NULL,
-  date_added datetime NOT NULL,
-  verified char(1) DEFAULT 0,
-  transaction_details text,
-  PRIMARY KEY (id),
-  KEY idx_sagepay_server_securitykeys_code (code),
-  KEY idx_sagepay_server_securitykeys_securitykey (securitykey)
-);
-EOD;
-
+            CREATE TABLE sagepay_server_securitykeys (
+              id int NOT NULL auto_increment,
+              code char(16) NOT NULL,
+              securitykey char(10) NOT NULL,
+              date_added datetime NOT NULL,
+              verified char(1) DEFAULT 0,
+              transaction_details text,
+              PRIMARY KEY (id),
+              KEY idx_sagepay_server_securitykeys_code (code),
+              KEY idx_sagepay_server_securitykeys_securitykey (securitykey)
+            );
+            EOD;
             $OSCOM_Db->exec($sql);
         }
-
         if (!defined('MODULE_PAYMENT_SAGE_PAY_SERVER_TRANSACTION_ORDER_STATUS_ID')) {
             $Qcheck = $OSCOM_Db->get('orders_status', 'orders_status_id', ['orders_status_name' => 'Sage Pay [Transactions]'], null, 1);
-
             if ($Qcheck->fetch() === false) {
                 $Qstatus = $OSCOM_Db->get('orders_status', 'max(orders_status_id) as status_id');
-
-                $status_id = $Qstatus->valueInt('status_id') + 1;
-
+                $status_id = $Qstatus->value_int('status_id') + 1;
                 $languages = tep_get_languages();
-
                 foreach ($languages as $lang) {
-                    $OSCOM_Db->save('orders_status', [
-                      'orders_status_id' => $status_id,
-                      'language_id' => $lang['id'],
-                      'orders_status_name' => 'Sage Pay [Transactions]',
-                      'public_flag' => 0,
-                      'downloads_flag' => 0,
-                    ]);
+                    $OSCOM_Db->save('orders_status', ['orders_status_id' => $status_id, 'language_id' => $lang['id'], 'orders_status_name' => 'Sage Pay [Transactions]', 'public_flag' => 0, 'downloads_flag' => 0]);
                 }
             } else {
-                $status_id = $Qcheck->valueInt('orders_status_id');
+                $status_id = $Qcheck->value_int('orders_status_id');
             }
         } else {
             $status_id = MODULE_PAYMENT_SAGE_PAY_SERVER_TRANSACTION_ORDER_STATUS_ID;
         }
-
-        return ['MODULE_PAYMENT_SAGE_PAY_SERVER_STATUS' => ['title' => 'Enable Sage Pay Server Module',
-                                                                         'desc' => 'Do you want to accept Sage Pay Server payments?',
-                                                                         'value' => 'True',
-                                                                         'set_func' => 'tep_cfg_select_option(array(\'True\', \'False\'), '],
-                        'MODULE_PAYMENT_SAGE_PAY_SERVER_VENDOR_LOGIN_NAME' => ['title' => 'Vendor Login Name',
-                                                                                    'desc' => 'The vendor login name to connect to the gateway with.'],
-                        'MODULE_PAYMENT_SAGE_PAY_SERVER_PROFILE_PAGE' => ['title' => 'Profile Payment Page',
-                                                                               'desc' => 'Profile page to use for the payment page, Normal is a full redirect to Sage Pay and Low loads through an iframe.',
-                                                                               'value' => 'Normal',
-                                                                               'set_func' => 'tep_cfg_select_option(array(\'Normal\', \'Low\'), '],
-                        'MODULE_PAYMENT_SAGE_PAY_SERVER_TRANSACTION_METHOD' => ['title' => 'Transaction Method',
-                                                                                     'desc' => 'The processing method to use for each transaction.',
-                                                                                     'value' => 'Authenticate',
-                                                                                     'set_func' => 'tep_cfg_select_option(array(\'Authenticate\', \'Deferred\', \'Payment\'), '],
-                        'MODULE_PAYMENT_SAGE_PAY_SERVER_ORDER_STATUS_ID' => ['title' => 'Set Order Status',
-                                                                                  'desc' => 'Set the status of orders made with this payment module to this value',
-                                                                                  'value' => '0',
-                                                                                  'use_func' => 'tep_get_order_status_name',
-                                                                                  'set_func' => 'tep_cfg_pull_down_order_statuses('],
-                        'MODULE_PAYMENT_SAGE_PAY_SERVER_TRANSACTION_ORDER_STATUS_ID' => ['title' => 'Transaction Order Status',
-                                                                                              'desc' => 'Include transaction information in this order status level',
-                                                                                              'value' => $status_id,
-                                                                                              'set_func' => 'tep_cfg_pull_down_order_statuses(',
-                                                                                              'use_func' => 'tep_get_order_status_name'],
-                        'MODULE_PAYMENT_SAGE_PAY_SERVER_ZONE' => ['title' => 'Payment Zone',
-                                                                       'desc' => 'If a zone is selected, only enable this payment method for that zone.',
-                                                                       'value' => '0',
-                                                                       'use_func' => 'tep_get_zone_class_title',
-                                                                       'set_func' => 'tep_cfg_pull_down_zone_classes('],
-                        'MODULE_PAYMENT_SAGE_PAY_SERVER_TRANSACTION_SERVER' => ['title' => 'Transaction Server',
-                                                                                     'desc' => 'Perform transactions on the production server or on the testing server.',
-                                                                                     'value' => 'Live',
-                                                                                     'set_func' => 'tep_cfg_select_option(array(\'Live\', \'Test\'), '],
-                        'MODULE_PAYMENT_SAGE_PAY_SERVER_VERIFY_SSL' => ['title' => 'Verify SSL Certificate',
-                                                                             'desc' => 'Verify transaction server SSL certificate on connection?',
-                                                                             'value' => 'True',
-                                                                             'set_func' => 'tep_cfg_select_option(array(\'True\', \'False\'), '],
-                        'MODULE_PAYMENT_SAGE_PAY_SERVER_PROXY' => ['title' => 'Proxy Server',
-                                                                        'desc' => 'Send API requests through this proxy server. (host:port, eg: 123.45.67.89:8080 or proxy.example.com:8080)'],
-                        'MODULE_PAYMENT_SAGE_PAY_SERVER_DEBUG_EMAIL' => ['title' => 'Debug E-Mail Address',
-                                                                              'desc' => 'All parameters of an invalid transaction will be sent to this email address.'],
-                        'MODULE_PAYMENT_SAGE_PAY_SERVER_SORT_ORDER' => ['title' => 'Sort order of display.',
-                                                                             'desc' => 'Sort order of display. Lowest is displayed first.',
-                                                                             'value' => '0']];
+        return ['MODULE_PAYMENT_SAGE_PAY_SERVER_STATUS' => ['title' => 'Enable Sage Pay Server Module', 'desc' => 'Do you want to accept Sage Pay Server payments?', 'value' => 'True', 'set_func' => 'tep_cfg_select_option(array(\'True\', \'False\'), '], 'MODULE_PAYMENT_SAGE_PAY_SERVER_VENDOR_LOGIN_NAME' => ['title' => 'Vendor Login Name', 'desc' => 'The vendor login name to connect to the gateway with.'], 'MODULE_PAYMENT_SAGE_PAY_SERVER_PROFILE_PAGE' => ['title' => 'Profile Payment Page', 'desc' => 'Profile page to use for the payment page, Normal is a full redirect to Sage Pay and Low loads through an iframe.', 'value' => 'Normal', 'set_func' => 'tep_cfg_select_option(array(\'Normal\', \'Low\'), '], 'MODULE_PAYMENT_SAGE_PAY_SERVER_TRANSACTION_METHOD' => ['title' => 'Transaction Method', 'desc' => 'The processing method to use for each transaction.', 'value' => 'Authenticate', 'set_func' => 'tep_cfg_select_option(array(\'Authenticate\', \'Deferred\', \'Payment\'), '], 'MODULE_PAYMENT_SAGE_PAY_SERVER_ORDER_STATUS_ID' => ['title' => 'Set Order Status', 'desc' => 'Set the status of orders made with this payment module to this value', 'value' => '0', 'use_func' => 'tep_get_order_status_name', 'set_func' => 'tep_cfg_pull_down_order_statuses('], 'MODULE_PAYMENT_SAGE_PAY_SERVER_TRANSACTION_ORDER_STATUS_ID' => ['title' => 'Transaction Order Status', 'desc' => 'Include transaction information in this order status level', 'value' => $status_id, 'set_func' => 'tep_cfg_pull_down_order_statuses(', 'use_func' => 'tep_get_order_status_name'], 'MODULE_PAYMENT_SAGE_PAY_SERVER_ZONE' => ['title' => 'Payment Zone', 'desc' => 'If a zone is selected, only enable this payment method for that zone.', 'value' => '0', 'use_func' => 'tep_get_zone_class_title', 'set_func' => 'tep_cfg_pull_down_zone_classes('], 'MODULE_PAYMENT_SAGE_PAY_SERVER_TRANSACTION_SERVER' => ['title' => 'Transaction Server', 'desc' => 'Perform transactions on the production server or on the testing server.', 'value' => 'Live', 'set_func' => 'tep_cfg_select_option(array(\'Live\', \'Test\'), '], 'MODULE_PAYMENT_SAGE_PAY_SERVER_VERIFY_SSL' => ['title' => 'Verify SSL Certificate', 'desc' => 'Verify transaction server SSL certificate on connection?', 'value' => 'True', 'set_func' => 'tep_cfg_select_option(array(\'True\', \'False\'), '], 'MODULE_PAYMENT_SAGE_PAY_SERVER_PROXY' => ['title' => 'Proxy Server', 'desc' => 'Send API requests through this proxy server. (host:port, eg: 123.45.67.89:8080 or proxy.example.com:8080)'], 'MODULE_PAYMENT_SAGE_PAY_SERVER_DEBUG_EMAIL' => ['title' => 'Debug E-Mail Address', 'desc' => 'All parameters of an invalid transaction will be sent to this email address.'], 'MODULE_PAYMENT_SAGE_PAY_SERVER_SORT_ORDER' => ['title' => 'Sort order of display.', 'desc' => 'Sort order of display. Lowest is displayed first.', 'value' => '0']];
     }
-
-    public function sendTransactionToGateway($url, $parameters): bool|string
+    public function send_transaction_to_gateway($url, $parameters): bool|string
     {
         $server = parse_url((string) $url);
-
         if (isset($server['port']) === false) {
-            $server['port'] = ($server['scheme'] == 'https') ? 443 : 80;
+            $server['port'] = $server['scheme'] == 'https' ? 443 : 80;
         }
-
         if (isset($server['path']) === false) {
             $server['path'] = '/';
         }
-
         $curl = curl_init($server['scheme'] . '://' . $server['host'] . $server['path'] . (isset($server['query']) ? '?' . $server['query'] : ''));
         curl_setopt($curl, CURLOPT_PORT, $server['port']);
         curl_setopt($curl, CURLOPT_HEADER, false);
@@ -515,229 +330,181 @@ EOD;
         curl_setopt($curl, CURLOPT_FRESH_CONNECT, true);
         curl_setopt($curl, CURLOPT_POST, true);
         curl_setopt($curl, CURLOPT_POSTFIELDS, $parameters);
-
         if (MODULE_PAYMENT_SAGE_PAY_SERVER_VERIFY_SSL == 'True') {
             curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, true);
             curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 2);
-
-            if (is_file(OSCOM::getConfig('dir_root', 'Shop') . 'ext/modules/payment/sage_pay/sagepay.com.crt')) {
-                curl_setopt($curl, CURLOPT_CAINFO, OSCOM::getConfig('dir_root', 'Shop') . 'ext/modules/payment/sage_pay/sagepay.com.crt');
-            } elseif (is_file(OSCOM::getConfig('dir_root', 'Shop') . 'includes/cacert.pem')) {
-                curl_setopt($curl, CURLOPT_CAINFO, OSCOM::getConfig('dir_root', 'Shop') . 'includes/cacert.pem');
+            if (is_file(OSCOM::get_config('dir_root', 'Shop') . 'ext/modules/payment/sage_pay/sagepay.com.crt')) {
+                curl_setopt($curl, CURLOPT_CAINFO, OSCOM::get_config('dir_root', 'Shop') . 'ext/modules/payment/sage_pay/sagepay.com.crt');
+            } elseif (is_file(OSCOM::get_config('dir_root', 'Shop') . 'includes/cacert.pem')) {
+                curl_setopt($curl, CURLOPT_CAINFO, OSCOM::get_config('dir_root', 'Shop') . 'includes/cacert.pem');
             }
         } else {
             curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
         }
-
         if (tep_not_null(MODULE_PAYMENT_SAGE_PAY_SERVER_PROXY)) {
             curl_setopt($curl, CURLOPT_HTTPPROXYTUNNEL, true);
             curl_setopt($curl, CURLOPT_PROXY, MODULE_PAYMENT_SAGE_PAY_SERVER_PROXY);
         }
-
         $result = curl_exec($curl);
-
         curl_close($curl);
-
         return $result;
     }
-
     // format prices without currency formatting
     public function format_raw($number, $currency_code = '', $currency_value = ''): string
     {
         global $currencies;
-
         if (empty($currency_code) || !$currencies->is_set($currency_code)) {
             $currency_code = $_SESSION['currency'];
         }
-
         if (empty($currency_value) || !is_numeric($currency_value)) {
             $currency_value = $currencies->currencies[$currency_code]['value'];
         }
-
         return number_format(tep_round($number * $currency_value, $currencies->currencies[$currency_code]['decimal_places']), $currencies->currencies[$currency_code]['decimal_places'], '.', '');
     }
-
-    public function loadErrorMessages(): void
+    public function load_error_messages(): void
     {
         $errors = [];
-
         if (is_file(__DIR__ . '/../../../ext/modules/payment/sage_pay/errors.php')) {
-            include(__DIR__ . '/../../../ext/modules/payment/sage_pay/errors.php');
+            include __DIR__ . '/../../../ext/modules/payment/sage_pay/errors.php';
         }
-
         $this->_error_messages = $errors;
     }
-
-    public function getErrorMessageNumber($string): string|false
+    public function get_error_message_number($string): string|false
     {
         if (!isset($this->_error_messages)) {
-            $this->loadErrorMessages();
+            $this->load_error_messages();
         }
-
         $error = explode(' ', (string) $string, 2);
-
-        if (is_numeric($error[0]) && $this->errorMessageNumberExists($error[0])) {
+        if (is_numeric($error[0]) && $this->error_message_number_exists($error[0])) {
             return $error[0];
         }
-
         return false;
     }
-
-    public function getErrorMessage($number)
+    public function get_error_message($number)
     {
         if (!isset($this->_error_messages)) {
-            $this->loadErrorMessages();
+            $this->load_error_messages();
         }
-
-        if (is_numeric($number) && $this->errorMessageNumberExists($number)) {
+        if (is_numeric($number) && $this->error_message_number_exists($number)) {
             return $this->_error_messages[$number];
         }
-
         return false;
     }
-
-    public function errorMessageNumberExists($number): bool
+    public function error_message_number_exists($number): bool
     {
         if (!isset($this->_error_messages)) {
-            $this->loadErrorMessages();
+            $this->load_error_messages();
         }
-
-        return (is_numeric($number) && isset($this->_error_messages[$number]));
+        return is_numeric($number) && isset($this->_error_messages[$number]);
     }
-
-    public function formatURL($url): string|array
+    public function format_url($url): string|array
     {
         return str_replace('&amp;', '&', $url);
     }
-
-    public function getTestLinkInfo(): string
+    public function get_test_link_info(): string
     {
-        $dialog_title = OSCOM::getDef('module_payment_sage_pay_server_dialog_connection_title');
-        $dialog_button_close = OSCOM::getDef('module_payment_sage_pay_server_dialog_connection_button_close');
-        $dialog_success = OSCOM::getDef('module_payment_sage_pay_server_dialog_connection_success');
-        $dialog_failed = OSCOM::getDef('module_payment_sage_pay_server_dialog_connection_failed');
-        $dialog_error = OSCOM::getDef('module_payment_sage_pay_server_dialog_connection_error');
-        $dialog_connection_time = OSCOM::getDef('module_payment_sage_pay_server_dialog_connection_time');
-
+        $dialog_title = OSCOM::get_def('module_payment_sage_pay_server_dialog_connection_title');
+        $dialog_button_close = OSCOM::get_def('module_payment_sage_pay_server_dialog_connection_button_close');
+        $dialog_success = OSCOM::get_def('module_payment_sage_pay_server_dialog_connection_success');
+        $dialog_failed = OSCOM::get_def('module_payment_sage_pay_server_dialog_connection_failed');
+        $dialog_error = OSCOM::get_def('module_payment_sage_pay_server_dialog_connection_error');
+        $dialog_connection_time = OSCOM::get_def('module_payment_sage_pay_server_dialog_connection_time');
         $test_url = OSCOM::link('modules.php', 'set=payment&module=' . $this->code . '&action=install&subaction=conntest');
-
         $js = <<<EOD
-<script>
-if ( typeof jQuery == 'undefined' ) {
-  document.write('<scr' + 'ipt src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></scr' + 'ipt>');
-  document.write('<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/redmond/jquery-ui.css" />');
-  document.write('<scr' + 'ipt src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></scr' + 'ipt>');
-}
-</script>
-
-<script>
-$(function() {
-  $('#tcdprogressbar').progressbar({
-    value: false
-  });
-});
-
-function openTestConnectionDialog() {
-  var d = $('<div>').html($('#testConnectionDialog').html()).dialog({
-    modal: true,
-    title: '{$dialog_title}',
-    buttons: {
-      '{$dialog_button_close}': function () {
-        $(this).dialog('destroy');
-      }
-    }
-  });
-
-  var timeStart = new Date().getTime();
-
-  $.ajax({
-    url: '{$test_url}'
-  }).done(function(data) {
-    if ( data == '1' ) {
-      d.find('#testConnectionDialogProgress').html('<p style="font-weight: bold; color: green;">{$dialog_success}</p>');
-    } else {
-      d.find('#testConnectionDialogProgress').html('<p style="font-weight: bold; color: red;">{$dialog_failed}</p>');
-    }
-  }).fail(function() {
-    d.find('#testConnectionDialogProgress').html('<p style="font-weight: bold; color: red;">{$dialog_error}</p>');
-  }).always(function() {
-    var timeEnd = new Date().getTime();
-    var timeTook = new Date(0, 0, 0, 0, 0, 0, timeEnd-timeStart);
-
-    d.find('#testConnectionDialogProgress').append('<p>{$dialog_connection_time} ' + timeTook.getSeconds() + '.' + timeTook.getMilliseconds() + 's</p>');
-  });
-}
-</script>
-EOD;
-
-        $info = '<p><img src="images/icons/locked.gif" border="0">&nbsp;<a href="javascript:openTestConnectionDialog();" style="text-decoration: underline; font-weight: bold;">' . OSCOM::getDef('module_payment_sage_pay_server_dialog_connection_link_title') . '</a></p>' .
-                '<div id="testConnectionDialog" style="display: none;"><p>';
-
+        <script>
+        if ( typeof jQuery == 'undefined' ) {
+          document.write('<scr' + 'ipt src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></scr' + 'ipt>');
+          document.write('<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/redmond/jquery-ui.css" />');
+          document.write('<scr' + 'ipt src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></scr' + 'ipt>');
+        }
+        </script>
+        
+        <script>
+        \$(function() {
+          \$('#tcdprogressbar').progressbar({
+            value: false
+          });
+        });
+        
+        function openTestConnectionDialog() {
+          var d = \$('<div>').html(\$('#testConnectionDialog').html()).dialog({
+            modal: true,
+            title: '{$dialog_title}',
+            buttons: {
+              '{$dialog_button_close}': function () {
+                \$(this).dialog('destroy');
+              }
+            }
+          });
+        
+          var timeStart = new Date().getTime();
+        
+          \$.ajax({
+            url: '{$test_url}'
+          }).done(function(data) {
+            if ( data == '1' ) {
+              d.find('#testConnectionDialogProgress').html('<p style="font-weight: bold; color: green;">{$dialog_success}</p>');
+            } else {
+              d.find('#testConnectionDialogProgress').html('<p style="font-weight: bold; color: red;">{$dialog_failed}</p>');
+            }
+          }).fail(function() {
+            d.find('#testConnectionDialogProgress').html('<p style="font-weight: bold; color: red;">{$dialog_error}</p>');
+          }).always(function() {
+            var timeEnd = new Date().getTime();
+            var timeTook = new Date(0, 0, 0, 0, 0, 0, timeEnd-timeStart);
+        
+            d.find('#testConnectionDialogProgress').append('<p>{$dialog_connection_time} ' + timeTook.getSeconds() + '.' + timeTook.getMilliseconds() + 's</p>');
+          });
+        }
+        </script>
+        EOD;
+        $info = '<p><img src="images/icons/locked.gif" border="0">&nbsp;<a href="javascript:openTestConnectionDialog();" style="text-decoration: underline; font-weight: bold;">' . OSCOM::get_def('module_payment_sage_pay_server_dialog_connection_link_title') . '</a></p>' . '<div id="testConnectionDialog" style="display: none;"><p>';
         if (MODULE_PAYMENT_SAGE_PAY_SERVER_TRANSACTION_SERVER == 'Live') {
             $info .= 'Live Server:<br />https://live.sagepay.com/gateway/service/vspserver-register.vsp';
         } else {
             $info .= 'Test Server:<br />https://test.sagepay.com/gateway/service/vspserver-register.vsp';
         }
-
-        return $info . ('</p><div id="testConnectionDialogProgress"><p>' . OSCOM::getDef('module_payment_sage_pay_server_dialog_connection_general_text') . '</p><div id="tcdprogressbar"></div></div></div>' . $js);
+        return $info . ('</p><div id="testConnectionDialogProgress"><p>' . OSCOM::get_def('module_payment_sage_pay_server_dialog_connection_general_text') . '</p><div id="tcdprogressbar"></div></div></div>' . $js);
     }
-
-    public function getTestConnectionResult(): int
+    public function get_test_connection_result(): int
     {
         if (MODULE_PAYMENT_SAGE_PAY_SERVER_TRANSACTION_SERVER == 'Live') {
             $gateway_url = 'https://live.sagepay.com/gateway/service/vspserver-register.vsp';
         } else {
             $gateway_url = 'https://test.sagepay.com/gateway/service/vspserver-register.vsp';
         }
-
-        $params = ['VPSProtocol' => $this->api_version,
-                        'ReferrerID' => 'C74D7B82-E9EB-4FBD-93DB-76F0F551C802',
-                        'Vendor' => substr(MODULE_PAYMENT_SAGE_PAY_DIRECT_VENDOR_LOGIN_NAME, 0, 15),
-                        'Amount' => 0,
-                        'Currency' => DEFAULT_CURRENCY];
-
-        $ip_address = HTTP::getIpAddress();
-
-        if (!empty($ip_address) && (ip2long($ip_address) != -1) && (ip2long($ip_address) != false)) {
+        $params = ['VPSProtocol' => $this->api_version, 'ReferrerID' => 'C74D7B82-E9EB-4FBD-93DB-76F0F551C802', 'Vendor' => substr(MODULE_PAYMENT_SAGE_PAY_DIRECT_VENDOR_LOGIN_NAME, 0, 15), 'Amount' => 0, 'Currency' => DEFAULT_CURRENCY];
+        $ip_address = HTTP::get_ip_address();
+        if (!empty($ip_address) && ip2long($ip_address) != -1 && ip2long($ip_address) != false) {
             $params['ClientIPAddress'] = $ip_address;
         }
-
         $post_string = '';
-
         foreach ($params as $key => $value) {
             $post_string .= $key . '=' . urlencode(trim($value)) . '&';
         }
-
-        $response = $this->sendTransactionToGateway($gateway_url, $post_string);
-
+        $response = $this->send_transaction_to_gateway($gateway_url, $post_string);
         if ($response != false) {
             return 1;
         }
-
         return -1;
     }
-
-    public function sendDebugEmail($response = []): void
+    public function send_debug_email($response = []): void
     {
         if (tep_not_null(MODULE_PAYMENT_SAGE_PAY_SERVER_DEBUG_EMAIL)) {
             $email_body = '';
-
             if (!empty($response)) {
                 $email_body .= 'RESPONSE:' . "\n\n" . print_r($response, true) . "\n\n";
             }
-
             if (!empty($_POST)) {
                 $email_body .= '$_POST:' . "\n\n" . print_r($_POST, true) . "\n\n";
             }
-
             if (!empty($_GET)) {
                 $email_body .= '$_GET:' . "\n\n" . print_r($_GET, true) . "\n\n";
             }
-
             if (!empty($email_body)) {
-                $debugEmail = new Mail(MODULE_PAYMENT_SAGE_PAY_SERVER_DEBUG_EMAIL, null, STORE_OWNER_EMAIL_ADDRESS, STORE_OWNER, 'Sage Pay Server Debug E-Mail');
-                $debugEmail->setBody($email_body);
-                $debugEmail->send();
+                $debug_email = new Mail(MODULE_PAYMENT_SAGE_PAY_SERVER_DEBUG_EMAIL, null, STORE_OWNER_EMAIL_ADDRESS, STORE_OWNER, 'Sage Pay Server Debug E-Mail');
+                $debug_email->set_body($email_body);
+                $debug_email->send();
             }
         }
     }

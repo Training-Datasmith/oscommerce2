@@ -1,45 +1,33 @@
 <?php
-use OSC\OM\FileSystem;
+
+use OSC\OM\File_System;
 use OSC\OM\OSCOM;
-
-$configfile_array = [
-    OSCOM::BASE_DIR . 'Conf/global.php',
-    OSCOM::BASE_DIR . 'Sites/Shop/site_conf.php',
-    OSCOM::BASE_DIR . 'Sites/Admin/site_conf.php',
-];
-
+$configfile_array = [OSCOM::BASE_DIR . 'Conf/global.php', OSCOM::BASE_DIR . 'Sites/Shop/site_conf.php', OSCOM::BASE_DIR . 'Sites/Admin/site_conf.php'];
 foreach ($configfile_array as $key => $f) {
     if (!is_file($f)) {
         continue;
     }
-    if (!FileSystem::isWritable($f)) {
+    if (!File_System::is_writable($f)) {
         // try to chmod and try again
         @chmod($f, 0777);
-        if (!FileSystem::isWritable($f)) {
+        if (!File_System::is_writable($f)) {
             continue;
         }
     }
-
     // file exists and is writable
     unset($configfile_array[$key]);
 }
-
 $warning_array = [];
-
 if (PHP_VERSION < 5.5) {
     $warning_array[] = 'The minimum required PHP version is v5.5 - please ask your host or server administrator to upgrade the PHP version to continue installation.';
 }
-
 if (!extension_loaded('pdo') || !extension_loaded('pdo_mysql')) {
     $warning_array[] = 'The PDO MySQL driver extension (pdo_mysql) is not installed or enabled in PHP. Please enable it in the PHP configuration to continue installation.';
 }
-
 if (!extension_loaded('curl')) {
     $warning_array[] = 'The cURL extension (curl) is not installed or enabled in PHP. Please enable it in the PHP configuration to continue installation.';
 }
-
 $https_url = 'https://' . $_SERVER['HTTP_HOST'];
-
 if (isset($_SERVER['REQUEST_URI']) && !empty($_SERVER['REQUEST_URI'])) {
     $https_url .= $_SERVER['REQUEST_URI'];
 } else {
@@ -48,7 +36,9 @@ if (isset($_SERVER['REQUEST_URI']) && !empty($_SERVER['REQUEST_URI'])) {
 ?>
 
 <div class="alert alert-info">
-  <h2>Welcome to osCommerce Online Merchant <small>v<?php echo OSCOM::getVersion(); ?></small></h2>
+  <h2>Welcome to osCommerce Online Merchant <small>v<?php 
+echo OSCOM::get_version();
+?></small></h2>
 
   <p>osCommerce Online Merchant helps you sell products worldwide with your own online store. Its Administration Dashboard manages products, customers, orders, newsletters, specials, and more to successfully build the success of your online business.</p>
   <p>osCommerce has attracted a large community of store owners and developers who support each other and have provided over 7,000 free add-ons that can extend the features and potential of your online store.</p>
@@ -64,7 +54,7 @@ if (isset($_SERVER['REQUEST_URI']) && !empty($_SERVER['REQUEST_URI'])) {
   <div class="col-xs-12 col-sm-push-3 col-sm-9">
     <h1>New Installation</h1>
 
-<?php
+<?php 
 if (!empty($warning_array)) {
     ?>
 
@@ -73,10 +63,10 @@ if (!empty($warning_array)) {
 
       <ul style="margin-top: 20px; margin-bottom: 20px;">
 
-<?php
-        foreach ($warning_array as $value) {
-            echo '<li>' . $value . '</li>';
-        }
+<?php 
+    foreach ($warning_array as $value) {
+        echo '<li>' . $value . '</li>';
+    }
     ?>
 
       </ul>
@@ -84,9 +74,8 @@ if (!empty($warning_array)) {
       <p><i>Changing webserver configuration parameters may require the webserver service to be restarted before the changes take affect.</i></p>
     </div>
 
-<?php
+<?php 
 }
-
 if (!empty($configfile_array)) {
     ?>
 
@@ -95,24 +84,23 @@ if (!empty($configfile_array)) {
 
       <ul style="margin-top: 20px;">
 
-<?php
-        foreach ($configfile_array as $file) {
-            echo '<li>' . FileSystem::displayPath($file) . '</li>';
-        }
+<?php 
+    foreach ($configfile_array as $file) {
+        echo '<li>' . File_System::display_path($file) . '</li>';
+    }
     ?>
 
       </ul>
     </div>
 
-<?php
+<?php 
 }
-
 if (!empty($configfile_array) || !empty($warning_array)) {
     ?>
 
     <p><a href="index.php" class="btn btn-danger" role="button">Retry Installation</a></p>
 
-<?php
+<?php 
 } else {
     ?>
 
@@ -129,7 +117,9 @@ if (!empty($configfile_array) || !empty($warning_array)) {
 
           <p>A HTTPS configured web server has been detected. It is recommended to install your online store in a secure environment. Please click the following <span class="label label-warning">Reload in HTTPS</span> button to reload this installation procedure in HTTPS. If you receive an error, please use your browsers back button to return to this page and continue the installation using the <span class="label label-success">Start the Installation Procedure</span> button below.</p>
 
-          <p><a href="<?= $https_url; ?>" class="btn btn-warning btn-sm" role="button">Reload in HTTPS</a></p>
+          <p><a href="<?php 
+    echo $https_url;
+    ?>" class="btn btn-warning btn-sm" role="button">Reload in HTTPS</a></p>
         </div>
       </div>
 
@@ -173,7 +163,7 @@ $(function() {
 });
 </script>
 
-<?php
+<?php 
 }
 ?>
 
@@ -190,13 +180,17 @@ $(function() {
       <table class="table">
         <tbody>
           <tr>
-            <td><?php echo PHP_VERSION; ?></td>
-            <td class="text-right" width="25"><?php echo((PHP_VERSION >= 5.5) ? '<i class="fa fa-thumbs-up text-success"></i>' : '<i class="fa fa-exclamation-circle text-danger"></i>'); ?></td>
+            <td><?php 
+echo PHP_VERSION;
+?></td>
+            <td class="text-right" width="25"><?php 
+echo PHP_VERSION >= 5.5 ? '<i class="fa fa-thumbs-up text-success"></i>' : '<i class="fa fa-exclamation-circle text-danger"></i>';
+?></td>
           </tr>
         </tbody>
       </table>
 
-<?php
+<?php 
 if (function_exists('ini_get')) {
     ?>
 
@@ -206,8 +200,12 @@ if (function_exists('ini_get')) {
         <tbody>
           <tr>
             <td>file_uploads</td>
-            <td class="text-right"><?php echo(((int)ini_get('file_uploads') === 0) ? 'Off' : 'On'); ?></td>
-            <td class="text-right"><?php echo(((int)ini_get('file_uploads') === 1) ? '<i class="fa fa-thumbs-up text-success"></i>' : '<i class="fa fa-exclamation-circle text-danger"></i>'); ?></td>
+            <td class="text-right"><?php 
+    echo (int) ini_get('file_uploads') === 0 ? 'Off' : 'On';
+    ?></td>
+            <td class="text-right"><?php 
+    echo (int) ini_get('file_uploads') === 1 ? '<i class="fa fa-thumbs-up text-success"></i>' : '<i class="fa fa-exclamation-circle text-danger"></i>';
+    ?></td>
           </tr>
         </tbody>
       </table>
@@ -218,28 +216,38 @@ if (function_exists('ini_get')) {
         <tbody>
           <tr>
             <td>PDO MySQL</td>
-            <td class="text-right"><?php echo extension_loaded('pdo') && extension_loaded('pdo_mysql') ? '<i class="fa fa-thumbs-up text-success"></i>' : '<i class="fa fa-exclamation-circle text-danger"></i>'; ?></td>
+            <td class="text-right"><?php 
+    echo extension_loaded('pdo') && extension_loaded('pdo_mysql') ? '<i class="fa fa-thumbs-up text-success"></i>' : '<i class="fa fa-exclamation-circle text-danger"></i>';
+    ?></td>
           </tr>
           <tr>
             <td>cURL</td>
-            <td class="text-right"><?php echo extension_loaded('curl') ? '<i class="fa fa-thumbs-up text-success"></i>' : '<i class="fa fa-exclamation-circle text-warning"></i>'; ?></td>
+            <td class="text-right"><?php 
+    echo extension_loaded('curl') ? '<i class="fa fa-thumbs-up text-success"></i>' : '<i class="fa fa-exclamation-circle text-warning"></i>';
+    ?></td>
           </tr>
           <tr>
             <td>Zip</td>
-            <td class="text-right"><?php echo extension_loaded('zip') ? '<i class="fa fa-thumbs-up text-success"></i>' : '<i class="fa fa-exclamation-circle text-warning"></i>'; ?></td>
+            <td class="text-right"><?php 
+    echo extension_loaded('zip') ? '<i class="fa fa-thumbs-up text-success"></i>' : '<i class="fa fa-exclamation-circle text-warning"></i>';
+    ?></td>
           </tr>
           <tr>
             <td>GD</td>
-            <td class="text-right"><?php echo extension_loaded('gd') ? '<i class="fa fa-thumbs-up text-success"></i>' : '<i class="fa fa-exclamation-circle text-warning"></i>'; ?></td>
+            <td class="text-right"><?php 
+    echo extension_loaded('gd') ? '<i class="fa fa-thumbs-up text-success"></i>' : '<i class="fa fa-exclamation-circle text-warning"></i>';
+    ?></td>
           </tr>
           <tr>
             <td>OpenSSL</td>
-            <td class="text-right"><?php echo extension_loaded('openssl') ? '<i class="fa fa-thumbs-up text-success"></i>' : '<i class="fa fa-exclamation-circle text-warning"></i>'; ?></td>
+            <td class="text-right"><?php 
+    echo extension_loaded('openssl') ? '<i class="fa fa-thumbs-up text-success"></i>' : '<i class="fa fa-exclamation-circle text-warning"></i>';
+    ?></td>
           </tr>
         </tbody>
       </table>
 
-<?php
+<?php 
 }
 ?>
 

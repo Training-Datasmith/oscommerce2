@@ -1,5 +1,5 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 // LEGACY FILE FOR COMPATIBILTY
-require($oscTemplate->getFile('template_bottom.php'));
+require $osc_template->get_file('template_bottom.php');

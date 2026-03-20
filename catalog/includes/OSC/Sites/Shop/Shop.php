@@ -1,13 +1,12 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
-  * osCommerce Online Merchant
-  *
-  * @copyright (c) 2016 osCommerce; https://www.oscommerce.com
-  * @license MIT; https://www.oscommerce.com/license/mit.txt
-  */
-
+ * osCommerce Online Merchant
+ *
+ * @copyright (c) 2016 osCommerce; https://www.oscommerce.com
+ * @license MIT; https://www.oscommerce.com/license/mit.txt
+ */
 namespace OSC\Sites\Shop;
 
 use OSC\OM\Apps;
@@ -18,173 +17,127 @@ use OSC\OM\Language;
 use OSC\OM\OSCOM;
 use OSC\OM\Registry;
 use OSC\OM\Session;
-
-class Shop extends \OSC\OM\SitesAbstract
+class Shop extends \OSC\OM\Sites_Abstract
 {
     protected function init()
     {
-        global $PHP_SELF, $currencies, $messageStack, $oscTemplate, $breadcrumb;
-
+        global $PHP_SELF, $currencies, $message_stack, $osc_template, $breadcrumb;
         $OSCOM_Cookies = new Cookies();
         Registry::set('Cookies', $OSCOM_Cookies);
-
         try {
             $OSCOM_Db = Db::initialize();
             Registry::set('Db', $OSCOM_Db);
         } catch (\Exception $e) {
-            include(OSCOM::getConfig('dir_root') . 'includes/error_documents/maintenance.php');
+            include OSCOM::get_config('dir_root') . 'includes/error_documents/maintenance.php';
             exit;
         }
-
         Registry::set('Hooks', new Hooks());
-
         // set the application parameters
-        $Qcfg = $OSCOM_Db->get('configuration', [
-            'configuration_key as k',
-            'configuration_value as v',
-        ]);//, null, null, null, 'configuration'); // TODO add cache when supported by admin
-
+        $Qcfg = $OSCOM_Db->get('configuration', ['configuration_key as k', 'configuration_value as v']);
+        //, null, null, null, 'configuration'); // TODO add cache when supported by admin
         while ($Qcfg->fetch()) {
             define($Qcfg->value('k'), $Qcfg->value('v'));
         }
-
         // set php_self in the global scope
         $req = parse_url((string) $_SERVER['SCRIPT_NAME']);
-        $PHP_SELF = substr($req['path'], strlen((string) OSCOM::getConfig('http_path', 'Shop')));
-
+        $PHP_SELF = substr($req['path'], strlen((string) OSCOM::get_config('http_path', 'Shop')));
         $OSCOM_Session = Session::load();
         Registry::set('Session', $OSCOM_Session);
-
         // start the session
         $OSCOM_Session->start();
-
         $this->ignored_actions[] = session_name();
-
         $OSCOM_Language = new Language();
         //        $OSCOM_Language->setUseCache(true);
         Registry::set('Language', $OSCOM_Language);
-
         // create the shopping cart
-        if (!isset($_SESSION['cart']) || !is_object($_SESSION['cart']) || ($_SESSION['cart']::class != 'shoppingCart')) {
-            $_SESSION['cart'] = new \shoppingCart();
+        if (!isset($_SESSION['cart']) || !is_object($_SESSION['cart']) || $_SESSION['cart']::class != 'shoppingCart') {
+            $_SESSION['cart'] = new \Shopping_Cart();
         }
-
         // include currencies class and create an instance
         $currencies = new \currencies();
-
         // set the language
         if (!isset($_SESSION['language']) || isset($_GET['language'])) {
             if (isset($_GET['language']) && !empty($_GET['language']) && $OSCOM_Language->exists($_GET['language'])) {
                 $OSCOM_Language->set($_GET['language']);
             }
-
             $_SESSION['language'] = $OSCOM_Language->get('code');
         }
-
         // include the language translations
-        $OSCOM_Language->loadDefinitions('main');
-
+        $OSCOM_Language->load_definitions('main');
         // Prevent LC_ALL from setting LC_NUMERIC to a locale with 1,0 float/decimal values instead of 1.0 (see bug #634)
         $system_locale_numeric = setlocale(LC_NUMERIC, 0);
-        setlocale(LC_ALL, explode(';', (string) OSCOM::getDef('system_locale')));
+        setlocale(LC_ALL, explode(';', (string) OSCOM::get_def('system_locale')));
         setlocale(LC_NUMERIC, $system_locale_numeric);
-
         // currency
-        if (!isset($_SESSION['currency']) || isset($_GET['currency']) || ((USE_DEFAULT_LANGUAGE_CURRENCY == 'true') && (OSCOM::getDef('language_currency') != $_SESSION['currency']))) {
+        if (!isset($_SESSION['currency']) || isset($_GET['currency']) || USE_DEFAULT_LANGUAGE_CURRENCY == 'true' && OSCOM::get_def('language_currency') != $_SESSION['currency']) {
             if (isset($_GET['currency']) && $currencies->is_set($_GET['currency'])) {
                 $_SESSION['currency'] = $_GET['currency'];
             } else {
-                $_SESSION['currency'] = ((USE_DEFAULT_LANGUAGE_CURRENCY == 'true') && $currencies->is_set(OSCOM::getDef('language_currency'))) ? OSCOM::getDef('language_currency') : DEFAULT_CURRENCY;
+                $_SESSION['currency'] = USE_DEFAULT_LANGUAGE_CURRENCY == 'true' && $currencies->is_set(OSCOM::get_def('language_currency')) ? OSCOM::get_def('language_currency') : DEFAULT_CURRENCY;
             }
         }
-
         // navigation history
-        if (!isset($_SESSION['navigation']) || !is_object($_SESSION['navigation']) || ($_SESSION['navigation']::class != 'navigationHistory')) {
-            $_SESSION['navigation'] = new \navigationHistory();
+        if (!isset($_SESSION['navigation']) || !is_object($_SESSION['navigation']) || $_SESSION['navigation']::class != 'navigationHistory') {
+            $_SESSION['navigation'] = new \Navigation_History();
         }
-
         $_SESSION['navigation']->add_current_page();
-
-        $messageStack = new \messageStack();
-
+        $message_stack = new \Message_Stack();
         tep_update_whos_online();
-
         tep_activate_banners();
         tep_expire_banners();
-
         tep_expire_specials();
-
-        $oscTemplate = new \oscTemplate();
-
+        $osc_template = new \Osc_Template();
         $breadcrumb = new \breadcrumb();
-
-        $breadcrumb->add(OSCOM::getDef('header_title_top'), OSCOM::getConfig('http_server', 'Shop'));
-        $breadcrumb->add(OSCOM::getDef('header_title_catalog'), OSCOM::link('index.php'));
+        $breadcrumb->add(OSCOM::get_def('header_title_top'), OSCOM::get_config('http_server', 'Shop'));
+        $breadcrumb->add(OSCOM::get_def('header_title_catalog'), OSCOM::link('index.php'));
     }
-
-    public function setPage(): void
+    public function set_page(): void
     {
         if (!empty($_GET)) {
-            if (($route = Apps::getRouteDestination()) !== null) {
+            if (($route = Apps::get_route_destination()) !== null) {
                 $this->route = $route;
-
                 [$vendor_app, $page] = explode('/', (string) $route['destination'], 2);
-
                 // get controller class name from namespace
                 $page_namespace = explode('\\', $page);
                 $page_code = $page_namespace[count($page_namespace) - 1];
-
                 if (class_exists('OSC\Apps\\' . $vendor_app . '\\' . $page . '\\' . $page_code)) {
                     $class = 'OSC\Apps\\' . $vendor_app . '\\' . $page . '\\' . $page_code;
                 }
             } else {
                 $req = basename((string) array_keys($_GET)[0]);
-
                 if (class_exists('OSC\Sites\\' . $this->code . '\Pages\\' . $req . '\\' . $req)) {
                     $page_code = $req;
-
                     $class = 'OSC\Sites\\' . $this->code . '\Pages\\' . $page_code . '\\' . $page_code;
                 }
             }
         }
-
         if (isset($class)) {
-            if (is_subclass_of($class, \OSC\OM\PagesInterface::class)) {
+            if (is_subclass_of($class, \OSC\OM\Pages_Interface::class)) {
                 $this->page = new $class($this);
-
-                $this->page->runActions();
+                $this->page->run_actions();
             } else {
                 trigger_error('OSC\Sites\Shop\Shop::setPage() - ' . $page_code . ': Page does not implement OSC\OM\PagesInterface and cannot be loaded.');
             }
         }
     }
-
-    public static function resolveRoute(array $route, array $routes)
+    public static function resolve_route(array $route, array $routes)
     {
         $result = [];
-
         foreach ($routes as $vendor_app => $paths) {
             foreach ($paths as $path => $page) {
                 $path_array = explode('&', (string) $path);
-
                 if (count($path_array) <= count($route)) {
                     if ($path_array == array_slice($route, 0, count($path_array))) {
-                        $result[] = [
-                            'path' => $path,
-                            'destination' => $vendor_app . '/' . $page,
-                            'score' => count($path_array),
-                        ];
+                        $result[] = ['path' => $path, 'destination' => $vendor_app . '/' . $page, 'score' => count($path_array)];
                     }
                 }
             }
         }
-
         if (!empty($result)) {
             usort($result, function (array $a, array $b): int {
                 return $b['score'] <=> $a['score'];
                 // sort highest to lowest
             });
-
             return $result[0];
         }
     }

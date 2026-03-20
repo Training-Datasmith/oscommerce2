@@ -1,11 +1,13 @@
 <?php
-use OSC\OM\OSCOM;
 
+use OSC\OM\OSCOM;
 ?>
 
 </div>
 
-<?php require($oscTemplate->getFile('footer.php')); ?>
+<?php 
+require $osc_template->get_file('footer.php');
+?>
 
 <script>
 $(function() {
@@ -19,16 +21,28 @@ $(function() {
 });
 </script>
 
-<script src="<?= OSCOM::link('Shop/ext/bootstrap/js/bootstrap.min.js', '', false); ?>"></script>
+<script src="<?php 
+echo OSCOM::link('Shop/ext/bootstrap/js/bootstrap.min.js', '', false);
+?>"></script>
 
-<script src="<?= OSCOM::link('Shop/ext/smartmenus/jquery.smartmenus.min.js', '', false); ?>"></script>
-<script src="<?= OSCOM::link('Shop/ext/smartmenus/jquery.smartmenus.bootstrap.min.js', '', false); ?>"></script>
+<script src="<?php 
+echo OSCOM::link('Shop/ext/smartmenus/jquery.smartmenus.min.js', '', false);
+?>"></script>
+<script src="<?php 
+echo OSCOM::link('Shop/ext/smartmenus/jquery.smartmenus.bootstrap.min.js', '', false);
+?>"></script>
 
-<script src="<?= OSCOM::link('Shop/ext/mustache/mustache.min.js', '', false); ?>"></script>
+<script src="<?php 
+echo OSCOM::link('Shop/ext/mustache/mustache.min.js', '', false);
+?>"></script>
 
-<script src="<?= OSCOM::link('Shop/ext/sortable/sortable.min.js', '', false); ?>"></script>
+<script src="<?php 
+echo OSCOM::link('Shop/ext/sortable/sortable.min.js', '', false);
+?>"></script>
 
-<script src="<?= OSCOM::link('Shop/ext/chartist/chartist.min.js', '', false); ?>"></script>
+<script src="<?php 
+echo OSCOM::link('Shop/ext/chartist/chartist.min.js', '', false);
+?>"></script>
 
 </body>
 </html>
