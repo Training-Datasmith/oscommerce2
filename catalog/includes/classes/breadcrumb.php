@@ -8,8 +8,17 @@ declare(strict_types=1);
   * @license MIT; https://www.oscommerce.com/license/mit.txt
   */
 
+/**
+ * Builds and renders a Schema.org-annotated breadcrumb trail.
+ *
+ * Entries are added in order (optionally prepended) and rendered as an
+ * ordered list with itemscope/itemprop attributes suitable for Google rich results.
+ *
+ * @since  2016
+ */
 class breadcrumb
 {
+    /** @var array<int, array{title: string, link: string}>  Ordered breadcrumb entries. */
     public $_trail;
 
     public function __construct()
@@ -17,16 +26,40 @@ class breadcrumb
         $this->reset();
     }
 
+    /**
+     * Clears all breadcrumb entries.
+     *
+     * @return void
+     * @since  2016
+     */
     public function reset(): void
     {
         $this->_trail = [];
     }
 
-    public function add($title, $link = ''): void
+    /**
+     * Appends an entry to the breadcrumb trail.
+     *
+     * @param  string  $title  Display label for the breadcrumb item.
+     * @param  string  $link   URL for the item link; empty string for plain text (last item).
+     * @return void
+     * @since  2016
+     */
+    public function add(string $title, string $link = ''): void
     {
         $this->_trail[] = ['title' => $title, 'link' => $link];
     }
 
+    /**
+     * Renders the breadcrumb trail as an HTML ordered list with Schema.org markup.
+     *
+     * Each item is wrapped in <li> with BreadcrumbList / ListItem itemscope. Linked
+     * items produce an <a> tag; unlinked items produce a plain <span>.
+     *
+     * @param  string|null  $separator  Unused; retained for API compatibility with other breadcrumb implementations.
+     * @return string                   The complete HTML <ol> element.
+     * @since  2016
+     */
     public function trail($separator = null): string
     {
         $breadcrumb_count = 1;

@@ -42,7 +42,12 @@ class cm_cs_downloads
         global $osc_template;
         if (DOWNLOAD_ENABLED == 'true') {
             ob_start();
-            extract($GLOBALS, EXTR_SKIP);
+            // Explicit access to globals required by the downloads template:
+            $db           = $GLOBALS['db']           ?? null;
+            $languages_id = $GLOBALS['languages_id'] ?? null;
+            $currency     = $GLOBALS['currency']     ?? null;
+            $customer_id  = $GLOBALS['customer_id']  ?? null;
+            $order        = $GLOBALS['order']        ?? null;
             include 'includes/content/downloads.php';
             $template = ob_get_clean();
             $osc_template->add_content($template, $this->group);
